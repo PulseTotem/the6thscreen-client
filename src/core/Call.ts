@@ -8,8 +8,8 @@ class Call {
     private _host : string;
     private _port : string;
     private _receivePolicy : ReceivePolicy;
-    private _renderer : Renderer;
-    private _renderPolicy : RenderPolicy;
+    private _renderer : Renderer<any>;
+    private _renderPolicy : RenderPolicy<any>;
     private _listInfos : Array<Info>;
 
     constructor() {
@@ -20,11 +20,11 @@ class Call {
         return this._listInfos;
     }
 
-    getRenderer() {
+    getRenderer() : Renderer<any> {
         return this._renderer;
     }
 
-    getRenderPolicy() : RenderPolicy {
+    getRenderPolicy() : RenderPolicy<any> {
         return this._renderPolicy;
     }
 }

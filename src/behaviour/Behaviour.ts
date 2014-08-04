@@ -1,10 +1,10 @@
 /// <reference path="../core/MapInfoRenderer.ts" />
 
 class Behaviour {
-    private _listMapInfoRenderer : Array<MapInfoRenderer>;
+    private _listMapInfoRenderer : Array<MapInfoRenderer<any>>;
 
     constructor() {
-        this._listMapInfoRenderer = new Array<MapInfoRenderer>();
+        this._listMapInfoRenderer = new Array<MapInfoRenderer<any>>();
     }
 
     buildListMapInfoRenderer(calls : Array<Call>) {

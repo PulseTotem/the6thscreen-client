@@ -1,12 +1,18 @@
 /// <reference path="../info/PictureAlbum.ts" />
 /// <reference path="./Renderer.ts" />
 
-class PictureAlbumRenderer extends Renderer<PictureAlbum> {
-    static transformForBehaviour<Picture>(listInfos : Array<Picture>, renderPolicy : RenderPolicy<Picture>) : Array<PictureAlbum> {
-        return renderPolicy.process(listInfos); // Ca râle!
+class PictureAlbumRenderer implements Renderer<PictureAlbum> {
+    transformForBehaviour<Picture>(listInfos : Array<Picture>, renderPolicy : PictureRenderPolicy) : Array<PictureAlbum> {
+        var listPicture = renderPolicy.process(listInfos);
+        var result = new PictureAlbum();
+        listPicture.forEach(function(pic) {
+            result.addPicture(pic);
+        });
+
+        return new Array(result);
     }
 
-    static render(info : PictureAlbum, domElem : any) {
+    render(info : PictureAlbum, domElem : any) {
 
     }
 }

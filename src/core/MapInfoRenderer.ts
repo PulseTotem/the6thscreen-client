@@ -3,9 +3,9 @@
 
 class MapInfoRenderer<T extends Info> {
     info : T;
-    renderer : Renderer;
+    renderer : Renderer<T>;
 
-    constructor(info : T, renderer : Renderer) {
+    constructor(info : T, renderer : Renderer<T>) {
         this.info = info;
         this.renderer = renderer;
     }
