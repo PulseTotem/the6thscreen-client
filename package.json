@@ -1,0 +1,10 @@
+{
+  "name": "the6thscreen-client",
+  "version": "0.0.0",
+  "description": "The6thScreen-Client.",
+  "devDependencies": {
+    "grunt": "^0.4.4",
+    "grunt-contrib-clean": "^0.5.0",
+    "grunt-typescript": "^0.3.8"
+  }
+}
