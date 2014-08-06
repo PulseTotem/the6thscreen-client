@@ -4,7 +4,7 @@
 /// <reference path="./Renderer.ts" />
 
 class PictureAlbumRenderer implements Renderer<PictureAlbum> {
-    transformForBehaviour<Picture>(listInfos : Array<Picture>, renderPolicy : RenderPolicy<Picture>) : Array<PictureAlbum> {
+    transformForBehaviour(listInfos : Array<Picture>, renderPolicy : RenderPolicy<Picture>) : Array<PictureAlbum> {
         var listPicture = renderPolicy.process(listInfos);
         var result = new PictureAlbum();
         listPicture.forEach(function(pic) {
