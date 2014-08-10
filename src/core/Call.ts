@@ -1,3 +1,8 @@
+/**
+ * @author Christian Brel <christian@the6thscreen.fr, ch.brel@gmail.com>
+ * @author Simon Urli <simon@the6thscreen.fr, simon.urli@gmail.com>
+ */
+
 /// <reference path="../policy/ReceivePolicy.ts" />
 /// <reference path="../policy/RenderPolicy.ts" />
 /// <reference path="../renderer/Renderer.ts" />
