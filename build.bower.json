@@ -1,0 +1,9 @@
+{
+    "name": "the6thscreen-clienttemplate",
+    "version": "0.1.0",
+    "dependencies": {
+        "log": "~0.1.2",
+        "jquery": "~2.1.0",
+        "bootstrap": "~3.1.1"
+    }
+}

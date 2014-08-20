@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <title>The 6th Screen</title>
+
+        <!-- script src="https://cdn.socket.io/socket.io-1.0.6.js"></script -->
+        <script src="http://localhost:4000/socket.io/socket.io.js"></script>
+
+        <!-- The6thScreenClient dependencies -->
+            <!-- bower:css -->
+            <!-- endbower -->
+
+            <!-- bower:js -->
+            <!-- endbower -->
+        <!-- /The6thScreenClient dependencies -->
+
+        <!-- The6thScreenClient -->
+            <!-- css -->
+            <!-- include: "type": "css", "files": "css/**/*.css" -->
+            <!-- /css -->
+
+            <!-- js -->
+            <!-- include: "type": "js", "files": "js/**/*.js" -->
+            <!-- /js -->
+        <!-- /The6thScreenClient -->
+
+        <script>
+            $('window').ready(function() {
+                var client = new Client("http://localhost:4000");
+                client.run();
+            });
+        </script>
+    </head>
+    <body id="the6thscreen-client-content">
+    </body>
+</html>

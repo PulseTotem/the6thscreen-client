@@ -1,63 +1,3 @@
-
-module.exports = function (grunt) {
-	'use strict';
-
-	// load extern tasks
-	grunt.loadNpmTasks('grunt-contrib-clean');
-	grunt.loadNpmTasks('grunt-typescript');
-
-	// tasks
-	grunt.initConfig({
-
-// ---------------------------------------------
-//                                   build tasks
-// ---------------------------------------------
-		typescript: {
-			build: {
-				src: [
-					'src/**/*.ts'
-				],
-				dest: 'build/The6thScreenClient.js'
-			}
-		},
-// ---------------------------------------------
-
-// ---------------------------------------------
-//                                    clean task
-// ---------------------------------------------
-		clean: {
-			build: ['build']
-		}
-// ---------------------------------------------
-	});
-
-	// register tasks
-	grunt.registerTask('default', ['build']);
-	
-	grunt.registerTask('build', function() {
-		grunt.task.run(['clean:build']);
-		
-		grunt.task.run(['typescript:build']);
-	});
-
-}
-
-
-
-
-
-
-
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
 module.exports = function (grunt) {
     'use strict';
 
@@ -66,7 +6,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-bower-task');
     grunt.loadNpmTasks('grunt-wiredep');
     grunt.loadNpmTasks('grunt-include-source');
-    grunt.loadNpmTasks('grunt-git');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-contrib-copy');
@@ -99,7 +38,7 @@ module.exports = function (grunt) {
                 ]
             },
             bowerTest: {
-                src: ['build.bower.json', 'tests.bower.json'],
+                src: ['build.bower.json'/*, 'tests.bower.json'*/],
                 dest: 'bower.json',
                 fields: [
                     'name',
@@ -115,16 +54,6 @@ module.exports = function (grunt) {
                 options: {
                     targetDir: 'bower_components',
                     copy: false
-                }
-            }
-        },
-
-        gitclone: {
-            configure: {
-                options: {
-                    repository: '<%= gruntConfig.visulabGitRepo %>',
-                    branch: '<%= gruntConfig.visulabGitBranch %>',
-                    directory: './vendor/the6thscreen-client'
                 }
             }
         },
@@ -216,15 +145,15 @@ module.exports = function (grunt) {
         typescript: {
             build: {
                 src: [
-                    'app/scripts/The6thScreenClient.ts.ts'
+                    'app/scripts/core/Client.ts'
                 ],
-                dest: 'build/js/The6thScreenClient.ts.js'
+                dest: 'build/js/Client.js'
             },
             dist: {
                 src: [
-                    'app/scripts/The6thScreenClient.ts.ts'
+                    'app/scripts/core/Client.ts'
                 ],
-                dest: 'tmp/js/The6thScreenClient.ts.js'
+                dest: 'tmp/js/Client.js'
             },
             test: {
                 src: [
@@ -237,7 +166,7 @@ module.exports = function (grunt) {
         uglify: {
             dist: {
                 files: [{
-                    'dist/js/The6thScreenClient.min.js': 'tmp/js/The6thScreenClient.js'
+                    'dist/js/The6thScreenClient.min.js': 'tmp/js/Client.js'
                 }]
             }
         },
@@ -279,7 +208,7 @@ module.exports = function (grunt) {
             },
 
             developTypescript: {
-                files: ['app/scripts/**/*.ts', 'vendor/the6thscreen-client/**/*.ts'],
+                files: ['app/scripts/**/*.ts'],
                 tasks: ['typescript:build']
             },
 
@@ -315,22 +244,22 @@ module.exports = function (grunt) {
 // ---------------------------------------------
         /*deployInfos: grunt.file.readJSON('deploy-infos.json'),
 
-         sftp: {
-         deploy: {
-         files: {
-         "./": "dist/**"
-         },
-         options: {
-         path: '<%= deployInfos.path %>',
-         host: '<%= deployInfos.host %>',
-         username: '<%= deployInfos.username %>',
-         password: '<%= deployInfos.password %>',
-         srcBasePath: "dist/",
-         createDirectories: true,
-         showProgress: '<%= deployInfos.showProgress %>'
-         }
-         }
-         },*/
+        sftp: {
+            deploy: {
+                files: {
+                    "./": "dist/**"
+                },
+                options: {
+                    path: '<%= deployInfos.path %>',
+                    host: '<%= deployInfos.host %>',
+                    username: '<%= deployInfos.username %>',
+                    password: '<%= deployInfos.password %>',
+                    srcBasePath: "dist/",
+                    createDirectories: true,
+                    showProgress: '<%= deployInfos.showProgress %>'
+                }
+            }
+        },*/
 // ---------------------------------------------
 
 // ---------------------------------------------
@@ -369,8 +298,7 @@ module.exports = function (grunt) {
             build: ['build/'],
             dist: ['dist/', 'tmp/'],
             tmp: ['tmp/'],
-            configure: ['vendor/the6thscreen-client/', 'bower_components', 'bower.json'],
-            //configure: ['bower_components', 'bower.json'],
+            configure: ['bower_components', 'bower.json'],
             doc: ['doc'],
             test: ['tests']
         }
@@ -381,18 +309,10 @@ module.exports = function (grunt) {
     grunt.registerTask('default', ['build']);
 
     grunt.registerTask('configure', function() {
-        if (! grunt.file.exists('./vendor/the6thscreen-client')) {
-            grunt.task.run(['gitclone']);
-        }
-
         grunt.task.run(['update_json:bowerBuild', 'bower']);
     });
 
     grunt.registerTask('configureTest', function() {
-        if (! grunt.file.exists('./vendor/the6thscreen-client')) {
-            grunt.task.run(['gitclone']);
-        }
-
         grunt.task.run(['update_json:bowerTest', 'bower']);
     });
 
@@ -403,7 +323,7 @@ module.exports = function (grunt) {
     grunt.registerTask('build', function () {
         grunt.task.run(['clean:build']);
 
-        if (! grunt.file.exists('./bower_components') || ! grunt.file.exists('./vendor/the6thscreen-client')) {
+        if (! grunt.file.exists('./bower_components')) {
             grunt.task.run(['configure']);
         }
 
@@ -413,7 +333,7 @@ module.exports = function (grunt) {
     grunt.registerTask('dist', function () {
         grunt.task.run(['clean:dist']);
 
-        if (! grunt.file.exists('./bower_components') || ! grunt.file.exists('./vendor/the6thscreen-client')) {
+        if (! grunt.file.exists('./bower_components')) {
             grunt.task.run(['configure']);
         }
 
@@ -429,7 +349,7 @@ module.exports = function (grunt) {
     grunt.registerTask('test', function() {
         grunt.task.run(['clean:test']);
 
-        if (! grunt.file.exists('./bower_components') || ! grunt.file.exists('./vendor/the6thscreen-client')) {
+        if (! grunt.file.exists('./bower_components')) {
             grunt.task.run(['configureTest']);
         }
 
