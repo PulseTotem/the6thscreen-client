@@ -8,6 +8,5 @@ src/**~
 vendor/**
 bower.json
 doc/
-tests/
 deploy-infos.json
 .idea

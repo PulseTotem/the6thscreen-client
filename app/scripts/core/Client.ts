@@ -39,20 +39,79 @@ class Client {
      * To run the client.
      */
     run() {
-        Logger.info("The 6th Screen Client runs !");
+        var self = this;
 
-        this._backendSocket = io(this._backendURL);
-        this._backendSocket.on("", function(data) {
-          //TODO Retrieve all calls description from Customizer.
+        Logger.info("____________________________________________________________________________________________________");
+        Logger.info("                                  The 6th Screen Client !                                           ");
+        Logger.info("                                    Welcome and enjoy !                                             ");
+        Logger.info("____________________________________________________________________________________________________");
+
+        this._backendSocket = io(this._backendURL + "/clients");
+        this._backendSocket.on("connect", function() {
+            Logger.info("Connected to Backend.");
+            self.init();
         });
+
+        this._backendSocket.on("error", function(errorData) {
+            Logger.error("An error occurred during connection to Backend.");
+            Logger.debug(errorData);
+        });
+
+        this._backendSocket.on("disconnect", function() {
+            Logger.info("Disconnected to Backend.");
+        });
+
+        this._backendSocket.on("reconnect", function(attemptNumber) {
+            Logger.info("Connected to Backend after " + attemptNumber + " attempts.");
+            self.init();
+        });
+
+        this._backendSocket.on("reconnect_attempt", function() {
+            //TODO?
+        });
+
+        this._backendSocket.on("reconnecting", function(attemptNumber) {
+            Logger.info("Trying to connect to Backend - Attempt number " + attemptNumber + ".");
+        });
+
+        this._backendSocket.on("reconnect_error", function(errorData) {
+            Logger.error("An error occurred during reconnection to Backend.");
+            Logger.debug(errorData);
+        });
+
+        this._backendSocket.on("reconnect_failed", function() {
+            Logger.error("Failed to connect to Backend. No new attempt will be done.");
+        });
+    }
+
+    /**
+     * Build the client step by step.
+     * Step 1 : Retrieving SDI Information.
+     */
+    init() {
+        var self = this;
 
         var user = this.getQueryVariable("user");
         var sdi = this.getQueryVariable("sdi");
         var timeline = this.getQueryVariable("tl");
 
         if(user != "" && sdi != "" && timeline != "") {
-
+            this._backendSocket.on("SDIDescription", function(sdiDescription) {
+                //sdiDescription - {"test" : string}
+                Logger.debug(sdiDescription);
+                self.sdiDescriptionProcess();
+            });
+            this._backendSocket.emit("RetrieveSDIDescription", {"userID" : user, "sdiID" : sdi, "timelineID" : timeline});
+        } else {
+            Logger.error("The 6th Screen Client's URL is not correct : Missing parameters");
         }
+    }
+
+    /**
+     * Step 2 : Process the SDI Description
+     */
+    sdiDescriptionProcess() {
+
     }
 
     /**
