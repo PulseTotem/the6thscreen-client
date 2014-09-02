@@ -37,6 +37,8 @@ class Client {
 
     /**
      * To run the client.
+     *
+     * @method run
      */
     run() {
         var self = this;
@@ -87,6 +89,8 @@ class Client {
     /**
      * Build the client step by step.
      * Step 1 : Retrieving SDI Information.
+     *
+     * @method init
      */
     init() {
         var self = this;
@@ -94,14 +98,18 @@ class Client {
         var user = this.getQueryVariable("user");
         var sdi = this.getQueryVariable("sdi");
         var timeline = this.getQueryVariable("tl");
+        var profil = this.getQueryVariable("p");
 
-        if(user != "" && sdi != "" && timeline != "") {
-            this._backendSocket.on("SDIDescription", function(sdiDescription) {
-                //sdiDescription - {"test" : string}
-                Logger.debug(sdiDescription);
-                self.sdiDescriptionProcess();
+        if(user != "" && sdi != "" && (timeline != "" || profil != "")) {
+            this._backendSocket.on("ProfilDescription", function(profilDescription) {
+                //profilDescription - {"test" : string}
+                self.profilDescriptionProcess(profilDescription);
             });
-            this._backendSocket.emit("RetrieveSDIDescription", {"userID" : user, "sdiID" : sdi, "timelineID" : timeline});
+            if(timeline != "") {
+                // TODO : Treat timeline by retrieve all profils' description in timeline and display only the current.
+            } else {
+                this._backendSocket.emit("RetrieveProfilDescription", {"userID" : user, "sdiID" : sdi, "profilID" : profil});
+            }
         } else {
             Logger.error("The 6th Screen Client's URL is not correct : Missing parameters");
         }
@@ -109,15 +117,19 @@ class Client {
 
     /**
      * Step 2 : Process the SDI Description
+     *
+     * @method profilDescriptionProcess
+     * @param {JSON Object} profilDescription - The profil's description to process
      */
-    sdiDescriptionProcess() {
-
+    profilDescriptionProcess(profilDescription : any) {
+        Logger.debug(profilDescription);
     }
 
     /**
      * Analyzes search query in location address and
      * returns value for searched variable.
      *
+     * @method getQueryVariable
      * @private
      * @param {string} variable - The query variable to retrieve.
      * @returns {string} value of query variable.
@@ -131,7 +143,7 @@ class Client {
                 return pair[1].replace(/%3B/g, ";").replace(/%2F/g, "/");
             }
         }
-        Logger.error('Query Variable ' + variable + ' not found');
+        Logger.warn('Query Variable ' + variable + ' not found');
         return "";
     }
 
