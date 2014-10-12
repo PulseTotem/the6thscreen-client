@@ -26,6 +26,14 @@ class Client {
     private _backendSocket : any;
 
     /**
+     * The Client's Zones.
+     *
+     * @property _zones
+     * @type Array<any>
+     */
+    private _zones : any;
+
+    /**
      * Constructor.
      *
      * @constructor
@@ -33,6 +41,7 @@ class Client {
      */
     constructor(backendURL : string) {
         this._backendURL = backendURL;
+        this._zones = new Array();
     }
 
     /**
@@ -108,7 +117,7 @@ class Client {
             if(timeline != "") {
                 // TODO : Treat timeline by retrieve all profils' description in timeline and display only the current.
             } else {
-                this._backendSocket.emit("RetrieveProfilDescription", {"userID" : user, "sdiID" : sdi, "profilID" : profil});
+                this._backendSocket.emit("RetrieveProfilDescription", {"userId" : user, "sdiId" : sdi, "profilId" : profil});
             }
         } else {
             Logger.error("The 6th Screen Client's URL is not correct : Missing parameters");
@@ -116,13 +125,89 @@ class Client {
     }
 
     /**
-     * Step 2 : Process the SDI Description
+     * Step 2 : Process the Profil Description
      *
      * @method profilDescriptionProcess
      * @param {JSON Object} profilDescription - The profil's description to process
      */
     profilDescriptionProcess(profilDescription : any) {
+        var self = this;
         Logger.debug(profilDescription);
+        if(typeof(profilDescription.calls) != "undefined") {
+            for(var iCall in profilDescription.calls) {
+                var callDescription = profilDescription.calls[iCall];
+                var callId = callDescription["id"];
+                this._backendSocket.on("CallDescription", function(callDescriptionProcess) {
+                    self.callDescriptionProcess(callDescriptionProcess);
+                });
+                this._backendSocket.emit("RetrieveCallDescription", {"callId" : callId});
+            }
+        }
+    }
+
+    /**
+     * Step 3.0 : Process the Call Description
+     *
+     * @method callDescriptionProcess
+     * @param {JSON Object} callDescription - The call's description to process
+     */
+    callDescriptionProcess(callDescription : any) {
+        var self = this;
+        Logger.debug(callDescription);
+
+        if(typeof(callDescription.callType) != "undefined") {
+            var callTypeId = callDescription.callType["id"];
+            this._backendSocket.on("CallTypeDescription", function(callDescriptionProcess) {
+                self.callTypeDescriptionProcess(callDescriptionProcess);
+            });
+            this._backendSocket.emit("RetrieveCallTypeDescription", {"callTypeId" : callTypeId});
+        }
+
+        if(typeof(callDescription.paramValues) != "undefined") {
+            for(var iPV in callDescription.paramValues) {
+                var pvDescription = callDescription.paramValues[iPV];
+                var pvId = pvDescription["id"];
+                //TODO En faire quelque chose...
+            }
+        }
+    }
+
+    /**
+     * Step 3.1 : Process the CallType Description
+     *
+     * @method callTypeDescriptionProcess
+     * @param {JSON Object} callTypeDescription - The callType's description to process
+     */
+    callTypeDescriptionProcess(callTypeDescription : any) {
+        var self = this;
+        Logger.debug(callTypeDescription);
+
+        //this._zones
+
+        if(typeof(callTypeDescription.source) != "undefined") {
+            var sourceId = callTypeDescription.source["id"];
+            //TODO En faire quelque chose...
+        }
+
+        if(typeof(callTypeDescription.renderer) != "undefined") {
+            var rendererId = callTypeDescription.renderer["id"];
+            //TODO En faire quelque chose...
+        }
+
+        if(typeof(callTypeDescription.zone) != "undefined") {
+            var zoneId = callTypeDescription.zone["id"];
+            //TODO En faire quelque chose...
+        }
+
+        if(typeof(callTypeDescription.receivePolicy) != "undefined") {
+            var receivePolicyId = callTypeDescription.receivePolicy["id"];
+            //TODO En faire quelque chose...
+        }
+
+        if(typeof(callTypeDescription.renderPolicy) != "undefined") {
+            var renderPolicyId = callTypeDescription.renderPolicy["id"];
+            //TODO En faire quelque chose...
+        }
     }
 
     /**
