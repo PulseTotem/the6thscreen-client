@@ -26,6 +26,30 @@ class Client {
     private _backendSocket : any;
 
     /**
+     * The Client's ProfilID.
+     *
+     * @property _profilId
+     * @type string
+     */
+    private _profilId : string;
+
+    /**
+     * The Client's UserID.
+     *
+     * @property _userId
+     * @type string
+     */
+    private _userId : string;
+
+    /**
+     * The Client's SDIId.
+     *
+     * @property _sdiId
+     * @type string
+     */
+    private _sdiId : string;
+
+    /**
      * The Client's Zones.
      *
      * @property _zones
@@ -110,18 +134,86 @@ class Client {
         var profil = this.getQueryVariable("p");
 
         if(user != "" && sdi != "" && (timeline != "" || profil != "")) {
+            this._userId = user;
+            this._sdiId = sdi;
             this._backendSocket.on("ProfilDescription", function(profilDescription) {
-                //profilDescription - {"test" : string}
                 self.profilDescriptionProcess(profilDescription);
             });
             if(timeline != "") {
                 // TODO : Treat timeline by retrieve all profils' description in timeline and display only the current.
             } else {
-                this._backendSocket.emit("RetrieveProfilDescription", {"userId" : user, "sdiId" : sdi, "profilId" : profil});
+                this._profilId = profil;
+                this.checkSDIOwner();
             }
         } else {
             Logger.error("The 6th Screen Client's URL is not correct : Missing parameters");
         }
+    }
+
+    /**
+     * Step 1.1 : Check if user is SDI's owner.
+     *
+     * @method checkSDIOwner
+     */
+    checkSDIOwner() {
+        var self = this;
+
+        this._backendSocket.on("UserDescription", function(userDescription) {
+            Logger.debug(userDescription);
+            var checkOK = false;
+            for(var iSDI in userDescription.sdis) {
+                var sdiInfo = userDescription.sdis[iSDI];
+
+                if(sdiInfo.id == self._sdiId) {
+                    checkOK = true;
+                    break;
+                }
+            }
+
+            if(checkOK) {
+                self.isProfilExist();
+            } else {
+                // TODO: Exception ? Gestion de l'erreur ?
+            }
+        });
+        this._backendSocket.emit("RetrieveUserDescription", {"userId" : this._userId});
+    }
+
+    /**
+     * Step 1.2 : Check if profil exists for SDI in param.
+     *
+     * @method isProfilExist
+     */
+    isProfilExist() {
+        var self = this;
+
+        this._backendSocket.on("SDIDescription", function(sdiDescription) {
+            Logger.debug(sdiDescription);
+            var checkOK = false;
+            for(var iProfil in sdiDescription.profils) {
+                var profilInfo = sdiDescription.profils[iProfil];
+
+                if(profilInfo.id == self._profilId) {
+                    checkOK = true;
+                    break;
+                }
+            }
+
+            if(checkOK) {
+                for(var iZone in sdiDescription.zones) {
+                    var zoneInfo = sdiDescription.zones[iZone];
+                    self._backendSocket.on("ZoneDescription", function(zoneDescription) {
+                        Logger.debug(zoneDescription);
+                        // TODO !!!! Stocker les zones
+                    });
+                    self._backendSocket.emit("RetrieveZoneDescription", {"zoneId": zoneInfo.id});
+                }
+                self._backendSocket.emit("RetrieveProfilDescription", {"profilId": self._profilId});
+            } else {
+                // TODO: Exception ? Gestion de l'erreur ?
+            }
+        });
+        this._backendSocket.emit("RetrieveSDIDescription", {"sdiId" : this._sdiId});
     }
 
     /**
@@ -138,6 +230,7 @@ class Client {
                 var callDescription = profilDescription.calls[iCall];
                 var callId = callDescription["id"];
                 this._backendSocket.on("CallDescription", function(callDescriptionProcess) {
+                    Logger.debug(callDescriptionProcess);
                     self.callDescriptionProcess(callDescriptionProcess);
                 });
                 this._backendSocket.emit("RetrieveCallDescription", {"callId" : callId});
@@ -153,7 +246,6 @@ class Client {
      */
     callDescriptionProcess(callDescription : any) {
         var self = this;
-        Logger.debug(callDescription);
 
         if(typeof(callDescription.callType) != "undefined") {
             var callTypeId = callDescription.callType["id"];
@@ -180,7 +272,6 @@ class Client {
      */
     callTypeDescriptionProcess(callTypeDescription : any) {
         var self = this;
-        Logger.debug(callTypeDescription);
 
         //this._zones
 
