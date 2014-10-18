@@ -17,6 +17,16 @@ declare var io: any; // Use of Socket.IO lib
  */
 class Zone {
 
+    var data = {
+    "id": this.getId(),
+    "name": this.name(),
+    "description": this.description(),
+    "width": this.width(),
+    "height": this.height(),
+    "positionFromTop": this.positionFromTop(),
+    "positionFromLeft": this.positionFromLeft()
+};
+
     /**
      * Zone's name.
      *
@@ -24,6 +34,46 @@ class Zone {
      * @type string
      */
     private _name : string;
+
+    /**
+     * Zone's description.
+     *
+     * @property _description
+     * @type string
+     */
+    private _description : string;
+
+    /**
+     * Zone's width.
+     *
+     * @property _width
+     * @type number
+     */
+    private _width : number;
+
+    /**
+     * Zone's height.
+     *
+     * @property _height
+     * @type number
+     */
+    private _height : number;
+
+    /**
+     * Zone's positionFromTop.
+     *
+     * @property _positionFromTop
+     * @type number
+     */
+    private _positionFromTop : number;
+
+    /**
+     * Zone's positionFromLeft.
+     *
+     * @property _positionFromLeft
+     * @type number
+     */
+    private _positionFromLeft : number;
 
     /**
      * The 6th Screen Sources Servers' connections.
@@ -38,7 +88,7 @@ class Zone {
      *
      * @property _customizerURL
      * @type string
-     */
+     * /
     private _customizerURL : string;
 
     /**
@@ -46,8 +96,9 @@ class Zone {
      *
      * @property _customizerSocket
      * @type any
-     */
+     * /
     private _customizerSocket : any;
+*/
 
     /**
      * List of Calls' Zone
@@ -69,14 +120,25 @@ class Zone {
      * Constructor.
      *
      * @constructor
-     * @param {string} zoneName - The Zone's name.
+     * @param {string} name - The Zone's name.
+     * @param {string} description - The Zone's description.
+     * @param {number} width - The Zone's width.
+     * @param {number} height - The Zone's height.
+     * @param {number} positionFromTop - The Zone's positionFromTop.
+     * @param {number} positionFromLeft - The Zone's positionFromLeft.
      */
-    constructor(zoneName : string) {
-        this._name = zoneName;
+    constructor(name : string, description: string, width: number, height: number, positionFromTop: number, positionFromLeft: number) {
+        this._name = name;
+        this._description = description;
+        this._width = width;
+        this._height = height;
+        this._positionFromTop = positionFromTop;
+        this._positionFromLeft = positionFromLeft;
+
         this._calls = new Array<Call>();
         this._behaviour = new Behaviour();
         this._sourcesServersConnections = new Array<MapURLSocket>();
-        this._connectToCustomizer();
+//        this._connectToCustomizer();
     }
 
     /**
@@ -84,14 +146,14 @@ class Zone {
      *
      * @method _connectToCustomizer
      * @private
-     */
+     * /
     private _connectToCustomizer() {
         //this._customizerSocket = io(this._customizerURL);
         //this._customizerSocket.on("", function(data) {
         //  //TODO Retrieve all calls description from Customizer.
         //});
         this._manageCalls();
-    }
+    }*/
 
     /**
      * Create calls and init them.

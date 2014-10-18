@@ -230,12 +230,23 @@ class Client {
                 var callDescription = profilDescription.calls[iCall];
                 var callId = callDescription["id"];
                 this._backendSocket.on("CallDescription", function(callDescriptionProcess) {
-                    Logger.debug(callDescriptionProcess);
                     self.callDescriptionProcess(callDescriptionProcess);
                 });
                 this._backendSocket.emit("RetrieveCallDescription", {"callId" : callId});
             }
         }
+    }
+
+    /**
+     * Step 1.3 : Process the Zone Description
+     *
+     * @method zoneDescriptionProcess
+     * @param {JSON Object} zoneDescription - The zone's description to process
+     */
+    zoneDescriptionProcess(zoneDescription : any) {
+        var self = this;
+        Logger.debug(zoneDescription);
+        self._zones.push(new Zone(zoneDescription.name, zoneDescription.description, zoneDescription.width, zoneDescription.height, zoneDescription.positionFromTop, zoneDescription.positionFromLeft));
     }
 
     /**
@@ -246,7 +257,7 @@ class Client {
      */
     callDescriptionProcess(callDescription : any) {
         var self = this;
-
+        Logger.debug(callDescription);
         if(typeof(callDescription.callType) != "undefined") {
             var callTypeId = callDescription.callType["id"];
             this._backendSocket.on("CallTypeDescription", function(callDescriptionProcess) {
