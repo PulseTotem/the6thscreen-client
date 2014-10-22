@@ -16,16 +16,36 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-open');
     grunt.loadNpmTasks('grunt-contrib-yuidoc');
     grunt.loadNpmTasks('grunt-karma');
-//    grunt.loadNpmTasks('grunt-ssh');
+    grunt.loadNpmTasks('grunt-contrib-symlink');
 
     // tasks
     grunt.initConfig({
 
         gruntConfig: grunt.file.readJSON('grunt-config.json'),
+        coreReposConfig : grunt.file.readJSON('core-repos-config.json'),
 
 // ---------------------------------------------
 //                               configure tasks
 // ---------------------------------------------
+        symlink: {
+            // Enable overwrite to delete symlinks before recreating them
+            options: {
+                overwrite: false
+            },
+            // The "build/target.txt" symlink will be created and linked to
+            // "source/target.txt". It should appear like this in a file listing:
+            // build/target.txt -> ../source/target.txt
+            core: {
+                src: '<%= coreReposConfig.coreRepoPath %>',
+                dest: 't6s-core/core'
+            },
+
+            coreClient: {
+                src: '<%= coreReposConfig.coreClientRepoPath %>',
+                dest: 't6s-core/core-client'
+            }
+        },
+
         update_json: {
             bowerBuild: {
                 src: ['build.bower.json'],
@@ -307,6 +327,8 @@ module.exports = function (grunt) {
 
     // register tasks
     grunt.registerTask('default', ['build']);
+
+    grunt.registerTask('init', ['symlink']);
 
     grunt.registerTask('configure', function() {
         grunt.task.run(['update_json:bowerBuild', 'bower']);
