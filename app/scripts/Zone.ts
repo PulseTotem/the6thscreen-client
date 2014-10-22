@@ -4,7 +4,6 @@
  */
 
 /// <reference path="./Call.ts" />
-/// <reference path="./MapURLSocket.ts" />
 /// <reference path="../../t6s-core/core-client/scripts/core/Logger.ts" />
 /// <reference path="../../t6s-core/core-client/scripts/behaviour/Behaviour.ts" />
 
@@ -74,29 +73,20 @@ class Zone {
     private _positionFromLeft : number;
 
     /**
-     * The 6th Screen Sources Servers' connections.
+     * The 6th Screen Sources Server's URL.
      *
-     * @property _sourcesServersConnections
-     * @type Array<MapURLSocket>
-     */
-    private _sourcesServersConnections : Array<MapURLSocket>;
-
-    /**
-     * The 6th Screen Customizer's URL.
-     *
-     * @property _customizerURL
+     * @property _sourcesServerURL
      * @type string
-     * /
-    private _customizerURL : string;
+     */
+    private _sourcesServerURL : string = "http://localhost:5000/";
 
     /**
-     * The 6th Screen Customizer's socket.
+     * The 6th Screen Sources Server's socket.
      *
-     * @property _customizerSocket
+     * @property _sourcesServerSocket
      * @type any
-     * /
-    private _customizerSocket : any;
-*/
+     */
+    private _sourcesServerSocket : any;
 
     /**
      * List of Calls' Zone
@@ -137,8 +127,7 @@ class Zone {
 
         this._calls = new Array<Call>();
         this._behaviour = new Behaviour();
-        this._sourcesServersConnections = new Array<MapURLSocket>();
-//        this._connectToCustomizer();
+        this._sourcesServerSocket = this._connectToSourcesServer(this._sourcesServerURL);
     }
 
     /**
@@ -152,60 +141,23 @@ class Zone {
     }
 
     /**
-     * Connect to The6thScreen Customizer.
+     * Returns Zone's SourceServer socket.
      *
-     * @method _connectToCustomizer
-     * @private
-     * /
-    private _connectToCustomizer() {
-        //this._customizerSocket = io(this._customizerURL);
-        //this._customizerSocket.on("", function(data) {
-        //  //TODO Retrieve all calls description from Customizer.
-        //});
-        this._manageCalls();
-    }*/
-
-    /**
-     * Create calls and init them.
-     *
-     * @method _manageCalls
-     * @private
+     * @method getSourcesServerSocket
+     * @return {any} The zone's SourcesServer socket.
      */
-    private _manageCalls() {
-        // TODO Loop on Calls description and build calls list.
-
-        //to test
-        var host = "localhost";
-        var port = "4000";
-        var callId = "1";
-        var hash = "42";
-
-        // callDescription : {id : string, host : string, port : string, hash}
-        var sourcesServerURL : string = "http://" + host + ":" + port;
-        var socketConnection : any = this._retrieveSocket(sourcesServerURL);
-        if(socketConnection == null) {
-            socketConnection = this._connectToSourcesServer(sourcesServerURL);
-            if(socketConnection != null) {
-                this._sourcesServersConnections.push(new MapURLSocket(sourcesServerURL, socketConnection));
-            }
-        }
-        this._calls.push(new Call(callId, hash, this._name, socketConnection));
+    getSourcesServerSocket() {
+        return this._sourcesServerSocket;
     }
 
     /**
-     * Retrieve a socket from its URL if a previous connection was done.
+     * Add Call to Zone.
      *
-     * @method _retrieveSocket
-     * @private
-     * @param {string} URL - The Sources Server's URL
+     * @method addCall
+     * @param {Call} call - The Call to add.
      */
-    private _retrieveSocket(URL : string) {
-        this._sourcesServersConnections.forEach(function(elem) {
-            if(elem.URL == URL) {
-                return elem.socket;
-            }
-        });
-        return null;
+    addCall(call : Call) {
+        this._calls.push(call);
     }
 
     /**
@@ -219,7 +171,7 @@ class Zone {
         try {
             var sourcesServerSocket = io(sourcesServerURL);
             Logger.info("Zone - Connection to Sources Server done.");
-            sourcesServerSocket.emit("zones/newZone", {"name" : this._name});
+            sourcesServerSocket.emit("newZone", {"id" : this.getId()});
             Logger.info("Zone - Zone declaration done.");
             return sourcesServerSocket;
         } catch(e) {

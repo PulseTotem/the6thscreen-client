@@ -35,10 +35,6 @@ module.exports = function (grunt) {
             // The "build/target.txt" symlink will be created and linked to
             // "source/target.txt". It should appear like this in a file listing:
             // build/target.txt -> ../source/target.txt
-            core: {
-                src: '<%= coreReposConfig.coreRepoPath %>',
-                dest: 't6s-core/core'
-            },
 
             coreClient: {
                 src: '<%= coreReposConfig.coreClientRepoPath %>',
@@ -135,7 +131,7 @@ module.exports = function (grunt) {
             },
             build: {
                 options: {
-                    basePath: 'build',
+                    basePath: 'build'
                 },
                 files: {
                     'build/index.html': 'app/index.html'
@@ -143,7 +139,7 @@ module.exports = function (grunt) {
             },
             dist: {
                 options: {
-                    basePath: 'dist',
+                    basePath: 'dist'
                 },
                 files: {
                     'dist/index.html': 'app/index.html'
@@ -165,13 +161,13 @@ module.exports = function (grunt) {
         typescript: {
             build: {
                 src: [
-                    'app/scripts/core/Client.ts'
+                    'app/scripts/Client.ts'
                 ],
                 dest: 'build/js/Client.js'
             },
             dist: {
                 src: [
-                    'app/scripts/core/Client.ts'
+                    'app/scripts/Client.ts'
                 ],
                 dest: 'tmp/js/Client.js'
             },

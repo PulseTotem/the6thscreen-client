@@ -4,6 +4,7 @@
 
 /// <reference path="../../t6s-core/core-client/scripts/core/Logger.ts" />
 /// <reference path="./Zone.ts" />
+/// <reference path="./Call.ts" />
 
 declare var io: any; // Use of Socket.IO lib
 
@@ -224,7 +225,9 @@ class Client {
     zoneDescriptionProcess(zoneDescription : any) {
         var self = this;
         Logger.debug(zoneDescription);
-        self._zones.push(new Zone(zoneDescription.id, zoneDescription.name, zoneDescription.description, zoneDescription.width, zoneDescription.height, zoneDescription.positionFromTop, zoneDescription.positionFromLeft));
+        var newZone:Zone = new Zone(zoneDescription.id, zoneDescription.name, zoneDescription.description, zoneDescription.width, zoneDescription.height, zoneDescription.positionFromTop, zoneDescription.positionFromLeft);
+        self._zones.push(newZone);
+        // TODO : Manage Behaviour
     }
 
     /**
@@ -260,17 +263,9 @@ class Client {
         if(typeof(callDescription.callType) != "undefined") {
             var callTypeId = callDescription.callType["id"];
             this._backendSocket.on("CallTypeDescription", function(callDescriptionProcess) {
-                self.callTypeDescriptionProcess(callDescriptionProcess);
+                self.callTypeDescriptionProcess(callDescriptionProcess, callDescription.id);
             });
             this._backendSocket.emit("RetrieveCallTypeDescription", {"callTypeId" : callTypeId});
-        }
-
-        if(typeof(callDescription.paramValues) != "undefined") {
-            for(var iPV in callDescription.paramValues) {
-                var pvDescription = callDescription.paramValues[iPV];
-                var pvId = pvDescription["id"];
-                //TODO En faire quelque chose...
-            }
         }
     }
 
@@ -279,8 +274,9 @@ class Client {
      *
      * @method callTypeDescriptionProcess
      * @param {JSON Object} callTypeDescription - The callType's description to process
+     * @param {number} callId - The call's Id attached to callType.
      */
-    callTypeDescriptionProcess(callTypeDescription : any) {
+    callTypeDescriptionProcess(callTypeDescription : any, callId : number) {
         var self = this;
 
         Logger.debug(callTypeDescription);
@@ -318,7 +314,11 @@ class Client {
         if(sourceId != null && rendererId != null && zoneId != null && receivePolicyId != null && renderPolicyId != null) {
             var zone = this.retrieveZone(zoneId);
             if(zone != null) {
-//Objet window[nomFonction]()
+                var call = new Call(callId, zone);
+
+                //TODO : Manage Renderer, RenderPolicy etc... //Objet window[nomFonction]()
+
+                zone.addCall(call);
             } else {
                 // TODO: Exception ? Gestion de l'erreur ?
             }

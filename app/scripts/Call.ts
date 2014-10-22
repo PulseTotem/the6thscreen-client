@@ -4,9 +4,11 @@
  */
 
 /// <reference path="../../t6s-core/core-client/scripts/policy/ReceivePolicy.ts" />
-/// <reference path="../../../t6s-core/core-client/scripts/policy/RenderPolicy.ts" />
-/// <reference path="../../../t6s-core/core-client/scripts/renderer/Renderer.ts" />
-/// <reference path="../../../t6s-core/core/scripts/infotype/Info.ts" />
+/// <reference path="../../t6s-core/core-client/scripts/policy/RenderPolicy.ts" />
+/// <reference path="../../t6s-core/core-client/scripts/renderer/Renderer.ts" />
+/// <reference path="../../t6s-core/core-client/t6s-core/core/scripts/infotype/Info.ts" />
+
+/// <reference path="./Zone.ts" />
 
 class Call {
 
@@ -14,25 +16,17 @@ class Call {
      * Call's id.
      *
      * @property _id
-     * @type string
+     * @type number
      */
-    private _id : string;
+    private _id : number;
 
     /**
-     * Call's hash.
+     * Call's Zone.
      *
-     * @property _hash
-     * @type string
+     * @property _zone
+     * @type Zone
      */
-    private _hash : string;
-
-    /**
-     * Zone's name.
-     *
-     * @property _zoneName
-     * @type string
-     */
-    private _zoneName : string;
+    private _zone : Zone;
 
     /**
      * Sources Server's socket.
@@ -78,16 +72,13 @@ class Call {
      * Constructor.
      *
      * @constructor
-     * @param {string} id - The Call's id.
-     * @param {string} hash - The Call's hash.
-     * @param {string} zoneName - The Zone's name attached to Call.
-     * @param {any} socket - The SOurces Server's socket.
+     * @param {number} id - The Call's id.
+     * @param {Zone} zone - The Zone's attached to Call.
      */
-    constructor(id : string, hash : string, zoneName : string, socket : any) {
+    constructor(id : number, zone : Zone) {
         this._id = id;
-        this._hash = hash;
-        this._zoneName = zoneName;
-        this._sourcesSocket = socket;
+        this._zone = zone;
+        this._sourcesSocket = zone.getSourcesServerSocket();
         this._connectToSourcesServer();
     }
 
@@ -98,9 +89,8 @@ class Call {
      * @private
      */
     private _connectToSourcesServer() {
-        this._sourcesSocket.emit("zones/" + this._zoneName + "/newCall", {"id" : this._id, "source" : "Twitter", "hash" : this._hash});
+        this._sourcesSocket.emit("zones/" + this._zone.getId() + "/newCall", {"id" : this._id});
 
-        //TODO : Source is in Hash or not ?
         //TODO Listening for new Infos.
     }
 
@@ -120,6 +110,15 @@ class Call {
      */
     getRenderer() : Renderer<any> {
         return this._renderer;
+    }
+
+    /**
+     * Returns Call's Receive Policy.
+     *
+     * @method getReceivePolicy
+     */
+    getReceivePolicy() : ReceivePolicy {
+        return this._receivePolicy;
     }
 
     /**
