@@ -89,7 +89,9 @@ class Call {
      * @private
      */
     private _connectToSourcesServer() {
+        Logger.debug("Connect to Sources Server");
         this._sourcesSocket.emit("zones/" + this._zone.getId() + "/newCall", {"id" : this._id});
+        Logger.debug("Connection to Sources Server : Done !");
 
         //TODO Listening for new Infos.
     }

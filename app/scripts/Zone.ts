@@ -78,7 +78,7 @@ class Zone {
      * @property _sourcesServerURL
      * @type string
      */
-    private _sourcesServerURL : string = "http://localhost:5000/";
+    private _sourcesServerURL : string = "http://localhost:5000/zones";
 
     /**
      * The 6th Screen Sources Server's socket.
@@ -127,7 +127,7 @@ class Zone {
 
         this._calls = new Array<Call>();
         this._behaviour = new Behaviour();
-        this._sourcesServerSocket = this._connectToSourcesServer(this._sourcesServerURL);
+        this._connectToSourcesServer();
     }
 
     /**
@@ -165,19 +165,49 @@ class Zone {
      *
      * @method _connectToSourcesServer
      * @private
-     * @param {string} sourcesServerURL - The Sources Server's URL.
      */
-    private _connectToSourcesServer(sourcesServerURL : string) {
+    private _connectToSourcesServer() {
+        var self = this;
         try {
-            var sourcesServerSocket = io(sourcesServerURL);
-            Logger.info("Zone - Connection to Sources Server done.");
-            sourcesServerSocket.emit("newZone", {"id" : this.getId()});
-            Logger.info("Zone - Zone declaration done.");
-            return sourcesServerSocket;
+            this._sourcesServerSocket = io(this._sourcesServerURL);
+            this._sourcesServerSocket.on("connect", function() {
+                Logger.info("Connected to Sources Server.");
+                self._sourcesServerSocket.emit("newZone", {"id" : self.getId()});
+                Logger.info("Zone - Zone declaration done.");
+            });
+
+            this._sourcesServerSocket.on("error", function(errorData) {
+                Logger.error("An error occurred during connection to Sources Server.");
+                Logger.debug(errorData);
+            });
+
+            this._sourcesServerSocket.on("disconnect", function() {
+                Logger.info("Disconnected to Sources Server.");
+            });
+
+            this._sourcesServerSocket.on("reconnect", function(attemptNumber) {
+                Logger.info("Connected to Sources Server after " + attemptNumber + " attempts.");
+            });
+
+            this._sourcesServerSocket.on("reconnect_attempt", function() {
+                //TODO?
+            });
+
+            this._sourcesServerSocket.on("reconnecting", function(attemptNumber) {
+                Logger.info("Trying to connect to Sources Server - Attempt number " + attemptNumber + ".");
+            });
+
+            this._sourcesServerSocket.on("reconnect_error", function(errorData) {
+                Logger.error("An error occurred during reconnection to Sources Server.");
+                Logger.debug(errorData);
+            });
+
+            this._sourcesServerSocket.on("reconnect_failed", function() {
+                Logger.error("Failed to connect to Sources Server. No new attempt will be done.");
+            });
         } catch(e) {
             Logger.error("Zone - Connection to Sources Server failed !");
             Logger.debug(e.message);
-            return null;
         }
     }
 }

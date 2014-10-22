@@ -262,8 +262,8 @@ class Client {
         Logger.debug(callDescription);
         if(typeof(callDescription.callType) != "undefined") {
             var callTypeId = callDescription.callType["id"];
-            this._backendSocket.on("CallTypeDescription", function(callDescriptionProcess) {
-                self.callTypeDescriptionProcess(callDescriptionProcess, callDescription.id);
+            this._backendSocket.on("CallTypeDescription", function(callTypeDescription) {
+                self.callTypeDescriptionProcess(callTypeDescription, callDescription.id);
             });
             this._backendSocket.emit("RetrieveCallTypeDescription", {"callTypeId" : callTypeId});
         }
@@ -280,12 +280,6 @@ class Client {
         var self = this;
 
         Logger.debug(callTypeDescription);
-
-        var sourceId = null;
-
-        if(typeof(callTypeDescription.source) != "undefined") {
-            sourceId = callTypeDescription.source["id"];
-        }
 
         var rendererId = null;
 
@@ -311,7 +305,7 @@ class Client {
             renderPolicyId = callTypeDescription.renderPolicy["id"];
         }
 
-        if(sourceId != null && rendererId != null && zoneId != null && receivePolicyId != null && renderPolicyId != null) {
+        if(rendererId != null && zoneId != null && receivePolicyId != null && renderPolicyId != null) {
             var zone = this.retrieveZone(zoneId);
             if(zone != null) {
                 var call = new Call(callId, zone);
