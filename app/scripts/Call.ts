@@ -3,10 +3,10 @@
  * @author Simon Urli <simon@the6thscreen.fr, simon.urli@gmail.com>
  */
 
-/// <reference path="../policy/ReceivePolicy.ts" />
-/// <reference path="../policy/RenderPolicy.ts" />
-/// <reference path="../renderer/Renderer.ts" />
-/// <reference path="../info/Info.ts" />
+/// <reference path="../../t6s-core/core-client/scripts/policy/ReceivePolicy.ts" />
+/// <reference path="../../../t6s-core/core-client/scripts/policy/RenderPolicy.ts" />
+/// <reference path="../../../t6s-core/core-client/scripts/renderer/Renderer.ts" />
+/// <reference path="../../../t6s-core/core/scripts/infotype/Info.ts" />
 
 class Call {
 

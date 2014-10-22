@@ -2,7 +2,7 @@
  * @author Christian Brel <christian@the6thscreen.fr, ch.brel@gmail.com>
  */
 
-/// <reference path="./Logger.ts" />
+/// <reference path="../../t6s-core/core-client/scripts/core/Logger.ts" />
 /// <reference path="./Zone.ts" />
 
 declare var io: any; // Use of Socket.IO lib
@@ -203,8 +203,7 @@ class Client {
                 for(var iZone in sdiDescription.zones) {
                     var zoneInfo = sdiDescription.zones[iZone];
                     self._backendSocket.on("ZoneDescription", function(zoneDescription) {
-                        Logger.debug(zoneDescription);
-                        // TODO !!!! Stocker les zones
+                        self.zoneDescriptionProcess(zoneDescription);
                     });
                     self._backendSocket.emit("RetrieveZoneDescription", {"zoneId": zoneInfo.id});
                 }
@@ -214,6 +213,18 @@ class Client {
             }
         });
         this._backendSocket.emit("RetrieveSDIDescription", {"sdiId" : this._sdiId});
+    }
+
+    /**
+     * Step 1.3 : Process the Zone Description
+     *
+     * @method zoneDescriptionProcess
+     * @param {JSON Object} zoneDescription - The zone's description to process
+     */
+    zoneDescriptionProcess(zoneDescription : any) {
+        var self = this;
+        Logger.debug(zoneDescription);
+        self._zones.push(new Zone(zoneDescription.id, zoneDescription.name, zoneDescription.description, zoneDescription.width, zoneDescription.height, zoneDescription.positionFromTop, zoneDescription.positionFromLeft));
     }
 
     /**
@@ -235,18 +246,6 @@ class Client {
                 this._backendSocket.emit("RetrieveCallDescription", {"callId" : callId});
             }
         }
-    }
-
-    /**
-     * Step 1.3 : Process the Zone Description
-     *
-     * @method zoneDescriptionProcess
-     * @param {JSON Object} zoneDescription - The zone's description to process
-     */
-    zoneDescriptionProcess(zoneDescription : any) {
-        var self = this;
-        Logger.debug(zoneDescription);
-        self._zones.push(new Zone(zoneDescription.name, zoneDescription.description, zoneDescription.width, zoneDescription.height, zoneDescription.positionFromTop, zoneDescription.positionFromLeft));
     }
 
     /**
@@ -284,32 +283,67 @@ class Client {
     callTypeDescriptionProcess(callTypeDescription : any) {
         var self = this;
 
-        //this._zones
+        Logger.debug(callTypeDescription);
+
+        var sourceId = null;
 
         if(typeof(callTypeDescription.source) != "undefined") {
-            var sourceId = callTypeDescription.source["id"];
-            //TODO En faire quelque chose...
+            sourceId = callTypeDescription.source["id"];
         }
+
+        var rendererId = null;
 
         if(typeof(callTypeDescription.renderer) != "undefined") {
-            var rendererId = callTypeDescription.renderer["id"];
-            //TODO En faire quelque chose...
+            rendererId = callTypeDescription.renderer["id"];
         }
+
+        var zoneId = null;
 
         if(typeof(callTypeDescription.zone) != "undefined") {
-            var zoneId = callTypeDescription.zone["id"];
-            //TODO En faire quelque chose...
+            zoneId = callTypeDescription.zone["id"];
         }
+
+        var receivePolicyId = null;
 
         if(typeof(callTypeDescription.receivePolicy) != "undefined") {
-            var receivePolicyId = callTypeDescription.receivePolicy["id"];
-            //TODO En faire quelque chose...
+            receivePolicyId = callTypeDescription.receivePolicy["id"];
         }
 
+        var renderPolicyId = null;
+
         if(typeof(callTypeDescription.renderPolicy) != "undefined") {
-            var renderPolicyId = callTypeDescription.renderPolicy["id"];
-            //TODO En faire quelque chose...
+            renderPolicyId = callTypeDescription.renderPolicy["id"];
         }
+
+        if(sourceId != null && rendererId != null && zoneId != null && receivePolicyId != null && renderPolicyId != null) {
+            var zone = this.retrieveZone(zoneId);
+            if(zone != null) {
+//Objet window[nomFonction]()
+            } else {
+                // TODO: Exception ? Gestion de l'erreur ?
+            }
+        } else {
+            // TODO: Exception ? Gestion de l'erreur ?
+        }
+    }
+
+    /**
+     * Retrieve Zone from its Id.
+     *
+     * @method retrieveZone
+     * @private
+     * @param {number} zoneId - The Zone's Id.
+     * @returns {Zone} the Zone corresponding to zoneId.
+     */
+    private retrieveZone(zoneId : number) : Zone {
+        for(var iZone in this._zones) {
+            var zone = this._zones[iZone];
+            if(zone.getId() == zoneId) {
+                return zone;
+            }
+        }
+
+        return null;
     }
 
     /**

@@ -10,3 +10,4 @@ bower.json
 doc/
 deploy-infos.json
 .idea
+t6s-core/*

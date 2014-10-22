@@ -5,8 +5,8 @@
 
 /// <reference path="./Call.ts" />
 /// <reference path="./MapURLSocket.ts" />
-/// <reference path="./Logger.ts" />
-/// <reference path="../behaviour/Behaviour.ts" />
+/// <reference path="../../t6s-core/core-client/scripts/core/Logger.ts" />
+/// <reference path="../../t6s-core/core-client/scripts/behaviour/Behaviour.ts" />
 
 declare var io: any; // Use of Socket.IO lib
 
@@ -17,15 +17,13 @@ declare var io: any; // Use of Socket.IO lib
  */
 class Zone {
 
-    var data = {
-    "id": this.getId(),
-    "name": this.name(),
-    "description": this.description(),
-    "width": this.width(),
-    "height": this.height(),
-    "positionFromTop": this.positionFromTop(),
-    "positionFromLeft": this.positionFromLeft()
-};
+    /**
+     * Zone's id.
+     *
+     * @property _id
+     * @type number
+     */
+    private _id : number;
 
     /**
      * Zone's name.
@@ -120,6 +118,7 @@ class Zone {
      * Constructor.
      *
      * @constructor
+     * @param {number} id - The Zone's id.
      * @param {string} name - The Zone's name.
      * @param {string} description - The Zone's description.
      * @param {number} width - The Zone's width.
@@ -127,7 +126,8 @@ class Zone {
      * @param {number} positionFromTop - The Zone's positionFromTop.
      * @param {number} positionFromLeft - The Zone's positionFromLeft.
      */
-    constructor(name : string, description: string, width: number, height: number, positionFromTop: number, positionFromLeft: number) {
+    constructor(id: number, name : string, description: string, width: number, height: number, positionFromTop: number, positionFromLeft: number) {
+        this._id = id;
         this._name = name;
         this._description = description;
         this._width = width;
@@ -139,6 +139,16 @@ class Zone {
         this._behaviour = new Behaviour();
         this._sourcesServersConnections = new Array<MapURLSocket>();
 //        this._connectToCustomizer();
+    }
+
+    /**
+     * Returns Zone's Id.
+     *
+     * @method getId
+     * @return {number} The zone's Id.
+     */
+    getId() : number {
+        return this._id;
     }
 
     /**
