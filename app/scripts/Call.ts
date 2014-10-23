@@ -79,11 +79,25 @@ class Call {
         this._id = id;
         this._zone = zone;
         this._sourcesSocket = zone.getSourcesServerSocket();
+        this._listenForNewInfos();
         this._connectToSourcesServer();
     }
 
     /**
-     * Perform call connection to Sources Server. Init listening for new Infos.
+     * Init listening for new Infos.
+     *
+     * @method _listenForNewInfos
+     * @private
+     */
+    private _listenForNewInfos() {
+        Logger.debug("Listening for new Infos.");
+        this._sourcesSocket.on("zones/" + this._zone.getId() + "/calls/" + this.getId(), function(infoDescription) {
+            Logger.debug(infoDescription);
+        });
+    }
+
+    /**
+     * Perform call connection to Sources Server.
      *
      * @method _connectToSourcesServer
      * @private
@@ -92,8 +106,16 @@ class Call {
         Logger.debug("Connect to Sources Server");
         this._sourcesSocket.emit("zones/" + this._zone.getId() + "/newCall", {"id" : this._id});
         Logger.debug("Connection to Sources Server : Done !");
+    }
 
-        //TODO Listening for new Infos.
+    /**
+     * Returns Call's Id.
+     *
+     * @method getId
+     * @return {number} The call's Id.
+     */
+    getId() : number {
+        return this._id;
     }
 
     /**
