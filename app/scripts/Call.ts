@@ -137,6 +137,16 @@ class Call {
     }
 
     /**
+     * Set Call's Renderer.
+     *
+     * @method setRenderer
+     * @param {Renderer<any>} renderer - The renderer to set to Call
+     */
+    setRenderer(renderer : Renderer<any>) {
+        this._renderer = renderer;
+    }
+
+    /**
      * Returns Call's Receive Policy.
      *
      * @method getReceivePolicy
@@ -146,11 +156,31 @@ class Call {
     }
 
     /**
+     * Set Call's ReceivePolicy.
+     *
+     * @method setReceivePolicy
+     * @param {ReceivePolicy} receivePolicy - The receivePolicy to set to Call
+     */
+    setReceivePolicy(receivePolicy : ReceivePolicy) {
+        this._receivePolicy = receivePolicy;
+    }
+
+    /**
      * Returns Call's Render Policy.
      *
      * @method getRenderPolicy
      */
     getRenderPolicy() : RenderPolicy<any> {
         return this._renderPolicy;
+    }
+
+    /**
+     * Set Call's RenderPolicy.
+     *
+     * @method setRenderPolicy
+     * @param {RenderPolicy<any>} renderPolicy - The renderPolicy to set to Call
+     */
+    setRenderPolicy(renderPolicy : RenderPolicy<any>) {
+        this._renderPolicy = renderPolicy;
     }
 }

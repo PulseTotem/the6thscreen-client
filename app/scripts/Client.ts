@@ -333,7 +333,23 @@ class Client {
             if(zone != null) {
                 var call = new Call(callId, zone);
 
-                //TODO : Manage Renderer, RenderPolicy etc... //Objet window[nomFonction]()
+                //TODO : Manage Renderer, RenderPolicy etc... with 'path' loading //Objet window[functionName]()
+
+                if(window[callTypeDescriptionWithCallId.renderer["name"]]) {
+                    var renderer = new window[callTypeDescriptionWithCallId.renderer["name"]]();
+                    call.setRenderer(renderer);
+                }
+
+                if(window[callTypeDescriptionWithCallId.renderPolicy["name"]]) {
+                    var renderPolicy = new window[callTypeDescriptionWithCallId.renderPolicy["name"]]();
+                    call.setRenderPolicy(renderPolicy);
+                }
+
+                if(window[callTypeDescriptionWithCallId.receivePolicy["name"]]) {
+                    var receivePolicy = new window[callTypeDescriptionWithCallId.receivePolicy["name"]]();
+                    call.setReceivePolicy(receivePolicy);
+                }
+
 
                 zone.addCall(call);
             } else {
