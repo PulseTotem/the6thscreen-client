@@ -3,6 +3,7 @@
  */
 
 /// <reference path="../../t6s-core/core-client/scripts/core/Logger.ts" />
+/// <reference path="../../t6s-core/core-client/scripts/core/ForEachAsync.ts" />
 /// <reference path="./Zone.ts" />
 /// <reference path="./Call.ts" />
 
@@ -85,6 +86,7 @@ class Client {
         this._backendSocket = io(this._backendURL + "/clients");
         this._backendSocket.on("connect", function() {
             Logger.info("Connected to Backend.");
+            self.listen();
             self.init();
         });
 
@@ -121,6 +123,41 @@ class Client {
     }
 
     /**
+     * Step 0 : Listen for Backend answers.
+     *
+     * @method listen
+     */
+    listen() {
+        var self = this;
+
+        this._backendSocket.on("ProfilDescription", function(profilDescription) {
+            self.profilDescriptionProcess(profilDescription);
+        });
+
+        this._backendSocket.on("UserDescription", function(userDescription) {
+            Logger.debug(userDescription);
+            self.checkSDIOwner(userDescription);
+        });
+
+        this._backendSocket.on("SDIDescription", function(sdiDescription) {
+            Logger.debug(sdiDescription);
+            self.isProfilExist(sdiDescription);
+        });
+
+        this._backendSocket.on("ZoneDescription", function(zoneDescription) {
+            self.zoneDescriptionProcess(zoneDescription);
+        });
+
+        this._backendSocket.on("CallDescription", function(callDescriptionProcess) {
+            self.callDescriptionProcess(callDescriptionProcess);
+        });
+
+        this._backendSocket.on("CallTypeDescriptionWithCallId", function(callTypeDescriptionWithCallId) {
+            self.callTypeDescriptionWithCallIdProcess(callTypeDescriptionWithCallId);
+        });
+    }
+
+    /**
      * Build the client step by step.
      * Step 1 : Retrieving SDI Information.
      *
@@ -137,14 +174,13 @@ class Client {
         if(user != "" && sdi != "" && (timeline != "" || profil != "")) {
             this._userId = user;
             this._sdiId = sdi;
-            this._backendSocket.on("ProfilDescription", function(profilDescription) {
-                self.profilDescriptionProcess(profilDescription);
-            });
+
             if(timeline != "") {
                 // TODO : Treat timeline by retrieve all profils' description in timeline and display only the current.
             } else {
                 this._profilId = profil;
-                this.checkSDIOwner();
+                // Check SDI Owner
+                this._backendSocket.emit("RetrieveUserDescription", {"userId" : this._userId});
             }
         } else {
             Logger.error("The 6th Screen Client's URL is not correct : Missing parameters");
@@ -155,65 +191,57 @@ class Client {
      * Step 1.1 : Check if user is SDI's owner.
      *
      * @method checkSDIOwner
+     * @param {JSON Object} userDescription - The user's description to process
      */
-    checkSDIOwner() {
+    checkSDIOwner(userDescription : any) {
         var self = this;
 
-        this._backendSocket.on("UserDescription", function(userDescription) {
-            Logger.debug(userDescription);
-            var checkOK = false;
-            for(var iSDI in userDescription.sdis) {
-                var sdiInfo = userDescription.sdis[iSDI];
+        var checkOK = false;
+        for(var iSDI in userDescription.sdis) {
+            var sdiInfo = userDescription.sdis[iSDI];
 
-                if(sdiInfo.id == self._sdiId) {
-                    checkOK = true;
-                    break;
-                }
+            if(sdiInfo.id == self._sdiId) {
+                checkOK = true;
+                break;
             }
+        }
 
-            if(checkOK) {
-                self.isProfilExist();
-            } else {
-                // TODO: Exception ? Gestion de l'erreur ?
-            }
-        });
-        this._backendSocket.emit("RetrieveUserDescription", {"userId" : this._userId});
+        if(checkOK) {
+            //Check if profil exists
+            this._backendSocket.emit("RetrieveSDIDescription", {"sdiId" : this._sdiId});
+        } else {
+            // TODO: Exception ? Gestion de l'erreur ?
+        }
     }
 
     /**
      * Step 1.2 : Check if profil exists for SDI in param.
      *
      * @method isProfilExist
+     * @param {JSON Object} sdiDescription - The SDI's description to process
      */
-    isProfilExist() {
+    isProfilExist(sdiDescription : any) {
         var self = this;
 
-        this._backendSocket.on("SDIDescription", function(sdiDescription) {
-            Logger.debug(sdiDescription);
-            var checkOK = false;
-            for(var iProfil in sdiDescription.profils) {
-                var profilInfo = sdiDescription.profils[iProfil];
+        var checkOK = false;
+        for(var iProfil in sdiDescription.profils) {
+            var profilInfo = sdiDescription.profils[iProfil];
 
-                if(profilInfo.id == self._profilId) {
-                    checkOK = true;
-                    break;
-                }
+            if(profilInfo.id == self._profilId) {
+                checkOK = true;
+                break;
             }
+        }
 
-            if(checkOK) {
-                for(var iZone in sdiDescription.zones) {
-                    var zoneInfo = sdiDescription.zones[iZone];
-                    self._backendSocket.on("ZoneDescription", function(zoneDescription) {
-                        self.zoneDescriptionProcess(zoneDescription);
-                    });
-                    self._backendSocket.emit("RetrieveZoneDescription", {"zoneId": zoneInfo.id});
-                }
-                self._backendSocket.emit("RetrieveProfilDescription", {"profilId": self._profilId});
-            } else {
-                // TODO: Exception ? Gestion de l'erreur ?
-            }
-        });
-        this._backendSocket.emit("RetrieveSDIDescription", {"sdiId" : this._sdiId});
+        if(checkOK) {
+            ForEachAsync.forEach(sdiDescription.zones, function(iZone) {
+                var zoneInfo = sdiDescription.zones[iZone];
+                self._backendSocket.emit("RetrieveZoneDescription", {"zoneId": zoneInfo.id});
+            });
+            self._backendSocket.emit("RetrieveProfilDescription", {"profilId": self._profilId});
+        } else {
+            // TODO: Exception ? Gestion de l'erreur ?
+        }
     }
 
     /**
@@ -240,14 +268,11 @@ class Client {
         var self = this;
         Logger.debug(profilDescription);
         if(typeof(profilDescription.calls) != "undefined") {
-            for(var iCall in profilDescription.calls) {
+            ForEachAsync.forEach(profilDescription.calls, function(iCall) {
                 var callDescription = profilDescription.calls[iCall];
                 var callId = callDescription["id"];
-                this._backendSocket.on("CallDescription", function(callDescriptionProcess) {
-                    self.callDescriptionProcess(callDescriptionProcess);
-                });
-                this._backendSocket.emit("RetrieveCallDescription", {"callId" : callId});
-            }
+                self._backendSocket.emit("RetrieveCallDescription", {"callId" : callId});
+            });
         }
     }
 
@@ -262,47 +287,45 @@ class Client {
         Logger.debug(callDescription);
         if(typeof(callDescription.callType) != "undefined") {
             var callTypeId = callDescription.callType["id"];
-            this._backendSocket.on("CallTypeDescription", function(callTypeDescription) {
-                self.callTypeDescriptionProcess(callTypeDescription, callDescription.id);
-            });
-            this._backendSocket.emit("RetrieveCallTypeDescription", {"callTypeId" : callTypeId});
+            this._backendSocket.emit("RetrieveCallTypeDescriptionWithCallId", {"callTypeId" : callTypeId, "callId" : callDescription.id});
         }
     }
 
     /**
-     * Step 3.1 : Process the CallType Description
+     * Step 3.1 : Process the CallType Description WithCallId
      *
-     * @method callTypeDescriptionProcess
-     * @param {JSON Object} callTypeDescription - The callType's description to process
-     * @param {number} callId - The call's Id attached to callType.
+     * @method callTypeDescriptionWithCallIdProcess
+     * @param {JSON Object} callTypeDescriptionWithCallId - The callType's description with CallId to process
      */
-    callTypeDescriptionProcess(callTypeDescription : any, callId : number) {
+    callTypeDescriptionWithCallIdProcess(callTypeDescriptionWithCallId : any) {
         var self = this;
 
-        Logger.debug(callTypeDescription);
+        var callId = parseInt(callTypeDescriptionWithCallId.callId);
+
+        Logger.debug(callTypeDescriptionWithCallId);
 
         var rendererId = null;
 
-        if(typeof(callTypeDescription.renderer) != "undefined") {
-            rendererId = callTypeDescription.renderer["id"];
+        if(typeof(callTypeDescriptionWithCallId.renderer) != "undefined") {
+            rendererId = callTypeDescriptionWithCallId.renderer["id"];
         }
 
         var zoneId = null;
 
-        if(typeof(callTypeDescription.zone) != "undefined") {
-            zoneId = callTypeDescription.zone["id"];
+        if(typeof(callTypeDescriptionWithCallId.zone) != "undefined") {
+            zoneId = callTypeDescriptionWithCallId.zone["id"];
         }
 
         var receivePolicyId = null;
 
-        if(typeof(callTypeDescription.receivePolicy) != "undefined") {
-            receivePolicyId = callTypeDescription.receivePolicy["id"];
+        if(typeof(callTypeDescriptionWithCallId.receivePolicy) != "undefined") {
+            receivePolicyId = callTypeDescriptionWithCallId.receivePolicy["id"];
         }
 
         var renderPolicyId = null;
 
-        if(typeof(callTypeDescription.renderPolicy) != "undefined") {
-            renderPolicyId = callTypeDescription.renderPolicy["id"];
+        if(typeof(callTypeDescriptionWithCallId.renderPolicy) != "undefined") {
+            renderPolicyId = callTypeDescriptionWithCallId.renderPolicy["id"];
         }
 
         if(rendererId != null && zoneId != null && receivePolicyId != null && renderPolicyId != null) {
