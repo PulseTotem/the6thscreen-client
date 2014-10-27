@@ -90,8 +90,9 @@ class Call {
      * @private
      */
     private _listenForNewInfos() {
-        Logger.debug("Listening for new Infos.");
+        Logger.debug("Listening for new Infos on : zones/" + this._zone.getId() + "/calls/" + this.getId());
         this._sourcesSocket.on("zones/" + this._zone.getId() + "/calls/" + this.getId(), function(infoDescription) {
+            Logger.debug("Receive new Infos !");
             Logger.debug(infoDescription);
         });
     }
