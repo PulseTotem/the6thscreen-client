@@ -161,6 +161,23 @@ class Zone {
     }
 
     /**
+     * Return a Call from CallId.
+     *
+     * @method retrieveCall
+     * @param {number} callId - The Call's Id.
+     */
+    retrieveCall(callId : number) {
+        for(var iCall in this._calls) {
+            var call = this._calls[callId];
+            if(call.getId() == callId) {
+                return call;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Connect to The6thScreen Sources' Server.
      *
      * @method _connectToSourcesServer

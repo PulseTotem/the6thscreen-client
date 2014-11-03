@@ -6,6 +6,7 @@
 /// <reference path="../../t6s-core/core-client/scripts/core/ForEachAsync.ts" />
 /// <reference path="./Zone.ts" />
 /// <reference path="./Call.ts" />
+/// <reference path="./CallTypeDescription.ts" />
 
 declare var io: any; // Use of Socket.IO lib
 
@@ -60,6 +61,14 @@ class Client {
     private _zones : any;
 
     /**
+     * The Client's CallType Descriptions.
+     *
+     * @property _callTypeDescriptions
+     * @type Array<CallTypeDescription>
+     */
+    private _callTypeDescriptions : Array<CallTypeDescription>;
+
+    /**
      * Constructor.
      *
      * @constructor
@@ -68,6 +77,7 @@ class Client {
     constructor(backendURL : string) {
         this._backendURL = backendURL;
         this._zones = new Array();
+        this._callTypeDescriptions = new Array<CallTypeDescription>();
     }
 
     /**
@@ -152,8 +162,8 @@ class Client {
             self.callDescriptionProcess(callDescriptionProcess);
         });
 
-        this._backendSocket.on("CallTypeDescriptionWithCallId", function(callTypeDescriptionWithCallId) {
-            self.callTypeDescriptionWithCallIdProcess(callTypeDescriptionWithCallId);
+        this._backendSocket.on("CallTypeDescription", function(callTypeDescription) {
+            self.callTypeDescriptionProcess(callTypeDescription);
         });
     }
 
@@ -287,71 +297,114 @@ class Client {
         Logger.debug(callDescription);
         if(typeof(callDescription.callType) != "undefined") {
             var callTypeId = callDescription.callType["id"];
-            this._backendSocket.emit("RetrieveCallTypeDescriptionWithCallId", {"callTypeId" : callTypeId, "callId" : callDescription.id});
+            var callTypeDesc = this.retrieveCallTypeDescription(callTypeId);
+
+            if(callTypeDesc == null) {
+                callTypeDesc = new CallTypeDescription(callTypeId);
+                callTypeDesc.addCallId(callDescription.id);
+                this._callTypeDescriptions.push(callTypeDesc);
+                this._backendSocket.emit("RetrieveCallTypeDescription", {"callTypeId" : callTypeId});
+            } else {
+                callTypeDesc.addCallId(callDescription.id);
+                if(callTypeDesc.getDescription() != null) {
+                    this.callTypeDescriptionProcess(callTypeDesc.getDescription());
+                }
+            }
         }
     }
 
     /**
-     * Step 3.1 : Process the CallType Description WithCallId
+     * Step 3.0.1 : Check existing CallType Descriptions;
      *
-     * @method callTypeDescriptionWithCallIdProcess
-     * @param {JSON Object} callTypeDescriptionWithCallId - The callType's description with CallId to process
+     * @method retrieveCallTypeDescription
+     * @param {number} callTypeId - The CallType's Id to find.
      */
-    callTypeDescriptionWithCallIdProcess(callTypeDescriptionWithCallId : any) {
+    retrieveCallTypeDescription(callTypeId : number) {
+        for(var iCallType in this._callTypeDescriptions) {
+            var callTypeDesc = this._callTypeDescriptions[iCallType];
+            if(callTypeDesc.getId() == callTypeId) {
+                return callTypeDesc;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Step 3.1 : Process the CallType Description
+     *
+     * @method callTypeDescriptionProcess
+     * @param {JSON Object} callTypeDescription - The callType's description to process
+     */
+    callTypeDescriptionProcess(callTypeDescription : any) {
         var self = this;
 
-        var callId = parseInt(callTypeDescriptionWithCallId.callId);
+        var callTypeId = parseInt(callTypeDescription.id);
 
-        Logger.debug(callTypeDescriptionWithCallId);
+        var calltypeDesc = this.retrieveCallTypeDescription(callTypeId);
+
+        if(calltypeDesc.getDescription() == null) {
+            calltypeDesc.setDescription(callTypeDescription);
+        }
+
+        Logger.debug(callTypeDescription);
 
         var rendererId = null;
 
-        if(typeof(callTypeDescriptionWithCallId.renderer) != "undefined") {
-            rendererId = callTypeDescriptionWithCallId.renderer["id"];
+        if(typeof(callTypeDescription.renderer) != "undefined") {
+            rendererId = callTypeDescription.renderer["id"];
         }
 
         var zoneId = null;
 
-        if(typeof(callTypeDescriptionWithCallId.zone) != "undefined") {
-            zoneId = callTypeDescriptionWithCallId.zone["id"];
+        if(typeof(callTypeDescription.zone) != "undefined") {
+            zoneId = callTypeDescription.zone["id"];
         }
 
         var receivePolicyId = null;
 
-        if(typeof(callTypeDescriptionWithCallId.receivePolicy) != "undefined") {
-            receivePolicyId = callTypeDescriptionWithCallId.receivePolicy["id"];
+        if(typeof(callTypeDescription.receivePolicy) != "undefined") {
+            receivePolicyId = callTypeDescription.receivePolicy["id"];
         }
 
         var renderPolicyId = null;
 
-        if(typeof(callTypeDescriptionWithCallId.renderPolicy) != "undefined") {
-            renderPolicyId = callTypeDescriptionWithCallId.renderPolicy["id"];
+        if(typeof(callTypeDescription.renderPolicy) != "undefined") {
+            renderPolicyId = callTypeDescription.renderPolicy["id"];
         }
 
         if(rendererId != null && zoneId != null && receivePolicyId != null && renderPolicyId != null) {
             var zone = this.retrieveZone(zoneId);
             if(zone != null) {
-                var call = new Call(callId, zone);
+                var callIds = calltypeDesc.getCallIds();
+                for(var iCallId in callIds) {
+                    var callId = callIds[iCallId];
+                    var call = zone.retrieveCall(callId);
 
-                //TODO : Manage Renderer, RenderPolicy etc... with 'path' loading //Objet window[functionName]()
+                    if (call == null) {
+                        call = new Call(callId, zone);
 
-                if(window[callTypeDescriptionWithCallId.renderer["name"]]) {
-                    var renderer = new window[callTypeDescriptionWithCallId.renderer["name"]]();
-                    call.setRenderer(renderer);
+                        //TODO : Manage Renderer, RenderPolicy etc... with 'path' loading //Objet window[functionName]()
+
+                        if (window[callTypeDescription.renderer["name"]]) {
+                            var renderer = new window[callTypeDescription.renderer["name"]]();
+                            call.setRenderer(renderer);
+                        }
+
+                        if (window[callTypeDescription.renderPolicy["name"]]) {
+                            var renderPolicy = new window[callTypeDescription.renderPolicy["name"]]();
+                            call.setRenderPolicy(renderPolicy);
+                        }
+
+                        if (window[callTypeDescription.receivePolicy["name"]]) {
+                            var receivePolicy = new window[callTypeDescription.receivePolicy["name"]]();
+                            call.setReceivePolicy(receivePolicy);
+                        }
+
+
+                        zone.addCall(call);
+                    }
                 }
-
-                if(window[callTypeDescriptionWithCallId.renderPolicy["name"]]) {
-                    var renderPolicy = new window[callTypeDescriptionWithCallId.renderPolicy["name"]]();
-                    call.setRenderPolicy(renderPolicy);
-                }
-
-                if(window[callTypeDescriptionWithCallId.receivePolicy["name"]]) {
-                    var receivePolicy = new window[callTypeDescriptionWithCallId.receivePolicy["name"]]();
-                    call.setReceivePolicy(receivePolicy);
-                }
-
-
-                zone.addCall(call);
             } else {
                 // TODO: Exception ? Gestion de l'erreur ?
             }
