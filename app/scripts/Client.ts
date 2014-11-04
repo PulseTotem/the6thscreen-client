@@ -264,8 +264,12 @@ class Client {
         var self = this;
         Logger.debug(zoneDescription);
         var newZone:Zone = new Zone(zoneDescription.id, zoneDescription.name, zoneDescription.description, zoneDescription.width, zoneDescription.height, zoneDescription.positionFromTop, zoneDescription.positionFromLeft);
+        if (window[zoneDescription.behaviour["name"]]) {
+            var behaviour = new window[zoneDescription.behaviour["name"]]();
+            newZone.setBehaviour(behaviour);
+        }
+
         self._zones.push(newZone);
-        // TODO : Manage Behaviour
     }
 
     /**

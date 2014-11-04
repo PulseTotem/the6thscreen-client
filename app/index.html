@@ -29,33 +29,6 @@
 
         <script>
             $('window').ready(function() {
-                var consoleLogDiv = $("#consoleLog");
-                var divLog = function(prepend, logFunc) {
-                    return function () {
-                        var args = Array.prototype.slice.call(arguments);
-                        if(args.length > 1) {
-                            for(var iArg in args) {
-                                var arg = args[iArg];
-                                consoleLogDiv.append("<p><strong>" + prepend + " : </strong>" + arg + "</p>");
-                                consoleLogDiv.scrollTop = consoleLogDiv.scrollHeight;
-                            }
-                        }
-                        logFunc.apply(this, Array.prototype.slice.call(arguments));
-                    };
-                };
-
-                var log = console.log;
-                console.log = divLog("log", log);
-
-                var info = console.info;
-                console.info = divLog("info", info);
-
-                var warn = console.warn;
-                console.warn = divLog("warn", warn);
-
-                var error = console.error;
-                console.error = divLog("error", error);
-
                 var client = new Client("http://localhost:4000");
                 client.run();
             });

@@ -124,9 +124,8 @@ class Zone {
         this._height = height;
         this._positionFromTop = positionFromTop;
         this._positionFromLeft = positionFromLeft;
-
         this._calls = new Array<Call>();
-        this._behaviour = new Behaviour();
+        this._behaviour = null;
         this._connectToSourcesServer();
     }
 
@@ -138,6 +137,16 @@ class Zone {
      */
     getId() : number {
         return this._id;
+    }
+
+    /**
+     * Returns Zone's Calls.
+     *
+     * @method getCalls
+     * @return {Array<Call>} The zone's calls.
+     */
+    getCalls() : Array<Call> {
+        return this._calls;
     }
 
     /**
@@ -158,6 +167,27 @@ class Zone {
      */
     addCall(call : Call) {
         this._calls.push(call);
+        this.restartBehaviour();
+    }
+
+    /**
+     * Set the Zone's behaviour..
+     *
+     * @method setBehaviour
+     * @param {Behaviour} behaviour - The Behaviour to set.
+     */
+    setBehaviour(behaviour : Behaviour) {
+        this._behaviour = behaviour;
+        this.restartBehaviour();
+    }
+
+    /**
+     * Restart the Behaviour.
+     *
+     * @method restartBehaviour
+     */
+    restartBehaviour() {
+        this._behaviour.restart(this._calls);
     }
 
     /**

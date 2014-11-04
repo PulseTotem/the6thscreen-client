@@ -1,7 +1,0 @@
-#consoleLog {
-    min-height: 100px;
-    max-height: 200px;
-    background-color: black;
-    color: white;
-    overflow: auto;
-}
