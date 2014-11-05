@@ -156,9 +156,9 @@ class Call {
         this._sourceSocket.on("zones/" + this._zone.getId() + "/calls/" + this.getId() + "/newInfo", function(infoDescription) {
             Logger.debug("Receive new Infos !");
             Logger.debug(infoDescription);
-            //TODO : Retrieve TypeInfo and use it here to transform infoDescription JSON to an InfoType object !!!!!
+            //TODO : Retrieve TypeInfo and use it here to transform infoDescription JSON to an InfoType object !!!!! Or not....
             self._listInfos.push(infoDescription);
-            self.getReceivePolicy().process(self._listInfos);
+            //self.getReceivePolicy().process(self._listInfos);
         });
 
         //_sourceSocket

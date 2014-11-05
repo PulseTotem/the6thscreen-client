@@ -161,13 +161,15 @@ module.exports = function (grunt) {
         typescript: {
             build: {
                 src: [
-                    'app/scripts/Client.ts'
+                    'app/scripts/**/*.ts',
+                    't6s-core/core-client/scripts/**/*.ts'
                 ],
                 dest: 'build/js/Client.js'
             },
             dist: {
                 src: [
-                    'app/scripts/Client.ts'
+                    'app/scripts/**/*.ts',
+                    't6s-core/core-client/scripts/**/*.ts'
                 ],
                 dest: 'tmp/js/Client.js'
             },
