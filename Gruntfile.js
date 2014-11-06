@@ -226,7 +226,7 @@ module.exports = function (grunt) {
             },
 
             developTypescript: {
-                files: ['app/scripts/**/*.ts'],
+                files: ['app/scripts/**/*.ts', 't6s-core/core-client/scripts/**/*.ts', 't6s-core/core-client/t6s-core/core/scripts/**/**.ts'],
                 tasks: ['typescript:build']
             },
 

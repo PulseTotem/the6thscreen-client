@@ -89,6 +89,7 @@ class Call {
         this._id = id;
         this._zone = zone;
         this._sourcesServerSocket = zone.getSourcesServerSocket();
+        this._listInfos = new Array<Info>();
         this._manageSourcesServerConnection();
     }
 

@@ -8,6 +8,7 @@
 /// <reference path="../../t6s-core/core-client/scripts/behaviour/Behaviour.ts" />
 
 declare var io: any; // Use of Socket.IO lib
+declare var $: any; // Use of JQuery
 
 /**
  * Represents a Zone of The6thScreen Client.
@@ -105,6 +106,15 @@ class Zone {
     private _behaviour : Behaviour;
 
     /**
+     * Zone Div.
+     *
+     * @property _zoneDiv
+     * @type DOM Element
+     */
+    private _zoneDiv : any;
+
+
+    /**
      * Constructor.
      *
      * @constructor
@@ -126,7 +136,8 @@ class Zone {
         this._positionFromLeft = positionFromLeft;
         this._calls = new Array<Call>();
         this._behaviour = null;
-        this._connectToSourcesServer();
+        this._attachToDom();
+        //this._connectToSourcesServer();
     }
 
     /**
@@ -178,6 +189,7 @@ class Zone {
      */
     setBehaviour(behaviour : Behaviour) {
         this._behaviour = behaviour;
+        this._behaviour.setZoneDiv(this._zoneDiv);
         this.restartBehaviour();
     }
 
@@ -187,7 +199,7 @@ class Zone {
      * @method restartBehaviour
      */
     restartBehaviour() {
-        this._behaviour.restart(this._calls);
+        //this._behaviour.restart(this._calls);
     }
 
     /**
@@ -205,6 +217,24 @@ class Zone {
         }
 
         return null;
+    }
+
+    /**
+     * Attach Zone to Client's DOM.
+     *
+     * @method _attachToDom
+     * @private
+     */
+    private _attachToDom() {
+        this._zoneDiv = $("<div>");
+        this._zoneDiv.addClass("zone");
+        this._zoneDiv.css("top", this._positionFromTop + "%");
+        this._zoneDiv.css("left", this._positionFromLeft + "%");
+        this._zoneDiv.css("width", this._width + "%");
+        this._zoneDiv.css("height", this._height + "%");
+
+
+        $("#the6thscreen-client-content").append(this._zoneDiv);
     }
 
     /**

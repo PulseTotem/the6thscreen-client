@@ -93,10 +93,15 @@ class Client {
         Logger.info("                                    Welcome and enjoy !                                             ");
         Logger.info("____________________________________________________________________________________________________");
 
-        this._backendSocket = io(this._backendURL + "/clients");
+        this._backendSocket = io(this._backendURL + "/clients",
+            {"reconnection" : true, "reconnectionDelay" : 1000, "reconnectionDelayMax" : 5000, "timeout" : 10000, "autoConnect" : true});
+
+        Logger.debug(this._backendSocket);
+
+        this.listen();
+
         this._backendSocket.on("connect", function() {
             Logger.info("Connected to Backend.");
-            self.listen();
             self.init();
         });
 
@@ -111,11 +116,10 @@ class Client {
 
         this._backendSocket.on("reconnect", function(attemptNumber) {
             Logger.info("Connected to Backend after " + attemptNumber + " attempts.");
-            self.init();
         });
 
         this._backendSocket.on("reconnect_attempt", function() {
-            //TODO?
+            Logger.info("Trying to reconnect to Backend.");
         });
 
         this._backendSocket.on("reconnecting", function(attemptNumber) {
@@ -174,6 +178,7 @@ class Client {
      * @method init
      */
     init() {
+        Logger.debug("1 - init");
         var self = this;
 
         var user = this.getQueryVariable("user");
@@ -204,6 +209,7 @@ class Client {
      * @param {JSON Object} userDescription - The user's description to process
      */
     checkSDIOwner(userDescription : any) {
+        Logger.debug("1.1 - checkSDIOwner");
         var self = this;
 
         var checkOK = false;
@@ -231,6 +237,7 @@ class Client {
      * @param {JSON Object} sdiDescription - The SDI's description to process
      */
     isProfilExist(sdiDescription : any) {
+        Logger.debug("1.2 - isProfilExist");
         var self = this;
 
         var checkOK = false;
@@ -261,13 +268,18 @@ class Client {
      * @param {JSON Object} zoneDescription - The zone's description to process
      */
     zoneDescriptionProcess(zoneDescription : any) {
+        Logger.debug("1.3 - zoneDescriptionProcess");
         var self = this;
         Logger.debug(zoneDescription);
         var newZone:Zone = new Zone(zoneDescription.id, zoneDescription.name, zoneDescription.description, zoneDescription.width, zoneDescription.height, zoneDescription.positionFromTop, zoneDescription.positionFromLeft);
-        if (window[zoneDescription.behaviour["name"]]) {
+        Logger.debug(newZone);
+
+        /*if(window[zoneDescription.behaviour["name"]]) {
             var behaviour = new window[zoneDescription.behaviour["name"]]();
             newZone.setBehaviour(behaviour);
-        }
+            Logger.debug("Added Behaviour !");
+            Logger.debug(behaviour);
+        }*/
 
         self._zones.push(newZone);
     }
@@ -279,6 +291,7 @@ class Client {
      * @param {JSON Object} profilDescription - The profil's description to process
      */
     profilDescriptionProcess(profilDescription : any) {
+        Logger.debug("2 - profilDescriptionProcess");
         var self = this;
         Logger.debug(profilDescription);
         if(typeof(profilDescription.calls) != "undefined") {
@@ -297,6 +310,7 @@ class Client {
      * @param {JSON Object} callDescription - The call's description to process
      */
     callDescriptionProcess(callDescription : any) {
+        Logger.debug("3 - callDescriptionProcess");
         var self = this;
         Logger.debug(callDescription);
         if(typeof(callDescription.callType) != "undefined") {
@@ -324,6 +338,7 @@ class Client {
      * @param {number} callTypeId - The CallType's Id to find.
      */
     retrieveCallTypeDescription(callTypeId : number) {
+        Logger.debug("3.0.1 - retrieveCallTypeDescription");
         for(var iCallType in this._callTypeDescriptions) {
             var callTypeDesc = this._callTypeDescriptions[iCallType];
             if(callTypeDesc.getId() == callTypeId) {
@@ -341,6 +356,7 @@ class Client {
      * @param {JSON Object} callTypeDescription - The callType's description to process
      */
     callTypeDescriptionProcess(callTypeDescription : any) {
+        Logger.debug("3.1 - callTypeDescriptionProcess");
         var self = this;
 
         var callTypeId = parseInt(callTypeDescription.id);
@@ -350,8 +366,6 @@ class Client {
         if(calltypeDesc.getDescription() == null) {
             calltypeDesc.setDescription(callTypeDescription);
         }
-
-        Logger.debug(callTypeDescription);
 
         var rendererId = null;
 
@@ -454,7 +468,6 @@ class Client {
                 return pair[1].replace(/%3B/g, ";").replace(/%2F/g, "/");
             }
         }
-        Logger.warn('Query Variable ' + variable + ' not found');
         return "";
     }
 
