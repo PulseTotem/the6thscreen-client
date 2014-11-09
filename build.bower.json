@@ -1,9 +1,10 @@
 {
-    "name": "the6thscreen-clienttemplate",
+    "name": "the6thscreen-client",
     "version": "0.1.0",
     "dependencies": {
         "log": "~0.1.2",
         "jquery": "~2.1.0",
-        "bootstrap": "~3.1.1"
+        "bootstrap": "~3.1.1",
+        "datejs": "~1.0.0-rc1"
     }
 }

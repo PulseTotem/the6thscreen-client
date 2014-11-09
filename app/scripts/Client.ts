@@ -142,31 +142,38 @@ class Client {
      * @method listen
      */
     listen() {
+        Logger.debug("0 - listen");
         var self = this;
 
         this._backendSocket.on("ProfilDescription", function(profilDescription) {
+            Logger.debug("From Backend : ProfilDescription");
             self.profilDescriptionProcess(profilDescription);
         });
 
         this._backendSocket.on("UserDescription", function(userDescription) {
+            Logger.debug("From Backend : UserDescription");
             Logger.debug(userDescription);
             self.checkSDIOwner(userDescription);
         });
 
         this._backendSocket.on("SDIDescription", function(sdiDescription) {
+            Logger.debug("From Backend : SDIDescription");
             Logger.debug(sdiDescription);
             self.isProfilExist(sdiDescription);
         });
 
         this._backendSocket.on("ZoneDescription", function(zoneDescription) {
+            Logger.debug("From Backend : ZoneDescription");
             self.zoneDescriptionProcess(zoneDescription);
         });
 
         this._backendSocket.on("CallDescription", function(callDescriptionProcess) {
+            Logger.debug("From Backend : CallDescription");
             self.callDescriptionProcess(callDescriptionProcess);
         });
 
         this._backendSocket.on("CallTypeDescription", function(callTypeDescription) {
+            Logger.debug("From Backend : CallTypeDescription");
             self.callTypeDescriptionProcess(callTypeDescription);
         });
     }
@@ -274,12 +281,12 @@ class Client {
         var newZone:Zone = new Zone(zoneDescription.id, zoneDescription.name, zoneDescription.description, zoneDescription.width, zoneDescription.height, zoneDescription.positionFromTop, zoneDescription.positionFromLeft);
         Logger.debug(newZone);
 
-        /*if(window[zoneDescription.behaviour["name"]]) {
+        if(window[zoneDescription.behaviour["name"]]) {
             var behaviour = new window[zoneDescription.behaviour["name"]]();
             newZone.setBehaviour(behaviour);
             Logger.debug("Added Behaviour !");
             Logger.debug(behaviour);
-        }*/
+        }
 
         self._zones.push(newZone);
     }

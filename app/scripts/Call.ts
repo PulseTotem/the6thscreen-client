@@ -100,7 +100,7 @@ class Call {
      * @private
      */
     private _manageSourcesServerConnection() {
-        Logger.debug("Manage Sources Server Connection");
+        Logger.debug("Call - 1 : Manage Sources Server Connection");
         this._listenSourcesServer();
         this._connectToSourcesServer();
     }
@@ -112,6 +112,7 @@ class Call {
      * @private
      */
     private _listenSourcesServer() {
+        Logger.debug("Call - 1.1 : Sources Server Listening");
         var self = this;
 
         this._sourcesServerSocket.on("zones/" + this._zone.getId() + "/calls/" + this.getId() + "/hash", function(sourceConnectionDescription) {
@@ -128,7 +129,7 @@ class Call {
      * @private
      */
     private _connectToSourcesServer() {
-        Logger.info("Connect to Sources Server");
+        Logger.debug("Call - 1.2 : Sources server Call declaration");
         this._sourcesServerSocket.emit("zones/" + this._zone.getId() + "/newCall", {"id" : this._id});
     }
 
@@ -140,7 +141,7 @@ class Call {
      * @private
      */
     private _manageSourceConnection(sourceConnectionDescription : any) {
-        Logger.debug("Manage Source Connection");
+        Logger.debug("Call - 2 : Manage connection to Source");
         this._connectToSource(sourceConnectionDescription);
     }
 
@@ -151,6 +152,7 @@ class Call {
      * @private
      */
     private _listenForNewInfos() {
+        Logger.debug("Call - 2.2 : Source listening for new Infos.");
         var self = this;
 
         Logger.debug("Listening for new Infos on : zones/" + this._zone.getId() + "/calls/" + this.getId() + "/newInfo");
@@ -160,6 +162,7 @@ class Call {
             //TODO : Retrieve TypeInfo and use it here to transform infoDescription JSON to an InfoType object !!!!! Or not....
             self._listInfos.push(infoDescription);
             //self.getReceivePolicy().process(self._listInfos);
+            self._zone.refreshBehaviour();
         });
 
         //_sourceSocket
@@ -173,12 +176,14 @@ class Call {
      * @private
      */
     private _connectToSource(sourceConnectionDescription : any) {
+        Logger.debug("Call - 2.1 : Manage connection to Source");
         var self = this;
 
         this._sourceSocket = io(sourceConnectionDescription.url);
+        this._listenForNewInfos();
         this._sourceSocket.on("connect", function() {
             Logger.info("Connected to Source.");
-            self._listenForNewInfos();
+            Logger.debug("Call - 2.3 : Source New Client declaration.");
             self._sourceSocket.emit("newClient", {"zoneId" : self._zone.getId(), "callId" : self.getId(), "callHash" : sourceConnectionDescription.hash});
         });
 

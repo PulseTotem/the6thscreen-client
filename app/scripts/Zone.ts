@@ -137,7 +137,7 @@ class Zone {
         this._calls = new Array<Call>();
         this._behaviour = null;
         this._attachToDom();
-        //this._connectToSourcesServer();
+        this._connectToSourcesServer();
     }
 
     /**
@@ -177,6 +177,7 @@ class Zone {
      * @param {Call} call - The Call to add.
      */
     addCall(call : Call) {
+        Logger.debug("Zone - addCall");
         this._calls.push(call);
         this.restartBehaviour();
     }
@@ -188,6 +189,7 @@ class Zone {
      * @param {Behaviour} behaviour - The Behaviour to set.
      */
     setBehaviour(behaviour : Behaviour) {
+        Logger.debug("Zone - setBehaviour");
         this._behaviour = behaviour;
         this._behaviour.setZoneDiv(this._zoneDiv);
         this.restartBehaviour();
@@ -199,7 +201,24 @@ class Zone {
      * @method restartBehaviour
      */
     restartBehaviour() {
-        //this._behaviour.restart(this._calls);
+        Logger.debug("Zone - restartBehaviour");
+        if(this._behaviour != null) {
+            Logger.debug("Zone - restart OK !");
+            this._behaviour.restart(this._calls);
+        }
+    }
+
+    /**
+     * Refresh the Behaviour.
+     *
+     * @method refreshBehaviour
+     */
+    refreshBehaviour() {
+        Logger.debug("Zone - refreshBehaviour");
+        if(this._behaviour != null) {
+            Logger.debug("Zone - refresh OK !");
+            this._behaviour.buildListMapInfoRenderer(this._calls);
+        }
     }
 
     /**
@@ -226,6 +245,7 @@ class Zone {
      * @private
      */
     private _attachToDom() {
+        Logger.debug("Zone - 1 : Attached to Dom");
         this._zoneDiv = $("<div>");
         this._zoneDiv.addClass("zone");
         this._zoneDiv.css("top", this._positionFromTop + "%");
@@ -244,6 +264,7 @@ class Zone {
      * @private
      */
     private _connectToSourcesServer() {
+        Logger.debug("Zone - 2 : Manage Sources Server Connection");
         var self = this;
 
         this._sourcesServerSocket = io(this._sourcesServerURL);
@@ -259,7 +280,7 @@ class Zone {
         });
 
         this._sourcesServerSocket.on("disconnect", function() {
-            Logger.info("Disconnected to Sources Server.");
+            Logger.info("Disconnected from Sources Server.");
         });
 
         this._sourcesServerSocket.on("reconnect", function(attemptNumber) {
