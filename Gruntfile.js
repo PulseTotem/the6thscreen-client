@@ -161,13 +161,15 @@ module.exports = function (grunt) {
         typescript: {
             build: {
                 src: [
-                    'app/scripts/Client.ts'
+                    'app/scripts/**/*.ts',
+                    't6s-core/core-client/scripts/**/*.ts'
                 ],
                 dest: 'build/js/Client.js'
             },
             dist: {
                 src: [
-                    'app/scripts/Client.ts'
+                    'app/scripts/**/*.ts',
+                    't6s-core/core-client/scripts/**/*.ts'
                 ],
                 dest: 'tmp/js/Client.js'
             },
@@ -224,7 +226,7 @@ module.exports = function (grunt) {
             },
 
             developTypescript: {
-                files: ['app/scripts/**/*.ts'],
+                files: ['app/scripts/**/*.ts', 't6s-core/core-client/scripts/**/*.ts', 't6s-core/core-client/t6s-core/core/scripts/**/**.ts'],
                 tasks: ['typescript:build']
             },
 

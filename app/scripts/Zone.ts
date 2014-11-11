@@ -8,6 +8,7 @@
 /// <reference path="../../t6s-core/core-client/scripts/behaviour/Behaviour.ts" />
 
 declare var io: any; // Use of Socket.IO lib
+declare var $: any; // Use of JQuery
 
 /**
  * Represents a Zone of The6thScreen Client.
@@ -73,22 +74,6 @@ class Zone {
     private _positionFromLeft : number;
 
     /**
-     * The 6th Screen Sources Server's URL.
-     *
-     * @property _sourcesServerURL
-     * @type string
-     */
-    private _sourcesServerURL : string = "http://localhost:5000/";
-
-    /**
-     * The 6th Screen Sources Server's socket.
-     *
-     * @property _sourcesServerSocket
-     * @type any
-     */
-    private _sourcesServerSocket : any;
-
-    /**
      * List of Calls' Zone
      *
      * @property _calls
@@ -103,6 +88,15 @@ class Zone {
      * @type Behaviour
      */
     private _behaviour : Behaviour;
+
+    /**
+     * Zone Div.
+     *
+     * @property _zoneDiv
+     * @type DOM Element
+     */
+    private _zoneDiv : any;
+
 
     /**
      * Constructor.
@@ -124,10 +118,9 @@ class Zone {
         this._height = height;
         this._positionFromTop = positionFromTop;
         this._positionFromLeft = positionFromLeft;
-
         this._calls = new Array<Call>();
-        this._behaviour = new Behaviour();
-        this._sourcesServerSocket = this._connectToSourcesServer(this._sourcesServerURL);
+        this._behaviour = null;
+        this._attachToDom();
     }
 
     /**
@@ -141,14 +134,25 @@ class Zone {
     }
 
     /**
+     * Returns Zone's Calls.
+     *
+     * @method getCalls
+     * @return {Array<Call>} The zone's calls.
+     */
+    getCalls() : Array<Call> {
+        return this._calls;
+    }
+
+    /**
      * Returns Zone's SourceServer socket.
      *
      * @method getSourcesServerSocket
      * @return {any} The zone's SourcesServer socket.
-     */
+     * /
     getSourcesServerSocket() {
         return this._sourcesServerSocket;
     }
+    */
 
     /**
      * Add Call to Zone.
@@ -157,27 +161,83 @@ class Zone {
      * @param {Call} call - The Call to add.
      */
     addCall(call : Call) {
+        Logger.debug("Zone - addCall");
         this._calls.push(call);
+        this.restartBehaviour();
     }
 
     /**
-     * Connect to The6thScreen Sources' Server.
+     * Set the Zone's behaviour..
      *
-     * @method _connectToSourcesServer
-     * @private
-     * @param {string} sourcesServerURL - The Sources Server's URL.
+     * @method setBehaviour
+     * @param {Behaviour} behaviour - The Behaviour to set.
      */
-    private _connectToSourcesServer(sourcesServerURL : string) {
-        try {
-            var sourcesServerSocket = io(sourcesServerURL);
-            Logger.info("Zone - Connection to Sources Server done.");
-            sourcesServerSocket.emit("newZone", {"id" : this.getId()});
-            Logger.info("Zone - Zone declaration done.");
-            return sourcesServerSocket;
-        } catch(e) {
-            Logger.error("Zone - Connection to Sources Server failed !");
-            Logger.debug(e.message);
-            return null;
+    setBehaviour(behaviour : Behaviour) {
+        Logger.debug("Zone - setBehaviour");
+        this._behaviour = behaviour;
+        this._behaviour.setZoneDiv(this._zoneDiv);
+        this.restartBehaviour();
+    }
+
+    /**
+     * Restart the Behaviour.
+     *
+     * @method restartBehaviour
+     */
+    restartBehaviour() {
+        Logger.debug("Zone - restartBehaviour");
+        if(this._behaviour != null) {
+            Logger.debug("Zone - restart OK !");
+            this._behaviour.restart(this._calls);
         }
+    }
+
+    /**
+     * Refresh the Behaviour.
+     *
+     * @method refreshBehaviour
+     */
+    refreshBehaviour() {
+        Logger.debug("Zone - refreshBehaviour");
+        if(this._behaviour != null) {
+            Logger.debug("Zone - refresh OK !");
+            this._behaviour.buildListMapInfoRenderer(this._calls);
+        }
+    }
+
+    /**
+     * Return a Call from CallId.
+     *
+     * @method retrieveCall
+     * @param {number} callId - The Call's Id.
+     */
+    retrieveCall(callId : number) {
+        for(var iCall in this._calls) {
+            var call = this._calls[callId];
+            if(call.getId() == callId) {
+                return call;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Attach Zone to Client's DOM.
+     *
+     * @method _attachToDom
+     * @private
+     */
+    private _attachToDom() {
+        Logger.debug("Zone - 1 : Attached to Dom");
+        this._zoneDiv = $("<div>");
+        this._zoneDiv.addClass("zone");
+        this._zoneDiv.css("top", this._positionFromTop + "%");
+        this._zoneDiv.css("left", this._positionFromLeft + "%");
+        this._zoneDiv.css("width", this._width + "%");
+        this._zoneDiv.css("height", this._height + "%");
+
+
+        $("#the6thscreen-client-content").append(this._zoneDiv);
     }
 }
