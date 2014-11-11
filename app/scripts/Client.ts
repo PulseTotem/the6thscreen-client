@@ -330,9 +330,9 @@ class Client {
         var self = this;
 
         ForEachAsync.forEach(this._sdiDescription.zones, function(iZone) {
-            var zoneInfo = this._sdiDescription.zones[iZone];
+            var zoneInfo = self._sdiDescription.zones[iZone];
             if(self.getZone(zoneInfo.id) == null) {
-                this._backendSocket.emit("RetrieveZoneDescription", {"zoneId": zoneInfo.id});
+                self._backendSocket.emit("RetrieveZoneDescription", {"zoneId": zoneInfo.id});
             }
         });
     }
