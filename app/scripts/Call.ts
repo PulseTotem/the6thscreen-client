@@ -31,7 +31,15 @@ class Call {
     private _zone : Zone;
 
     /**
-     * Sources Server's socket.
+     * The 6th Screen Sources Server's URL.
+     *
+     * @property _sourcesServerURL
+     * @type string
+     */
+    private _sourcesServerURL : string = "http://localhost:5000/calls";
+
+    /**
+     * The 6th Screen Sources Server's socket.
      *
      * @property _sourcesServerSocket
      * @type any
@@ -79,6 +87,25 @@ class Call {
     private _listInfos : Array<Info>;
 
     /**
+     * Call's hash.
+     *
+     * @property _callHash
+     * @type string
+     */
+    private _callHash : string;
+
+
+    ///////////// Variables to manage process connection with Sources Server and Source ///////////
+
+    /**
+     * Source connection description for Call.
+     *
+     * @property _sourceConnectionDescription
+     * @type any
+     */
+    private _sourceConnectionDescription : any;
+
+    /**
      * Constructor.
      *
      * @constructor
@@ -88,9 +115,79 @@ class Call {
     constructor(id : number, zone : Zone) {
         this._id = id;
         this._zone = zone;
-        this._sourcesServerSocket = zone.getSourcesServerSocket();
         this._listInfos = new Array<Info>();
-        this._manageSourcesServerConnection();
+
+        this._connectToSourcesServer();
+
+        this._sourceConnectionDescription = null;
+        this._callHash = "";
+    }
+
+    /**
+     * Step 1.1 : Connect to The6thScreen Sources' Server.
+     *
+     * @method _connectToSourcesServer
+     * @private
+     */
+    private _connectToSourcesServer() {
+        Logger.debug("Call - 1.1 : Sources Server Connection");
+        var self = this;
+
+        this._sourcesServerSocket = io(this._sourcesServerURL);
+
+        this._listenSourcesServer();
+
+        this._sourcesServerSocket.on("connect", function() {
+            Logger.info("Connected to Sources Server.");
+            self._manageSourcesServerConnection();
+        });
+
+        this._sourcesServerSocket.on("error", function(errorData) {
+            Logger.error("An error occurred during connection to Sources Server.");
+            Logger.debug(errorData);
+        });
+
+        this._sourcesServerSocket.on("disconnect", function() {
+            Logger.info("Disconnected from Sources Server.");
+        });
+
+        this._sourcesServerSocket.on("reconnect", function(attemptNumber) {
+            Logger.info("Connected to Sources Server after " + attemptNumber + " attempts.");
+        });
+
+        this._sourcesServerSocket.on("reconnect_attempt", function() {
+            Logger.info("Trying to reconnect to Sources Server.");
+        });
+
+        this._sourcesServerSocket.on("reconnecting", function(attemptNumber) {
+            Logger.info("Trying to connect to Sources Server - Attempt number " + attemptNumber + ".");
+        });
+
+        this._sourcesServerSocket.on("reconnect_error", function(errorData) {
+            Logger.error("An error occurred during reconnection to Sources Server.");
+            Logger.debug(errorData);
+        });
+
+        this._sourcesServerSocket.on("reconnect_failed", function() {
+            Logger.error("Failed to connect to Sources Server. No new attempt will be done.");
+        });
+    }
+
+    /**
+     * Step 1.2 : Init listening Sources Server.
+     *
+     * @method _listenSourcesServer
+     * @private
+     */
+    private _listenSourcesServer() {
+        Logger.debug("Call - 1.2 : Sources Server Listening");
+        var self = this;
+
+        this._sourcesServerSocket.on("sourceConnectionDescription", function(sourceConnectionDescription) {
+            self._sourceConnectionDescription = sourceConnectionDescription;
+
+            self._connectToSource();
+        });
     }
 
     /**
@@ -100,95 +197,46 @@ class Call {
      * @private
      */
     private _manageSourcesServerConnection() {
-        Logger.debug("Call - 1 : Manage Sources Server Connection");
-        this._listenSourcesServer();
-        this._connectToSourcesServer();
-    }
-
-    /**
-     * Init listening Sources Server.
-     *
-     * @method _listenSourcesServer
-     * @private
-     */
-    private _listenSourcesServer() {
-        Logger.debug("Call - 1.1 : Sources Server Listening");
         var self = this;
 
-        this._sourcesServerSocket.on("zones/" + this._zone.getId() + "/calls/" + this.getId() + "/hash", function(sourceConnectionDescription) {
-            Logger.info("Receive Hash !");
-            Logger.debug(sourceConnectionDescription);
-            self._manageSourceConnection(sourceConnectionDescription);
-        });
+        if(this._sourceConnectionDescription == null) {
+            this._callDeclaration();
+        }
     }
 
     /**
-     * Perform call connection to Sources Server.
+     * Step 1.3 : Perform call declaration to Sources Server.
      *
-     * @method _connectToSourcesServer
+     * @method _callDeclaration
      * @private
      */
-    private _connectToSourcesServer() {
-        Logger.debug("Call - 1.2 : Sources server Call declaration");
-        this._sourcesServerSocket.emit("zones/" + this._zone.getId() + "/newCall", {"id" : this._id});
+    private _callDeclaration() {
+        Logger.debug("Call - 1.3 : Sources server Call declaration");
+        this._sourcesServerSocket.emit("callId", {"id" : this.getId()});
     }
 
     /**
-     * Manage connection to Source.
-     *
-     * @method _manageSourceConnection
-     * @param {any} sourceConnectionDescription - Source's connection description
-     * @private
-     */
-    private _manageSourceConnection(sourceConnectionDescription : any) {
-        Logger.debug("Call - 2 : Manage connection to Source");
-        this._connectToSource(sourceConnectionDescription);
-    }
-
-    /**
-     * Init listening for new Infos.
-     *
-     * @method _listenForNewInfos
-     * @private
-     */
-    private _listenForNewInfos() {
-        Logger.debug("Call - 2.2 : Source listening for new Infos.");
-        var self = this;
-
-        Logger.debug("Listening for new Infos on : zones/" + this._zone.getId() + "/calls/" + this.getId() + "/newInfo");
-        this._sourceSocket.on("zones/" + this._zone.getId() + "/calls/" + this.getId() + "/newInfo", function(infoDescription) {
-            Logger.debug("Receive new Infos !");
-            Logger.debug(infoDescription);
-            //TODO : Retrieve TypeInfo and use it here to transform infoDescription JSON to an InfoType object !!!!! Or not....
-            self._listInfos.push(infoDescription);
-            //self.getReceivePolicy().process(self._listInfos);
-            self._zone.refreshBehaviour();
-        });
-
-        //_sourceSocket
-    }
-
-    /**
-     * Perform call connection to Source.
+     * Connection to Source.
      *
      * @method _connectToSource
-     * @param {any} sourceConnectionDescription - Source's connection description.
      * @private
      */
-    private _connectToSource(sourceConnectionDescription : any) {
+    private _connectToSource() {
         Logger.debug("Call - 2.1 : Manage connection to Source");
+        this._callHash = this._sourceConnectionDescription.hash;
+
         var self = this;
 
-        this._sourceSocket = io(sourceConnectionDescription.url);
-        this._listenForNewInfos();
+        this._sourceSocket = io(this._sourceConnectionDescription.url);
+        this._listenForSource();
         this._sourceSocket.on("connect", function() {
             Logger.info("Connected to Source.");
-            Logger.debug("Call - 2.3 : Source New Client declaration.");
-            self._sourceSocket.emit("newClient", {"zoneId" : self._zone.getId(), "callId" : self.getId(), "callHash" : sourceConnectionDescription.hash});
+            self._manageSourceConnection();
         });
 
         this._sourceSocket.on("error", function(errorData) {
             Logger.error("An error occurred during connection to Source.");
+            Logger.debug(errorData);
         });
 
         this._sourceSocket.on("disconnect", function() {
@@ -200,7 +248,7 @@ class Call {
         });
 
         this._sourceSocket.on("reconnect_attempt", function() {
-            //TODO?
+            Logger.info("Trying to reconnect to Source.");
         });
 
         this._sourceSocket.on("reconnecting", function(attemptNumber) {
@@ -209,6 +257,7 @@ class Call {
 
         this._sourceSocket.on("reconnect_error", function(errorData) {
             Logger.error("An error occurred during reconnection to Source.");
+            Logger.debug(errorData);
         });
 
         this._sourceSocket.on("reconnect_failed", function() {
@@ -216,6 +265,55 @@ class Call {
         });
     }
 
+    /**
+     * Step 2.2 : Init listening for Source.
+     *
+     * @method _listenForSource
+     * @private
+     */
+    private _listenForSource() {
+        Logger.debug("Call - 2.2 : Source listening.");
+        var self = this;
+
+        Logger.debug("Listening for ping answer.");
+        this._sourceSocket.on("pingAnswer", function(pingAnswer) {
+            Logger.debug("Receive ping answer !");
+            if(! pingAnswer.sendingInfos) {
+                self._callDeclarationToSource();
+            }
+        });
+
+        Logger.debug("Listening for new Infos on : 'newInfo'");
+        this._sourceSocket.on("newInfo", function(infoDescription) {
+            Logger.debug("Receive new Infos !");
+            Logger.debug(infoDescription);
+            self._listInfos.push(infoDescription);
+            //self.getReceivePolicy().process(self._listInfos);
+            self._zone.refreshBehaviour();
+        });
+    }
+
+    /**
+     * Step 2.3 : Manage connection to Source.
+     *
+     * @method _manageSourceConnection
+     * @private
+     */
+    private _manageSourceConnection() {
+        Logger.debug("Call - 2.3 : Manage Source Connection.");
+        this._sourceSocket.emit("ping", {"callHash" : this._callHash});
+    }
+
+    /**
+     * Step 2.4 : Perform call declaration to Source.
+     *
+     * @method _callDeclarationToSource
+     * @private
+     */
+    private _callDeclarationToSource() {
+        Logger.debug("Call - 2.4 : Source Call declaration.");
+        this._sourceSocket.emit("newCall", {"callHash" : this._callHash});
+    }
 
     /**
      * Returns Call's Id.
