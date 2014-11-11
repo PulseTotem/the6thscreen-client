@@ -69,6 +69,32 @@ class Client {
     private _callTypeDescriptions : Array<CallTypeDescription>;
 
     /**
+     * The Client's CallIds.
+     *
+     * @property _callIds
+     * @type Array<number>
+     */
+    private _callIds : Array<number>;
+
+    ///////////// Variables to manage process connection with Backend ///////////
+
+    /**
+     * SDI Description.
+     *
+     * @property _sdiDescription
+     * @type JSON Object
+     */
+    private _sdiDescription : any;
+
+    /**
+     * Profil Description.
+     *
+     * @property _profilDescription
+     * @type JSON Object
+     */
+    private _profilDescription : any;
+
+    /**
      * Constructor.
      *
      * @constructor
@@ -78,6 +104,10 @@ class Client {
         this._backendURL = backendURL;
         this._zones = new Array();
         this._callTypeDescriptions = new Array<CallTypeDescription>();
+        this._callIds = new Array<number>();
+
+        this._sdiDescription = null;
+        this._profilDescription = null;
     }
 
     /**
@@ -96,18 +126,15 @@ class Client {
         this._backendSocket = io(this._backendURL + "/clients",
             {"reconnection" : true, "reconnectionDelay" : 1000, "reconnectionDelayMax" : 5000, "timeout" : 10000, "autoConnect" : true});
 
-        Logger.debug(this._backendSocket);
-
         this.listen();
 
         this._backendSocket.on("connect", function() {
             Logger.info("Connected to Backend.");
-            self.init();
+            self.manageBackendConnection();
         });
 
         this._backendSocket.on("error", function(errorData) {
             Logger.error("An error occurred during connection to Backend.");
-            Logger.debug(errorData);
         });
 
         this._backendSocket.on("disconnect", function() {
@@ -128,7 +155,6 @@ class Client {
 
         this._backendSocket.on("reconnect_error", function(errorData) {
             Logger.error("An error occurred during reconnection to Backend.");
-            Logger.debug(errorData);
         });
 
         this._backendSocket.on("reconnect_failed", function() {
@@ -146,46 +172,75 @@ class Client {
         var self = this;
 
         this._backendSocket.on("ProfilDescription", function(profilDescription) {
-            Logger.debug("From Backend : ProfilDescription");
             self.profilDescriptionProcess(profilDescription);
         });
 
         this._backendSocket.on("UserDescription", function(userDescription) {
-            Logger.debug("From Backend : UserDescription");
-            Logger.debug(userDescription);
             self.checkSDIOwner(userDescription);
         });
 
         this._backendSocket.on("SDIDescription", function(sdiDescription) {
-            Logger.debug("From Backend : SDIDescription");
-            Logger.debug(sdiDescription);
             self.isProfilExist(sdiDescription);
         });
 
         this._backendSocket.on("ZoneDescription", function(zoneDescription) {
-            Logger.debug("From Backend : ZoneDescription");
             self.zoneDescriptionProcess(zoneDescription);
         });
 
         this._backendSocket.on("CallDescription", function(callDescriptionProcess) {
-            Logger.debug("From Backend : CallDescription");
             self.callDescriptionProcess(callDescriptionProcess);
         });
 
         this._backendSocket.on("CallTypeDescription", function(callTypeDescription) {
-            Logger.debug("From Backend : CallTypeDescription");
             self.callTypeDescriptionProcess(callTypeDescription);
         });
     }
 
     /**
+     * Manage connection with backend.
+     *
+     * @method manageBackendConnection
+     */
+    manageBackendConnection() {
+        var self = this;
+
+        if(this._sdiDescription == null) {
+            this.init();
+        } else { // Step 1.* : done
+            if(this._sdiDescription.zones.length != this._zones.length) {
+                this.retrieveZones();
+            } else { // Step 2.* : done
+                if (this._profilDescription == null) {
+                    this.retrieveProfil();
+                } else { // Step 3.1 : Done
+                    if(typeof(this._profilDescription.calls) != "undefined") {
+                        if(this._profilDescription.calls.length != this._callIds.length) {
+                            this.profilDescriptionProcess(this._profilDescription);
+                        } else { // Step 3.2 && 3.3 : Done
+                            ForEachAsync.forEach(this._callTypeDescriptions, function(iCallType) {
+                                var callTypeDesc = this._callTypeDescriptions[iCallType];
+                                if(callTypeDesc.getDescription() == null) {
+                                    var callTypeId = callTypeDesc.getId();
+                                    self.retrieveCallType(callTypeId);
+                                } else { // Step 3.4 : Done
+                                    self.callTypeDescriptionProcess(callTypeDesc.getDescription()); // Step 3.5 : Done for all.
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Build the client step by step.
-     * Step 1 : Retrieving SDI Information.
+     * Step 1.1 : Retrieving SDI Information.
      *
      * @method init
      */
     init() {
-        Logger.debug("1 - init");
+        Logger.debug("1.1 - init");
         var self = this;
 
         var user = this.getQueryVariable("user");
@@ -205,18 +260,18 @@ class Client {
                 this._backendSocket.emit("RetrieveUserDescription", {"userId" : this._userId});
             }
         } else {
-            Logger.error("The 6th Screen Client's URL is not correct : Missing parameters");
+            Logger.error("The 6th Screen Client's URL is not correct : Missing parameters.");
         }
     }
 
     /**
-     * Step 1.1 : Check if user is SDI's owner.
+     * Step 1.2 : Check if user is SDI's owner.
      *
      * @method checkSDIOwner
      * @param {JSON Object} userDescription - The user's description to process
      */
     checkSDIOwner(userDescription : any) {
-        Logger.debug("1.1 - checkSDIOwner");
+        Logger.debug("1.2 - checkSDIOwner");
         var self = this;
 
         var checkOK = false;
@@ -238,13 +293,14 @@ class Client {
     }
 
     /**
-     * Step 1.2 : Check if profil exists for SDI in param.
+     * Step 1.3 : Check if profil exists for SDI in param.
      *
      * @method isProfilExist
      * @param {JSON Object} sdiDescription - The SDI's description to process
      */
     isProfilExist(sdiDescription : any) {
-        Logger.debug("1.2 - isProfilExist");
+        this._sdiDescription = sdiDescription;
+        Logger.debug("1.3 - isProfilExist");
         var self = this;
 
         var checkOK = false;
@@ -258,117 +314,137 @@ class Client {
         }
 
         if(checkOK) {
-            ForEachAsync.forEach(sdiDescription.zones, function(iZone) {
-                var zoneInfo = sdiDescription.zones[iZone];
-                self._backendSocket.emit("RetrieveZoneDescription", {"zoneId": zoneInfo.id});
-            });
-            self._backendSocket.emit("RetrieveProfilDescription", {"profilId": self._profilId});
+            this.retrieveZones();
         } else {
             // TODO: Exception ? Gestion de l'erreur ?
         }
     }
 
     /**
-     * Step 1.3 : Process the Zone Description
+     * Step 2.1 Initialization : Retrieve all zones descriptions
+     *
+     * @method retrieveZones
+     */
+    retrieveZones() {
+        Logger.debug("2.1 - retrieveZones");
+        var self = this;
+
+        ForEachAsync.forEach(this._sdiDescription.zones, function(iZone) {
+            var zoneInfo = this._sdiDescription.zones[iZone];
+            if(self.getZone(zoneInfo.id) == null) {
+                this._backendSocket.emit("RetrieveZoneDescription", {"zoneId": zoneInfo.id});
+            }
+        });
+    }
+
+    /**
+     * Step 2.2 : Process the Zone Description
      *
      * @method zoneDescriptionProcess
      * @param {JSON Object} zoneDescription - The zone's description to process
      */
     zoneDescriptionProcess(zoneDescription : any) {
-        Logger.debug("1.3 - zoneDescriptionProcess");
+        Logger.debug("2.2 - zoneDescriptionProcess");
         var self = this;
-        Logger.debug(zoneDescription);
         var newZone:Zone = new Zone(zoneDescription.id, zoneDescription.name, zoneDescription.description, zoneDescription.width, zoneDescription.height, zoneDescription.positionFromTop, zoneDescription.positionFromLeft);
-        Logger.debug(newZone);
 
         if(window[zoneDescription.behaviour["name"]]) {
             var behaviour = new window[zoneDescription.behaviour["name"]]();
             newZone.setBehaviour(behaviour);
-            Logger.debug("Added Behaviour !");
-            Logger.debug(behaviour);
         }
 
         self._zones.push(newZone);
+
+        if(self._sdiDescription.zones.length == self._zones.length) {
+            self.retrieveProfil();
+        }
     }
 
     /**
-     * Step 2 : Process the Profil Description
+     * Step 3.1 Initialization : Retrieve profil description
+     *
+     * @method retrieveProfil
+     */
+    retrieveProfil() {
+        Logger.debug("3.1 - retrieveProfil");
+        this._backendSocket.emit("RetrieveProfilDescription", {"profilId": this._profilId});
+    }
+
+    /**
+     * Step 3.2 : Process the Profil Description
      *
      * @method profilDescriptionProcess
      * @param {JSON Object} profilDescription - The profil's description to process
      */
     profilDescriptionProcess(profilDescription : any) {
-        Logger.debug("2 - profilDescriptionProcess");
+        Logger.debug("3.2 - profilDescriptionProcess");
+        this._profilDescription = profilDescription;
         var self = this;
-        Logger.debug(profilDescription);
         if(typeof(profilDescription.calls) != "undefined") {
             ForEachAsync.forEach(profilDescription.calls, function(iCall) {
                 var callDescription = profilDescription.calls[iCall];
                 var callId = callDescription["id"];
-                self._backendSocket.emit("RetrieveCallDescription", {"callId" : callId});
+                if(self._callIds.indexOf(callId) == -1) {
+                    self._backendSocket.emit("RetrieveCallDescription", {"callId": callId});
+                }
             });
         }
     }
 
     /**
-     * Step 3.0 : Process the Call Description
+     * Step 3.3 : Process the Call Description
      *
      * @method callDescriptionProcess
      * @param {JSON Object} callDescription - The call's description to process
      */
     callDescriptionProcess(callDescription : any) {
-        Logger.debug("3 - callDescriptionProcess");
+        Logger.debug("3.3 - callDescriptionProcess");
         var self = this;
-        Logger.debug(callDescription);
         if(typeof(callDescription.callType) != "undefined") {
             var callTypeId = callDescription.callType["id"];
-            var callTypeDesc = this.retrieveCallTypeDescription(callTypeId);
+            var callTypeDesc = this.getCallTypeDescription(callTypeId);
 
             if(callTypeDesc == null) {
                 callTypeDesc = new CallTypeDescription(callTypeId);
                 callTypeDesc.addCallId(callDescription.id);
                 this._callTypeDescriptions.push(callTypeDesc);
-                this._backendSocket.emit("RetrieveCallTypeDescription", {"callTypeId" : callTypeId});
+
+                this.retrieveCallType(callTypeId);
             } else {
                 callTypeDesc.addCallId(callDescription.id);
                 if(callTypeDesc.getDescription() != null) {
                     this.callTypeDescriptionProcess(callTypeDesc.getDescription());
                 }
             }
+
+            this._callIds.push(callDescription.id);
         }
     }
 
     /**
-     * Step 3.0.1 : Check existing CallType Descriptions;
+     * Step 3.4 Initialization : Retrieve CallType description
      *
-     * @method retrieveCallTypeDescription
-     * @param {number} callTypeId - The CallType's Id to find.
+     * @method retrieveCallType
+     * @param {number} callTypeId - The CallType's Id.
      */
-    retrieveCallTypeDescription(callTypeId : number) {
-        Logger.debug("3.0.1 - retrieveCallTypeDescription");
-        for(var iCallType in this._callTypeDescriptions) {
-            var callTypeDesc = this._callTypeDescriptions[iCallType];
-            if(callTypeDesc.getId() == callTypeId) {
-                return callTypeDesc;
-            }
-        }
-
-        return null;
+    retrieveCallType(callTypeId : number) {
+        Logger.debug("3.4 - retrieveCallType");
+        this._backendSocket.emit("RetrieveCallTypeDescription", {"callTypeId" : callTypeId});
     }
 
     /**
-     * Step 3.1 : Process the CallType Description
+     * Step 3.5 : Process the CallType Description
      *
      * @method callTypeDescriptionProcess
      * @param {JSON Object} callTypeDescription - The callType's description to process
      */
     callTypeDescriptionProcess(callTypeDescription : any) {
-        Logger.debug("3.1 - callTypeDescriptionProcess");
+        Logger.debug("3.5 - callTypeDescriptionProcess");
         var self = this;
 
         var callTypeId = parseInt(callTypeDescription.id);
 
-        var calltypeDesc = this.retrieveCallTypeDescription(callTypeId);
+        var calltypeDesc = this.getCallTypeDescription(callTypeId);
 
         if(calltypeDesc.getDescription() == null) {
             calltypeDesc.setDescription(callTypeDescription);
@@ -399,7 +475,7 @@ class Client {
         }
 
         if(rendererId != null && zoneId != null && receivePolicyId != null && renderPolicyId != null) {
-            var zone = this.retrieveZone(zoneId);
+            var zone = this.getZone(zoneId);
             if(zone != null) {
                 var callIds = calltypeDesc.getCallIds();
                 for(var iCallId in callIds) {
@@ -408,8 +484,6 @@ class Client {
 
                     if (call == null) {
                         call = new Call(callId, zone);
-
-                        //TODO : Manage Renderer, RenderPolicy etc... with 'path' loading //Objet window[functionName]()
 
                         if (window[callTypeDescription.renderer["name"]]) {
                             var renderer = new window[callTypeDescription.renderer["name"]]();
@@ -441,16 +515,35 @@ class Client {
     /**
      * Retrieve Zone from its Id.
      *
-     * @method retrieveZone
+     * @method getZone
      * @private
      * @param {number} zoneId - The Zone's Id.
-     * @returns {Zone} the Zone corresponding to zoneId.
+     * @returns {Zone} the Zone corresponding to zoneId or null.
      */
-    private retrieveZone(zoneId : number) : Zone {
+    private getZone(zoneId : number) : Zone {
         for(var iZone in this._zones) {
             var zone = this._zones[iZone];
             if(zone.getId() == zoneId) {
                 return zone;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Check existing CallType Descriptions;
+     *
+     * @method getCallTypeDescription
+     * @private
+     * @param {number} callTypeId - The CallType's Id to find.
+     * @returns {CallTypeDescription} The CallTypeDescription corresponding to CallTypeId or null
+     */
+    private getCallTypeDescription(callTypeId : number) : CallTypeDescription {
+        for(var iCallType in this._callTypeDescriptions) {
+            var callTypeDesc = this._callTypeDescriptions[iCallType];
+            if(callTypeDesc.getId() == callTypeId) {
+                return callTypeDesc;
             }
         }
 
@@ -464,7 +557,7 @@ class Client {
      * @method getQueryVariable
      * @private
      * @param {string} variable - The query variable to retrieve.
-     * @returns {string} value of query variable.
+     * @returns {string} value of query variable (Empty string if not found).
      */
     private getQueryVariable(variable : string) : string {
         var query = window.location.search.substring(1);
