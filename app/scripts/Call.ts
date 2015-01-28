@@ -133,7 +133,8 @@ class Call {
         Logger.debug("Call - 1.1 : Sources Server Connection");
         var self = this;
 
-        this._sourcesServerSocket = io(this._sourcesServerURL);
+        this._sourcesServerSocket = io(this._sourcesServerURL,
+            {"reconnection" : true, 'reconnectionAttempts' : 10, "reconnectionDelay" : 1000, "reconnectionDelayMax" : 5000, "timeout" : 5000, "autoConnect" : true});
 
         this._listenSourcesServer();
 
@@ -227,7 +228,8 @@ class Call {
 
         var self = this;
 
-        this._sourceSocket = io(this._sourceConnectionDescription.url);
+        this._sourceSocket = io(this._sourceConnectionDescription.url,
+            {"reconnection" : true, 'reconnectionAttempts' : 10, "reconnectionDelay" : 1000, "reconnectionDelayMax" : 5000, "timeout" : 5000, "autoConnect" : true});
         this._listenForSource();
         this._sourceSocket.on("connect", function() {
             Logger.info("Connected to Source.");

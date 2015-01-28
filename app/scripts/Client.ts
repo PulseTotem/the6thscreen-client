@@ -124,7 +124,7 @@ class Client {
         Logger.info("____________________________________________________________________________________________________");
 
         this._backendSocket = io(this._backendURL + "/clients",
-            {"reconnection" : true, "reconnectionDelay" : 1000, "reconnectionDelayMax" : 5000, "timeout" : 10000, "autoConnect" : true});
+            {"reconnection" : true, 'reconnectionAttempts' : 10, "reconnectionDelay" : 1000, "reconnectionDelayMax" : 5000, "timeout" : 5000, "autoConnect" : true});
 
         this.listen();
 
