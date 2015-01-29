@@ -224,6 +224,7 @@ class Call {
      */
     private _connectToSource() {
         Logger.debug("Call - 2.1 : Manage connection to Source");
+        Logger.debug("Call - 2.1 : SourceConnectionDescription URL => " + this._sourceConnectionDescription.url + " HASH => " + this._sourceConnectionDescription.hash);
         this._callHash = this._sourceConnectionDescription.hash;
 
         var self = this;
@@ -280,7 +281,11 @@ class Call {
         Logger.debug("Listening for ping answer.");
         this._sourceSocket.on("pingAnswer", function(pingAnswer) {
             Logger.debug("Receive ping answer !");
+            Logger.debug(pingAnswer);
             if(! pingAnswer.sendingInfos) {
+                Logger.debug("pingAnswer false so do nothing...");
+                //self._callDeclarationToSource();
+            } else {
                 self._callDeclarationToSource();
             }
         });
@@ -288,7 +293,7 @@ class Call {
         Logger.debug("Listening for new Infos on : 'newInfo'");
         this._sourceSocket.on("newInfo", function(infoDescription) {
             Logger.debug("Receive new Infos !");
-            Logger.debug(infoDescription);
+            //Logger.debug(infoDescription);
             self._listInfos.push(infoDescription);
             //self.getReceivePolicy().process(self._listInfos);
             self._zone.refreshBehaviour();
