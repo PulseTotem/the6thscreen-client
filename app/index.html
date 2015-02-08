@@ -28,8 +28,9 @@
         <!-- /The6thScreenClient -->
 
         <script>
+            var client;
             $('window').ready(function() {
-                var client = new Client("http://localhost:4000");
+                client = new Client("http://localhost:4000");
                 client.run();
             });
         </script>

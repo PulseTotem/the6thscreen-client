@@ -185,10 +185,21 @@ class Zone {
      * @method restartBehaviour
      */
     restartBehaviour() {
-        Logger.debug("Zone - restartBehaviour");
         if(this._behaviour != null) {
             Logger.debug("Zone - restart OK !");
             this._behaviour.restart(this._calls);
+        }
+    }
+
+    /**
+     * Stop the Behaviour.
+     *
+     * @method stopBehaviour
+     */
+    stopBehaviour() {
+        if(this._behaviour != null) {
+            Logger.debug("Zone - stopBehaviour");
+            this._behaviour.stop();
         }
     }
 
