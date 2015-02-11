@@ -10,7 +10,6 @@
 
 declare var io: any; // Use of Socket.IO lib
 declare var $: any; // Use of JQuery
-declare var less: any; // Use of Less
 
 class Client {
 
@@ -162,6 +161,21 @@ class Client {
         this._backendSocket.on("reconnect_failed", function() {
             Logger.error("Failed to connect to Backend. No new attempt will be done.");
         });
+
+
+
+        /**
+         * TODO : Put it in a zone with special behaviour.
+         *
+         * Hack to update time in screen.
+         *
+         */
+        var updateTime = function() {
+            var currentDate : any = new Date();
+            $("#date_time").html(currentDate.toString("HH") + "h" + currentDate.toString("mm"));
+        };
+        updateTime();
+        setInterval(updateTime, 1000*10);
     }
 
     /**
@@ -318,7 +332,6 @@ class Client {
         if(checkOK) {
             //TODO : Manage SDI theme !
                 $('head').append('<link rel="stylesheet/less" type="text/less" href="static/themes/basic.less" />');
-                //less.refreshStyles();
             //TODO : Manage SDI theme !
             this.retrieveZones();
         } else {
@@ -495,7 +508,6 @@ class Client {
                             var renderer = new window[callTypeDescription.renderer["name"]]();
                             call.setRenderer(renderer);
                             $('head').append('<link rel="stylesheet/less" type="text/less" href="static/renderers/' + callTypeDescription.renderer["name"] + '.less" />');
-                            //less.refreshStyles();
                         }
 
                         if (window[callTypeDescription.renderPolicy["name"]]) {
