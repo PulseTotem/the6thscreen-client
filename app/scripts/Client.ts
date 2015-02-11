@@ -9,6 +9,7 @@
 /// <reference path="./CallTypeDescription.ts" />
 
 declare var io: any; // Use of Socket.IO lib
+declare var $: any; // Use of JQuery
 
 class Client {
 
@@ -160,6 +161,21 @@ class Client {
         this._backendSocket.on("reconnect_failed", function() {
             Logger.error("Failed to connect to Backend. No new attempt will be done.");
         });
+
+
+
+        /**
+         * TODO : Put it in a zone with special behaviour.
+         *
+         * Hack to update time in screen.
+         *
+         */
+        var updateTime = function() {
+            var currentDate : any = new Date();
+            $("#date_time").html(currentDate.toString("HH") + "h" + currentDate.toString("mm"));
+        };
+        updateTime();
+        setInterval(updateTime, 1000*10);
     }
 
     /**
@@ -314,6 +330,9 @@ class Client {
         }
 
         if(checkOK) {
+            //TODO : Manage SDI theme !
+                $('head').append('<link rel="stylesheet/less" type="text/less" href="static/themes/basic.less" />');
+            //TODO : Manage SDI theme !
             this.retrieveZones();
         } else {
             // TODO: Exception ? Gestion de l'erreur ?
@@ -488,6 +507,7 @@ class Client {
                         if (window[callTypeDescription.renderer["name"]]) {
                             var renderer = new window[callTypeDescription.renderer["name"]]();
                             call.setRenderer(renderer);
+                            $('head').append('<link rel="stylesheet/less" type="text/less" href="static/renderers/' + callTypeDescription.renderer["name"] + '.less" />');
                         }
 
                         if (window[callTypeDescription.renderPolicy["name"]]) {
@@ -504,12 +524,85 @@ class Client {
                         zone.addCall(call);
                     }
                 }
+
+
+                if(this.getNumberOfCalls() == this._profilDescription.calls.length) {
+                    $('head').append('<script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.3.1/less.min.js"></script>');
+                }
+
             } else {
                 // TODO: Exception ? Gestion de l'erreur ?
             }
         } else {
             // TODO: Exception ? Gestion de l'erreur ?
         }
+    }
+
+    /**
+     * Stop behaviour of specific zone.
+     *
+     * @method stopBehaviourForZone
+     * @param {Zone} zone - The zone to stop its behaviour
+     */
+    stopBehaviourForZone(zone : Zone) {
+        if(zone != null) {
+            zone.stopBehaviour();
+        }
+    }
+
+    /**
+     * Stop behaviour for all zones.
+     *
+     * @method stopAllBehaviours
+     */
+    stopAllBehaviours() {
+        for(var iZone in this._zones) {
+            var zone = this._zones[iZone];
+            Logger.debug("Stop behavior for zone with id : " + zone.getId() + " and with index in array : " + iZone);
+            zone.stopBehaviour();
+        }
+    }
+
+    /**
+     * Restart behaviour of specific zone.
+     *
+     * @method restartBehaviourForZone
+     * @param {Zone} zone - The zone to stop its behaviour
+     */
+    restartBehaviourForZone(zone : Zone) {
+        if(zone != null) {
+            zone.restartBehaviour();
+        }
+    }
+
+    /**
+     * Restart behaviour for all zones.
+     *
+     * @method restartAllBehaviours
+     */
+    restartAllBehaviours() {
+        for(var iZone in this._zones) {
+            var zone = this._zones[iZone];
+            Logger.debug("Restart behavior for zone with id : " + zone.getId() + " and with index in array : " + iZone);
+            zone.restartBehaviour();
+        }
+    }
+
+    /**
+     * Retrieve number of Calls in all zones.
+     *
+     * @method getNumberOfCalls
+     * @private
+     * @returns {number} the number of calls in all zones.
+     */
+    private getNumberOfCalls() : number {
+        var total : number = 0;
+        for(var iZone in this._zones) {
+            var zone = this._zones[iZone];
+            total += zone.getCalls().length;
+        }
+
+        return total;
     }
 
     /**
