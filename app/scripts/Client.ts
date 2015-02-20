@@ -270,6 +270,7 @@ class Client {
 
             if(timeline != "") {
                 // TODO : Treat timeline by retrieve all profils' description in timeline and display only the current.
+                Logger.warn("Timeline is not yet available.");
             } else {
                 this._profilId = profil;
                 // Check SDI Owner
@@ -304,7 +305,7 @@ class Client {
             //Check if profil exists
             this._backendSocket.emit("RetrieveSDIDescription", {"sdiId" : this._sdiId});
         } else {
-            // TODO: Exception ? Gestion de l'erreur ?
+            Logger.error("User is not SDI Owner.");
         }
     }
 
@@ -335,7 +336,7 @@ class Client {
             //TODO : Manage SDI theme !
             this.retrieveZones();
         } else {
-            // TODO: Exception ? Gestion de l'erreur ?
+            Logger.error("Profil doesn't belong to this SDI.");
         }
     }
 
@@ -531,10 +532,10 @@ class Client {
                 }
 
             } else {
-                // TODO: Exception ? Gestion de l'erreur ?
+                Logger.error("SDI or Profil definition error : A zone is not defined or does'nt belong to the good SDI...");
             }
         } else {
-            // TODO: Exception ? Gestion de l'erreur ?
+            Logger.error("SDI or Profil definition error : Missing information about Zone, Renderer, RenderPolicy or ReceivePolicy.");
         }
     }
 
@@ -547,6 +548,8 @@ class Client {
     stopBehaviourForZone(zone : Zone) {
         if(zone != null) {
             zone.stopBehaviour();
+        } else {
+            Logger.warn("Stop behaviour of null zone isn't possible.");
         }
     }
 
@@ -572,6 +575,8 @@ class Client {
     restartBehaviourForZone(zone : Zone) {
         if(zone != null) {
             zone.restartBehaviour();
+        } else {
+            Logger.warn("Restart behaviour of null zone isn't possible.");
         }
     }
 

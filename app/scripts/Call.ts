@@ -139,38 +139,38 @@ class Call {
         this._listenSourcesServer();
 
         this._sourcesServerSocket.on("connect", function() {
-            Logger.info("Connected to Sources Server.");
+            Logger.info("Call::_connectToSourcesServer : Connected to Sources Server.");
             self._manageSourcesServerConnection();
         });
 
         this._sourcesServerSocket.on("error", function(errorData) {
-            Logger.error("An error occurred during connection to Sources Server.");
+            Logger.error("Call::_connectToSourcesServer : An error occurred during connection to Sources Server.");
             Logger.debug(errorData);
         });
 
         this._sourcesServerSocket.on("disconnect", function() {
-            Logger.info("Disconnected from Sources Server.");
+            Logger.info("Call::_connectToSourcesServer : Disconnected from Sources Server.");
         });
 
         this._sourcesServerSocket.on("reconnect", function(attemptNumber) {
-            Logger.info("Connected to Sources Server after " + attemptNumber + " attempts.");
+            Logger.info("Call::_connectToSourcesServer : Connected to Sources Server after " + attemptNumber + " attempts.");
         });
 
         this._sourcesServerSocket.on("reconnect_attempt", function() {
-            Logger.info("Trying to reconnect to Sources Server.");
+            Logger.info("Call::_connectToSourcesServer : Trying to reconnect to Sources Server.");
         });
 
         this._sourcesServerSocket.on("reconnecting", function(attemptNumber) {
-            Logger.info("Trying to connect to Sources Server - Attempt number " + attemptNumber + ".");
+            Logger.info("Call::_connectToSourcesServer : Trying to connect to Sources Server - Attempt number " + attemptNumber + ".");
         });
 
         this._sourcesServerSocket.on("reconnect_error", function(errorData) {
-            Logger.error("An error occurred during reconnection to Sources Server.");
+            Logger.error("Call::_connectToSourcesServer : An error occurred during reconnection to Sources Server.");
             Logger.debug(errorData);
         });
 
         this._sourcesServerSocket.on("reconnect_failed", function() {
-            Logger.error("Failed to connect to Sources Server. No new attempt will be done.");
+            Logger.error("Call::_connectToSourcesServer : Failed to connect to Sources Server. No new attempt will be done.");
         });
     }
 
@@ -233,38 +233,38 @@ class Call {
             {"reconnection" : true, 'reconnectionAttempts' : 10, "reconnectionDelay" : 1000, "reconnectionDelayMax" : 5000, "timeout" : 5000, "autoConnect" : true});
         this._listenForSource();
         this._sourceSocket.on("connect", function() {
-            Logger.info("Connected to Source.");
+            Logger.info("Call::_connectToSource : Connected to Source.");
             self._manageSourceConnection();
         });
 
         this._sourceSocket.on("error", function(errorData) {
-            Logger.error("An error occurred during connection to Source.");
+            Logger.error("Call::_connectToSource : An error occurred during connection to Source.");
             Logger.debug(errorData);
         });
 
         this._sourceSocket.on("disconnect", function() {
-            Logger.info("Disconnected to Source.");
+            Logger.info("Call::_connectToSource : Disconnected to Source.");
         });
 
         this._sourceSocket.on("reconnect", function(attemptNumber) {
-            Logger.info("Connected to Source after " + attemptNumber + " attempts.");
+            Logger.info("Call::_connectToSource : Connected to Source after " + attemptNumber + " attempts.");
         });
 
         this._sourceSocket.on("reconnect_attempt", function() {
-            Logger.info("Trying to reconnect to Source.");
+            Logger.info("Call::_connectToSource : Trying to reconnect to Source.");
         });
 
         this._sourceSocket.on("reconnecting", function(attemptNumber) {
-            Logger.info("Trying to connect to Source - Attempt number " + attemptNumber + ".");
+            Logger.info("Call::_connectToSource : Trying to connect to Source - Attempt number " + attemptNumber + ".");
         });
 
         this._sourceSocket.on("reconnect_error", function(errorData) {
-            Logger.error("An error occurred during reconnection to Source.");
+            Logger.error("Call::_connectToSource : An error occurred during reconnection to Source.");
             Logger.debug(errorData);
         });
 
         this._sourceSocket.on("reconnect_failed", function() {
-            Logger.error("Failed to connect to Source. No new attempt will be done.");
+            Logger.error("Call::_connectToSource : Failed to connect to Source. No new attempt will be done.");
         });
     }
 
