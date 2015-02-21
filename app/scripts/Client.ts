@@ -669,4 +669,127 @@ class Client {
         return "";
     }
 
+    /**
+     * Show Log Messages Modal.
+     *
+     * @method showLogModal
+     */
+    showLogModal() {
+        var modalContent = '';
+        modalContent += '<div class="modal fade" id="lastLogMessagesModal" tabindex="-1" role="dialog" aria-labelledby="LastLogMessages" aria-hidden="true">';
+            modalContent += '<div class="modal-dialog modal-lg">';
+                modalContent += '<div class="modal-content">';
+                    modalContent += '<table class="table">';
+                        modalContent += '<thead>';
+                            modalContent += '<tr>';
+                                modalContent += '<th><h3 style="text-align: center;"><span class="glyphicon glyphicon-alert" aria-hidden="true"></span></h3></th>';
+                                modalContent += '<th><h3 style="text-align: center;"><span class="glyphicon glyphicon-time" aria-hidden="true"></span></h3></th>';
+                                modalContent += '<th><h3 style="text-align: center;"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></h3></th>';
+                            modalContent += '</tr>';
+                        modalContent += '</thead>';
+                        modalContent += '<tbody id="lastLogMessagesList">';
+                        modalContent += '</tbody>';
+                    modalContent += '</table>';
+                modalContent += '</div>';
+            modalContent += '</div>';
+        modalContent += '</div>';
+
+
+        var lastLogMessagesDiv = $("<div>");
+        lastLogMessagesDiv.attr("id", "lastLogMessages");
+        lastLogMessagesDiv.html(modalContent);
+        $("body").append(lastLogMessagesDiv);
+
+        var lastLogMessagesListDiv = $("#lastLogMessagesList");
+
+        var sStorage : any = sessionStorage;
+
+        if(typeof (sStorage.logMessages) == "undefined") {
+            var msgTr = $("<tr>");
+            msgTr.addClass("info");
+
+            var msgTd = $("<td>");
+            msgTd.attr("colspan", "3");
+            msgTd.html("Aucun message de Log...");
+            msgTr.append(msgTd);
+
+            lastLogMessagesListDiv.append(msgTr);
+        } else {
+            var logMessages : any = JSON.parse(sStorage.logMessages);
+            if(logMessages.length == 0) {
+                var msgTr = $("<tr>");
+                msgTr.addClass("info");
+
+                var msgTd = $("<td>");
+                msgTd.attr("colspan", "3");
+                msgTd.html("Aucun message de Log...");
+                msgTr.append(msgTd);
+
+                lastLogMessagesListDiv.append(msgTr);
+            } else {
+                for (var i = 0; i < logMessages.length; i++) {
+                    var logMsg = logMessages[i];
+                    var msgTr = $("<tr>");
+                    var msgLevelTd = $("<td>");
+                    msgTr.append(msgLevelTd);
+
+                    switch (logMsg.level) {
+                        case LoggerLevel.Debug :
+                            msgTr.addClass("success");
+                            msgLevelTd.html('<h3><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></h3>');
+                            break;
+                        case LoggerLevel.Info :
+                            msgTr.addClass("info");
+                            msgLevelTd.html('<h3><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></h3>');
+                            break;
+                        case LoggerLevel.Warning :
+                            msgTr.addClass("warning");
+                            msgLevelTd.html('<h3><span class="glyphicon glyphicon-bell" aria-hidden="true"></span></h3>');
+                            break;
+                        case LoggerLevel.Error :
+                            msgTr.addClass("danger");
+                            msgLevelTd.html('<h3><span class="glyphicon glyphicon-fire" aria-hidden="true"></span></h3>');
+                            break;
+                        default:
+                            msgTr.addClass("active");
+                            msgLevelTd.html('<h3><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></h3>');
+
+
+                    }
+
+                    var msgDateTd = $("<td>");
+                    msgDateTd.css("vertical-align", "middle");
+                    msgDateTd.css("text-align", "center");
+                    var msgDateObj : any = new Date(logMsg.date);
+                    msgDateTd.html(msgDateObj.toString("dd/MM/yyyy HH:mm:ss"));
+                    msgTr.append(msgDateTd);
+
+                    var msgContentTd = $("<td>");
+                    msgContentTd.html(JSON.stringify(logMsg.msg));
+                    msgTr.append(msgContentTd);
+
+                    lastLogMessagesListDiv.append(msgTr);
+                }
+            }
+        }
+
+        $("#lastLogMessagesModal").modal({
+            keyboard: false,
+            backdrop: "static"
+        });
+
+        $("#lastLogMessagesModal").modal('show');
+
+    }
+
+    /**
+     * Hide Log Messages Modal.
+     *
+     * @method hideLogModal
+     */
+    hideLogModal() {
+        $("#lastLogMessagesModal").modal('hide');
+        $("#lastLogMessages").remove();
+    }
+
 }

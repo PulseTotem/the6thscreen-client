@@ -29,11 +29,44 @@
 
         <script>
             var client;
+            var listener;
+
             $('window').ready(function() {
+                Logger.clear();
+                Logger.enableDisplay(true);
                 Logger.setLevel(LoggerLevel.Debug);
+
                 client = new Client("http://localhost:4000");
+
+                listener = new window.keypress.Listener();
+
+                var helpDisplay = false;
+                listener.sequence_combo("h e l p", function() {
+                    if(helpDisplay) {
+                        client.hideLogModal();
+                        helpDisplay = false;
+                    } else {
+                        client.showLogModal();
+                        helpDisplay = true;
+                    }
+                });
+
+                listener.stop_listening();
+
+                var listenOK = false;
+                $("#the6thscreen-client-footer, #logo_loading").bind("click", function() {
+                    if(listenOK) {
+                        listener.stop_listening();
+                        listenOK = false;
+                    } else {
+                        listener.listen();
+                        listenOK = true;
+                    }
+                });
+
                 client.run();
             });
+
         </script>
     </head>
     <body>
