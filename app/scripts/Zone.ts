@@ -161,7 +161,6 @@ class Zone {
      * @param {Call} call - The Call to add.
      */
     addCall(call : Call) {
-        Logger.debug("Zone - addCall");
         this._calls.push(call);
         this.restartBehaviour();
     }
@@ -173,7 +172,6 @@ class Zone {
      * @param {Behaviour} behaviour - The Behaviour to set.
      */
     setBehaviour(behaviour : Behaviour) {
-        Logger.debug("Zone - setBehaviour");
         this._behaviour = behaviour;
         this._behaviour.setZoneDiv(this._zoneDiv);
         this.restartBehaviour();
@@ -186,7 +184,6 @@ class Zone {
      */
     restartBehaviour() {
         if(this._behaviour != null) {
-            Logger.debug("Zone - restart OK !");
             this._behaviour.restart(this._calls);
         }
     }
@@ -198,7 +195,6 @@ class Zone {
      */
     stopBehaviour() {
         if(this._behaviour != null) {
-            Logger.debug("Zone - stopBehaviour");
             this._behaviour.stop();
         }
     }
@@ -209,9 +205,7 @@ class Zone {
      * @method refreshBehaviour
      */
     refreshBehaviour() {
-        Logger.debug("Zone - refreshBehaviour");
         if(this._behaviour != null) {
-            Logger.debug("Zone - refresh OK !");
             this._behaviour.buildListMapInfoRenderer(this._calls);
         }
     }
@@ -240,7 +234,6 @@ class Zone {
      * @private
      */
     private _attachToDom() {
-        Logger.debug("Zone - 1 : Attached to Dom");
         this._zoneDiv = $("<div>");
         this._zoneDiv.addClass("zone");
         this._zoneDiv.css("top", this._positionFromTop + "%");
