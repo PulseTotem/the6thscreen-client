@@ -70,12 +70,12 @@ class Client {
     private _callTypeDescriptions : Array<CallTypeDescription>;
 
     /**
-     * The Client's CallIds.
+     * The Client's CallDescriptions.
      *
-     * @property _callIds
-     * @type Array<number>
+     * @property _callDescriptions
+     * @type Array<any>
      */
-    private _callIds : Array<number>;
+    private _callDescriptions : Array<any>;
 
     ///////////// Variables to manage process connection with Backend ///////////
 
@@ -105,7 +105,7 @@ class Client {
         this._backendURL = backendURL;
         this._zones = new Array();
         this._callTypeDescriptions = new Array<CallTypeDescription>();
-        this._callIds = new Array<number>();
+        this._callDescriptions = new Array();
 
         this._sdiDescription = null;
         this._profilDescription = null;
@@ -125,12 +125,12 @@ class Client {
         Logger.info("____________________________________________________________________________________________________");
 
         this._backendSocket = io(this._backendURL + "/clients",
-            {"reconnection" : true, 'reconnectionAttempts' : 10, "reconnectionDelay" : 1000, "reconnectionDelayMax" : 5000, "timeout" : 5000, "autoConnect" : true});
+            {"reconnection" : true, 'reconnectionAttempts' : 10, "reconnectionDelay" : 1000, "reconnectionDelayMax" : 5000, "timeout" : 5000, "autoConnect" : true, "multiplex": false});
 
         this.listen();
 
         this._backendSocket.on("connect", function() {
-            Logger.info("Connected to Backend.");
+//            Logger.info("Connected to Backend.");
             self.manageBackendConnection();
         });
 
@@ -230,11 +230,12 @@ class Client {
                     this.retrieveProfil();
                 } else { // Step 3.1 : Done
                     if(typeof(this._profilDescription.calls) != "undefined") {
-                        if(this._profilDescription.calls.length != this._callIds.length) {
+                        if(this._profilDescription.calls.length != this._callDescriptions.length) {
                             this.profilDescriptionProcess(this._profilDescription);
                         } else { // Step 3.2 && 3.3 : Done
-                            ForEachAsync.forEach(this._callTypeDescriptions, function(iCallType) {
-                                var callTypeDesc = this._callTypeDescriptions[iCallType];
+                            //ForEachAsync.forEach(this._callTypeDescriptions, function(iCallType) {
+                            this._callTypeDescriptions.forEach(function(callTypeDesc) {
+                                //var callTypeDesc = this._callTypeDescriptions[iCallType];
                                 if(callTypeDesc.getDescription() == null) {
                                     var callTypeId = callTypeDesc.getId();
                                     self.retrieveCallType(callTypeId);
@@ -256,7 +257,7 @@ class Client {
      * @method init
      */
     init() {
-        Logger.debug("1.1 - init");
+//        Logger.debug("1.1 - init");
         var self = this;
 
         var user = this.getQueryVariable("user");
@@ -288,7 +289,7 @@ class Client {
      * @param {JSON Object} userDescription - The user's description to process
      */
     checkSDIOwner(userDescription : any) {
-        Logger.debug("1.2 - checkSDIOwner");
+//        Logger.debug("1.2 - checkSDIOwner");
         var self = this;
 
         var checkOK = false;
@@ -346,11 +347,10 @@ class Client {
      * @method retrieveZones
      */
     retrieveZones() {
-        Logger.debug("2.1 - retrieveZones");
+//        Logger.debug("2.1 - retrieveZones");
         var self = this;
 
-        ForEachAsync.forEach(this._sdiDescription.zones, function(iZone) {
-            var zoneInfo = self._sdiDescription.zones[iZone];
+        this._sdiDescription.zones.forEach(function(zoneInfo) {
             if(self.getZone(zoneInfo.id) == null) {
                 self._backendSocket.emit("RetrieveZoneDescription", {"zoneId": zoneInfo.id});
             }
@@ -364,7 +364,7 @@ class Client {
      * @param {JSON Object} zoneDescription - The zone's description to process
      */
     zoneDescriptionProcess(zoneDescription : any) {
-        Logger.debug("2.2 - zoneDescriptionProcess");
+//        Logger.debug("2.2 - zoneDescriptionProcess");
         var self = this;
         var newZone:Zone = new Zone(zoneDescription.id, zoneDescription.name, zoneDescription.description, zoneDescription.width, zoneDescription.height, zoneDescription.positionFromTop, zoneDescription.positionFromLeft);
 
@@ -386,7 +386,7 @@ class Client {
      * @method retrieveProfil
      */
     retrieveProfil() {
-        Logger.debug("3.1 - retrieveProfil");
+//        Logger.debug("3.1 - retrieveProfil");
         this._backendSocket.emit("RetrieveProfilDescription", {"profilId": this._profilId});
     }
 
@@ -397,48 +397,82 @@ class Client {
      * @param {JSON Object} profilDescription - The profil's description to process
      */
     profilDescriptionProcess(profilDescription : any) {
-        Logger.debug("3.2 - profilDescriptionProcess");
+//        Logger.debug("3.2 - profilDescriptionProcess");
         this._profilDescription = profilDescription;
         var self = this;
         if(typeof(profilDescription.calls) != "undefined") {
-            ForEachAsync.forEach(profilDescription.calls, function(iCall) {
-                var callDescription = profilDescription.calls[iCall];
+            //ForEachAsync.forEach(profilDescription.calls, function(iCall) {
+            profilDescription.calls.forEach(function(callDescription) {
+                //var callDescription = profilDescription.calls[iCall];
                 var callId = callDescription["id"];
-                if(self._callIds.indexOf(callId) == -1) {
+                var alreadyRetrieved = false;
+
+                for(var iCallDesc in self._callDescriptions) {
+                    var callDesc = self._callDescriptions[iCallDesc];
+
+                    if(callDesc.id == callId) {
+                        alreadyRetrieved = true;
+                    }
+                }
+
+                if(!alreadyRetrieved) {
                     self._backendSocket.emit("RetrieveCallDescription", {"callId": callId});
+                } else {
+                    self.callDescriptionProcess(null);
                 }
             });
         }
     }
 
     /**
-     * Step 3.3 : Process the Call Description
+     * Step 3.3 - Step 1 : Process the Call Description
      *
      * @method callDescriptionProcess
      * @param {JSON Object} callDescription - The call's description to process
      */
     callDescriptionProcess(callDescription : any) {
-        Logger.debug("3.3 - callDescriptionProcess");
+//        Logger.debug("3.3 Step 1 - callDescriptionProcess");
         var self = this;
-        if(typeof(callDescription.callType) != "undefined") {
-            var callTypeId = callDescription.callType["id"];
-            var callTypeDesc = this.getCallTypeDescription(callTypeId);
 
-            if(callTypeDesc == null) {
-                callTypeDesc = new CallTypeDescription(callTypeId);
-                callTypeDesc.addCallId(callDescription.id);
-                this._callTypeDescriptions.push(callTypeDesc);
-
-                this.retrieveCallType(callTypeId);
-            } else {
-                callTypeDesc.addCallId(callDescription.id);
-                if(callTypeDesc.getDescription() != null) {
-                    this.callTypeDescriptionProcess(callTypeDesc.getDescription());
-                }
-            }
-
-            this._callIds.push(callDescription.id);
+        if(callDescription != null) {
+            this._callDescriptions.push(callDescription);
         }
+
+        if(self._profilDescription.calls.length == self._callDescriptions.length) {
+            self.manageCallDescriptions();
+        }
+    }
+
+    /**
+     * Step 3.3 - Step 2 : Manage CallDescriptions
+     *
+     * @method manageCallDescriptions
+     */
+    manageCallDescriptions() {
+//        Logger.debug("3.3 Step 1 - manageCallDescriptions");
+        var self = this;
+
+        this._callDescriptions.forEach(function(callDescription) {
+            if(typeof(callDescription.callType) != "undefined") {
+                var callTypeId = callDescription.callType["id"];
+                var callTypeDesc = self.getCallTypeDescription(callTypeId);
+
+                if(callTypeDesc == null) {
+                    callTypeDesc = new CallTypeDescription(callTypeId);
+                    callTypeDesc.addCallId(callDescription.id);
+                    self._callTypeDescriptions.push(callTypeDesc);
+
+                    self.retrieveCallType(callTypeId);
+                } else {
+                    callTypeDesc.addCallId(callDescription.id);
+                    if(callTypeDesc.getDescription() != null) {
+                        self.callTypeDescriptionProcess(callTypeDesc.getDescription());
+                    }
+                }
+            } else {
+                Logger.error("A callDescription has no CallType!");
+            }
+        });
     }
 
     /**
@@ -448,95 +482,133 @@ class Client {
      * @param {number} callTypeId - The CallType's Id.
      */
     retrieveCallType(callTypeId : number) {
-        Logger.debug("3.4 - retrieveCallType");
+//        Logger.debug("3.4 - retrieveCallType");
         this._backendSocket.emit("RetrieveCallTypeDescription", {"callTypeId" : callTypeId});
     }
 
     /**
-     * Step 3.5 : Process the CallType Description
+     * Step 3.5 Step 1 : Process the CallType Description
      *
      * @method callTypeDescriptionProcess
      * @param {JSON Object} callTypeDescription - The callType's description to process
      */
     callTypeDescriptionProcess(callTypeDescription : any) {
-        Logger.debug("3.5 - callTypeDescriptionProcess");
+//        Logger.debug("3.5 Step 1 - callTypeDescriptionProcess");
         var self = this;
 
         var callTypeId = parseInt(callTypeDescription.id);
 
-        var calltypeDesc = this.getCallTypeDescription(callTypeId);
+        var callTypeDesc = this.getCallTypeDescription(callTypeId);
 
-        if(calltypeDesc.getDescription() == null) {
-            calltypeDesc.setDescription(callTypeDescription);
+        if(callTypeDesc.getDescription() == null) {
+            callTypeDesc.setDescription(callTypeDescription);
         }
 
-        var rendererId = null;
-
-        if(typeof(callTypeDescription.renderer) != "undefined") {
-            rendererId = callTypeDescription.renderer["id"];
-        }
-
-        var zoneId = null;
-
-        if(typeof(callTypeDescription.zone) != "undefined") {
-            zoneId = callTypeDescription.zone["id"];
-        }
-
-        var receivePolicyId = null;
-
-        if(typeof(callTypeDescription.receivePolicy) != "undefined") {
-            receivePolicyId = callTypeDescription.receivePolicy["id"];
-        }
-
-        var renderPolicyId = null;
-
-        if(typeof(callTypeDescription.renderPolicy) != "undefined") {
-            renderPolicyId = callTypeDescription.renderPolicy["id"];
-        }
-
-        if(rendererId != null && zoneId != null && receivePolicyId != null && renderPolicyId != null) {
-            var zone = this.getZone(zoneId);
-            if(zone != null) {
-                var callIds = calltypeDesc.getCallIds();
-                for(var iCallId in callIds) {
-                    var callId = callIds[iCallId];
-                    var call = zone.retrieveCall(callId);
-
-                    if (call == null) {
-                        call = new Call(callId, zone);
-
-                        if (window[callTypeDescription.renderer["name"]]) {
-                            var renderer = new window[callTypeDescription.renderer["name"]]();
-                            call.setRenderer(renderer);
-                            $('head').append('<link rel="stylesheet/less" type="text/less" href="static/renderers/' + callTypeDescription.renderer["name"] + '.less" />');
-                        }
-
-                        if (window[callTypeDescription.renderPolicy["name"]]) {
-                            var renderPolicy = new window[callTypeDescription.renderPolicy["name"]]();
-                            call.setRenderPolicy(renderPolicy);
-                        }
-
-                        if (window[callTypeDescription.receivePolicy["name"]]) {
-                            var receivePolicy = new window[callTypeDescription.receivePolicy["name"]]();
-                            call.setReceivePolicy(receivePolicy);
-                        }
-
-
-                        zone.addCall(call);
-                    }
-                }
-
-
-                if(this.getNumberOfCalls() == this._profilDescription.calls.length) {
-                    $('head').append('<script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.3.1/less.min.js"></script>');
-                }
-
-            } else {
-                Logger.error("SDI or Profil definition error : A zone is not defined or does'nt belong to the good SDI...");
+        var allCallTypeDescriptionRetrieved = true;
+        var nbCallsInCallTypeDescriptions = 0;
+        for(var iCallTypeDesc in self._callTypeDescriptions) {
+            var ctDesc = self._callTypeDescriptions[iCallTypeDesc];
+            if(ctDesc.getDescription() == null) {
+                allCallTypeDescriptionRetrieved = false;
             }
-        } else {
-            Logger.error("SDI or Profil definition error : Missing information about Zone, Renderer, RenderPolicy or ReceivePolicy.");
+
+            nbCallsInCallTypeDescriptions += ctDesc.getCallIds().length;
         }
+
+        if(allCallTypeDescriptionRetrieved && nbCallsInCallTypeDescriptions == self._callDescriptions.length) {
+            self.manageCallTypeDescriptions();
+        }
+    }
+
+    /**
+     * Step 3.5 Step 2 : Manage CallTypeDescriptions
+     *
+     * @method manageCallTypeDescriptions
+     */
+    manageCallTypeDescriptions() {
+//        Logger.debug("3.5 Step 2 - manageCallTypeDescriptions");
+        var self = this;
+
+        var nbTotalCalls = self._callDescriptions.length;
+
+        this._callTypeDescriptions.forEach(function(callTypeDesc) {
+
+            var callTypeDescription = callTypeDesc.getDescription();
+
+            var rendererId = null;
+
+            if(typeof(callTypeDescription.renderer) != "undefined") {
+                rendererId = callTypeDescription.renderer["id"];
+            }
+
+            var zoneId = null;
+
+            if(typeof(callTypeDescription.zone) != "undefined") {
+                zoneId = callTypeDescription.zone["id"];
+            }
+
+            var receivePolicyId = null;
+
+            if(typeof(callTypeDescription.receivePolicy) != "undefined") {
+                receivePolicyId = callTypeDescription.receivePolicy["id"];
+            }
+
+            var renderPolicyId = null;
+
+            if(typeof(callTypeDescription.renderPolicy) != "undefined") {
+                renderPolicyId = callTypeDescription.renderPolicy["id"];
+            }
+
+            var callIds = callTypeDesc.getCallIds();
+
+            if(rendererId != null && zoneId != null && receivePolicyId != null && renderPolicyId != null) {
+                var zone = self.getZone(zoneId);
+                if(zone != null) {
+                    for(var iCallId in callIds) {
+                        var callId = callIds[iCallId];
+                        var call = zone.retrieveCall(callId);
+
+                        if (call == null) {
+                            call = new Call(callId, zone);
+
+                            if (window[callTypeDescription.renderer["name"]]) {
+                                var renderer = new window[callTypeDescription.renderer["name"]]();
+                                call.setRenderer(renderer);
+                                $('head').append('<link rel="stylesheet/less" type="text/less" href="static/renderers/' + callTypeDescription.renderer["name"] + '.less" />');
+                            }
+
+                            if (window[callTypeDescription.renderPolicy["name"]]) {
+                                var renderPolicy = new window[callTypeDescription.renderPolicy["name"]]();
+                                call.setRenderPolicy(renderPolicy);
+                            }
+
+                            if (window[callTypeDescription.receivePolicy["name"]]) {
+                                var receivePolicy = new window[callTypeDescription.receivePolicy["name"]]();
+                                call.setReceivePolicy(receivePolicy);
+                            }
+
+
+                            zone.addCall(call);
+                        }
+                    }
+
+
+
+
+                } else {
+                    Logger.error("CallType definition error : A zone is not defined or does'nt belong to the right SDI...");
+                    nbTotalCalls -= callIds.length;
+                }
+            } else {
+                Logger.error("CallType definition error : Missing information about Zone, Renderer, RenderPolicy or ReceivePolicy.");
+                nbTotalCalls -= callIds.length;
+            }
+
+            if(self.getNumberOfCalls() == nbTotalCalls) {
+                $('head').append('<script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.3.1/less.min.js"></script>');
+                self.activateCalls();
+            }
+        });
     }
 
     /**
@@ -561,7 +633,6 @@ class Client {
     stopAllBehaviours() {
         for(var iZone in this._zones) {
             var zone = this._zones[iZone];
-            Logger.debug("Stop behavior for zone with id : " + zone.getId() + " and with index in array : " + iZone);
             zone.stopBehaviour();
         }
     }
@@ -588,7 +659,6 @@ class Client {
     restartAllBehaviours() {
         for(var iZone in this._zones) {
             var zone = this._zones[iZone];
-            Logger.debug("Restart behavior for zone with id : " + zone.getId() + " and with index in array : " + iZone);
             zone.restartBehaviour();
         }
     }
@@ -608,6 +678,22 @@ class Client {
         }
 
         return total;
+    }
+
+
+    /**
+     * Activate Calls in all zones.
+     *
+     * @method activateCalls
+     * @private
+     */
+    private activateCalls() {
+        for(var iZone in this._zones) {
+            var zone = this._zones[iZone];
+            zone.getCalls().forEach(function(call) {
+                call.activate();
+            });
+        }
     }
 
     /**
@@ -675,7 +761,7 @@ class Client {
      * @method showLogModal
      */
     showLogModal() {
-        var modalContent = '';
+/*        var modalContent = '';
         modalContent += '<div class="modal fade" id="lastLogMessagesModal" tabindex="-1" role="dialog" aria-labelledby="LastLogMessages" aria-hidden="true">';
             modalContent += '<div class="modal-dialog modal-lg">';
                 modalContent += '<div class="modal-content">';
@@ -779,7 +865,7 @@ class Client {
         });
 
         $("#lastLogMessagesModal").modal('show');
-
+*/
     }
 
     /**

@@ -32,13 +32,13 @@
             var listener;
 
             $('window').ready(function() {
-                Logger.clear();
+//                Logger.clear();
                 Logger.enableDisplay(true);
                 Logger.setLevel(LoggerLevel.Debug);
 
                 client = new Client("http://localhost:4000");
 
-                listener = new window.keypress.Listener();
+  /*              listener = new window.keypress.Listener();
 
                 var helpDisplay = false;
                 listener.sequence_combo("h e l p", function() {
@@ -63,7 +63,7 @@
                         listenOK = true;
                     }
                 });
-
+*/
                 client.run();
             });
 

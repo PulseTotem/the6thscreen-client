@@ -117,10 +117,17 @@ class Call {
         this._zone = zone;
         this._listInfos = new Array<Info>();
 
-        this._connectToSourcesServer();
-
         this._sourceConnectionDescription = null;
         this._callHash = "";
+    }
+
+    /**
+     * Step 0 : Activate connections to SourceServer and Source
+     *
+     * @method activate
+     */
+    activate() {
+        this._connectToSourcesServer();
     }
 
     /**
@@ -130,47 +137,47 @@ class Call {
      * @private
      */
     private _connectToSourcesServer() {
-        Logger.debug("Call - 1.1 : Sources Server Connection");
+//        Logger.debug("Call - 1.1 : Sources Server Connection");
         var self = this;
 
         this._sourcesServerSocket = io(this._sourcesServerURL,
-            {"reconnection" : true, 'reconnectionAttempts' : 10, "reconnectionDelay" : 1000, "reconnectionDelayMax" : 5000, "timeout" : 5000, "autoConnect" : true});
+            {"reconnection" : true, 'reconnectionAttempts' : 10, "reconnectionDelay" : 1000, "reconnectionDelayMax" : 5000, "timeout" : 5000, "autoConnect" : true, "multiplex": false});
 
         this._listenSourcesServer();
 
         this._sourcesServerSocket.on("connect", function() {
-            Logger.info("Call::_connectToSourcesServer : Connected to Sources Server.");
+//            Logger.info("Call#" + self.getId() + "::_connectToSourcesServer : Connected to Sources Server.");
             self._manageSourcesServerConnection();
         });
 
         this._sourcesServerSocket.on("error", function(errorData) {
-            Logger.error("Call::_connectToSourcesServer : An error occurred during connection to Sources Server.");
+            Logger.error("Call#" + self.getId() + "::_connectToSourcesServer : An error occurred during connection to Sources Server.");
             Logger.debug(errorData);
         });
 
         this._sourcesServerSocket.on("disconnect", function() {
-            Logger.info("Call::_connectToSourcesServer : Disconnected from Sources Server.");
+            Logger.info("Call#" + self.getId() + "::_connectToSourcesServer : Disconnected from Sources Server.");
         });
 
         this._sourcesServerSocket.on("reconnect", function(attemptNumber) {
-            Logger.info("Call::_connectToSourcesServer : Connected to Sources Server after " + attemptNumber + " attempts.");
+            Logger.info("Call#" + self.getId() + "::_connectToSourcesServer : Connected to Sources Server after " + attemptNumber + " attempts.");
         });
 
         this._sourcesServerSocket.on("reconnect_attempt", function() {
-            Logger.info("Call::_connectToSourcesServer : Trying to reconnect to Sources Server.");
+            Logger.info("Call#" + self.getId() + "::_connectToSourcesServer : Trying to reconnect to Sources Server.");
         });
 
         this._sourcesServerSocket.on("reconnecting", function(attemptNumber) {
-            Logger.info("Call::_connectToSourcesServer : Trying to connect to Sources Server - Attempt number " + attemptNumber + ".");
+            Logger.info("Call#" + self.getId() + "::_connectToSourcesServer : Trying to connect to Sources Server - Attempt number " + attemptNumber + ".");
         });
 
         this._sourcesServerSocket.on("reconnect_error", function(errorData) {
-            Logger.error("Call::_connectToSourcesServer : An error occurred during reconnection to Sources Server.");
+            Logger.error("Call#" + self.getId() + "::_connectToSourcesServer : An error occurred during reconnection to Sources Server.");
             Logger.debug(errorData);
         });
 
         this._sourcesServerSocket.on("reconnect_failed", function() {
-            Logger.error("Call::_connectToSourcesServer : Failed to connect to Sources Server. No new attempt will be done.");
+            Logger.error("Call#" + self.getId() + "::_connectToSourcesServer : Failed to connect to Sources Server. No new attempt will be done.");
         });
     }
 
@@ -181,7 +188,7 @@ class Call {
      * @private
      */
     private _listenSourcesServer() {
-        Logger.debug("Call - 1.2 : Sources Server Listening");
+//        Logger.debug("Call - 1.2 : Sources Server Listening");
         var self = this;
 
         this._sourcesServerSocket.on("sourceConnectionDescription", function(sourceConnectionDescription) {
@@ -212,7 +219,7 @@ class Call {
      * @private
      */
     private _callDeclaration() {
-        Logger.debug("Call - 1.3 : Sources server Call declaration");
+//        Logger.debug("Call - 1.3 : Sources server Call declaration");
         this._sourcesServerSocket.emit("callId", {"id" : this.getId()});
     }
 
@@ -223,48 +230,50 @@ class Call {
      * @private
      */
     private _connectToSource() {
-        Logger.debug("Call - 2.1 : Manage connection to Source");
-        Logger.debug("Call - 2.1 : SourceConnectionDescription URL => " + this._sourceConnectionDescription.url + " HASH => " + this._sourceConnectionDescription.hash);
+//        Logger.debug("Call - 2.1 : Manage connection to Source");
+//        Logger.debug("Call - 2.1 : SourceConnectionDescription URL => " + this._sourceConnectionDescription.url + " HASH => " + this._sourceConnectionDescription.hash);
         this._callHash = this._sourceConnectionDescription.hash;
 
         var self = this;
 
         this._sourceSocket = io(this._sourceConnectionDescription.url,
-            {"reconnection" : true, 'reconnectionAttempts' : 10, "reconnectionDelay" : 1000, "reconnectionDelayMax" : 5000, "timeout" : 5000, "autoConnect" : true});
+            {"reconnection" : true, 'reconnectionAttempts' : 10, "reconnectionDelay" : 1000, "reconnectionDelayMax" : 5000, "timeout" : 5000, "autoConnect" : true, "multiplex": false});
+
         this._listenForSource();
+
         this._sourceSocket.on("connect", function() {
-            Logger.info("Call::_connectToSource : Connected to Source.");
+//            Logger.info("Call#" + self.getId() + "::_connectToSource : Connected to Source.");
             self._manageSourceConnection();
         });
 
         this._sourceSocket.on("error", function(errorData) {
-            Logger.error("Call::_connectToSource : An error occurred during connection to Source.");
+            Logger.error("Call#" + self.getId() + "::_connectToSource : An error occurred during connection to Source.");
             Logger.debug(errorData);
         });
 
         this._sourceSocket.on("disconnect", function() {
-            Logger.info("Call::_connectToSource : Disconnected to Source.");
+            Logger.info("Call#" + self.getId() + "::_connectToSource : Disconnected to Source.");
         });
 
         this._sourceSocket.on("reconnect", function(attemptNumber) {
-            Logger.info("Call::_connectToSource : Connected to Source after " + attemptNumber + " attempts.");
+            Logger.info("Call#" + self.getId() + "::_connectToSource : Connected to Source after " + attemptNumber + " attempts.");
         });
 
         this._sourceSocket.on("reconnect_attempt", function() {
-            Logger.info("Call::_connectToSource : Trying to reconnect to Source.");
+            Logger.info("Call#" + self.getId() + "::_connectToSource : Trying to reconnect to Source.");
         });
 
         this._sourceSocket.on("reconnecting", function(attemptNumber) {
-            Logger.info("Call::_connectToSource : Trying to connect to Source - Attempt number " + attemptNumber + ".");
+            Logger.info("Call#" + self.getId() + "::_connectToSource : Trying to connect to Source - Attempt number " + attemptNumber + ".");
         });
 
         this._sourceSocket.on("reconnect_error", function(errorData) {
-            Logger.error("Call::_connectToSource : An error occurred during reconnection to Source.");
+            Logger.error("Call#" + self.getId() + "::_connectToSource : An error occurred during reconnection to Source.");
             Logger.debug(errorData);
         });
 
         this._sourceSocket.on("reconnect_failed", function() {
-            Logger.error("Call::_connectToSource : Failed to connect to Source. No new attempt will be done.");
+            Logger.error("Call#" + self.getId() + "::_connectToSource : Failed to connect to Source. No new attempt will be done.");
         });
     }
 
@@ -275,13 +284,10 @@ class Call {
      * @private
      */
     private _listenForSource() {
-        Logger.debug("Call - 2.2 : Source listening.");
+//        Logger.debug("Call - 2.2 : Source listening.");
         var self = this;
 
-        Logger.debug("Listening for ping answer.");
         this._sourceSocket.on("pingAnswer", function(pingAnswer) {
-            Logger.debug("Receive ping answer !");
-            Logger.debug(pingAnswer);
             if(! pingAnswer.sendingInfos) {
                 Logger.debug("pingAnswer false so do nothing...");
                 //self._callDeclarationToSource();
@@ -290,12 +296,8 @@ class Call {
             }
         });
 
-        Logger.debug("Listening for new Infos on : 'newInfo'");
         this._sourceSocket.on("newInfo", function(infoDescription) {
-            Logger.debug("Receive new Infos !");
-            //Logger.debug(infoDescription);
             self._listInfos.push(infoDescription);
-            //self.getReceivePolicy().process(self._listInfos);
             self._zone.refreshBehaviour();
         });
     }
@@ -307,7 +309,7 @@ class Call {
      * @private
      */
     private _manageSourceConnection() {
-        Logger.debug("Call - 2.3 : Manage Source Connection.");
+//        Logger.debug("Call - 2.3 : Manage Source Connection.");
         this._sourceSocket.emit("ping", {"callHash" : this._callHash});
     }
 
@@ -318,7 +320,7 @@ class Call {
      * @private
      */
     private _callDeclarationToSource() {
-        Logger.debug("Call - 2.4 : Source Call declaration.");
+//        Logger.debug("Call - 2.4 : Source Call declaration.");
         this._sourceSocket.emit("newCall", {"callHash" : this._callHash});
     }
 
