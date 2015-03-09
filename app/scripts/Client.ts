@@ -7,6 +7,7 @@
 /// <reference path="./Zone.ts" />
 /// <reference path="./Call.ts" />
 /// <reference path="./CallTypeDescription.ts" />
+/// <reference path="./Utils.ts" />
 
 declare var io: any; // Use of Socket.IO lib
 declare var $: any; // Use of JQuery
@@ -187,28 +188,52 @@ class Client {
         Logger.debug("0 - listen");
         var self = this;
 
-        this._backendSocket.on("ProfilDescription", function(profilDescription) {
-            self.profilDescriptionProcess(profilDescription);
+        this._backendSocket.on("ProfilDescription", function(response) {
+            Utils.manageServerResponse(response, function(profilDescription) {
+                self.profilDescriptionProcess(profilDescription);
+            }, function(error) {
+                Logger.error(error);
+            });
         });
 
-        this._backendSocket.on("UserDescription", function(userDescription) {
-            self.checkSDIOwner(userDescription);
+        this._backendSocket.on("UserDescription", function(response) {
+            Utils.manageServerResponse(response, function(userDescription) {
+                self.checkSDIOwner(userDescription);
+            }, function(error) {
+                Logger.error(error);
+            });
         });
 
-        this._backendSocket.on("SDIDescription", function(sdiDescription) {
-            self.isProfilExist(sdiDescription);
+        this._backendSocket.on("SDIDescription", function(response) {
+            Utils.manageServerResponse(response, function(sdiDescription) {
+                self.isProfilExist(sdiDescription);
+            }, function(error) {
+                Logger.error(error);
+            });
         });
 
-        this._backendSocket.on("ZoneDescription", function(zoneDescription) {
-            self.zoneDescriptionProcess(zoneDescription);
+        this._backendSocket.on("ZoneDescription", function(response) {
+            Utils.manageServerResponse(response, function(zoneDescription) {
+                self.zoneDescriptionProcess(zoneDescription);
+            }, function(error) {
+                Logger.error(error);
+            });
         });
 
-        this._backendSocket.on("CallDescription", function(callDescriptionProcess) {
-            self.callDescriptionProcess(callDescriptionProcess);
+        this._backendSocket.on("CallDescription", function(response) {
+            Utils.manageServerResponse(response, function(callDescriptionProcess) {
+                self.callDescriptionProcess(callDescriptionProcess);
+            }, function(error) {
+                Logger.error(error);
+            });
         });
 
-        this._backendSocket.on("CallTypeDescription", function(callTypeDescription) {
-            self.callTypeDescriptionProcess(callTypeDescription);
+        this._backendSocket.on("CallTypeDescription", function(response) {
+            Utils.manageServerResponse(response, function(callTypeDescription) {
+                self.callTypeDescriptionProcess(callTypeDescription);
+            }, function(error) {
+                Logger.error(error);
+            });
         });
     }
 

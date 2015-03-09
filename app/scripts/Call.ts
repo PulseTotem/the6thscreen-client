@@ -9,6 +9,7 @@
 /// <reference path="../../t6s-core/core-client/t6s-core/core/scripts/infotype/Info.ts" />
 
 /// <reference path="./Zone.ts" />
+/// <reference path="./Utils.ts" />
 
 declare var io: any; // Use of Socket.IO lib
 
@@ -191,10 +192,15 @@ class Call {
 //        Logger.debug("Call - 1.2 : Sources Server Listening");
         var self = this;
 
-        this._sourcesServerSocket.on("sourceConnectionDescription", function(sourceConnectionDescription) {
-            self._sourceConnectionDescription = sourceConnectionDescription;
+        this._sourcesServerSocket.on("sourceConnectionDescription", function(response) {
+            Utils.manageServerResponse(response, function(sourceConnectionDescription) {
+                self._sourceConnectionDescription = sourceConnectionDescription;
 
-            self._connectToSource();
+                self._connectToSource();
+            }, function(error) {
+                Logger.error(error);
+            });
+
         });
     }
 
@@ -287,13 +293,18 @@ class Call {
 //        Logger.debug("Call - 2.2 : Source listening.");
         var self = this;
 
-        this._sourceSocket.on("pingAnswer", function(pingAnswer) {
-            if(! pingAnswer.sendingInfos) {
-                Logger.debug("pingAnswer false so do nothing...");
-                //self._callDeclarationToSource();
-            } else {
-                self._callDeclarationToSource();
-            }
+        this._sourceSocket.on("pingAnswer", function(response) {
+            Utils.manageServerResponse(response, function(pingAnswer) {
+                if(! pingAnswer.sendingInfos) {
+                    Logger.debug("pingAnswer false so do nothing...");
+                    //self._callDeclarationToSource();
+                } else {
+                    self._callDeclarationToSource();
+                }
+            }, function(error) {
+                Logger.error(error);
+            });
+
         });
 
         this._sourceSocket.on("newInfo", function(infoDescription) {
