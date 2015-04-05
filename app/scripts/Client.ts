@@ -185,7 +185,7 @@ class Client {
      * @method listen
      */
     listen() {
-        Logger.debug("0 - listen");
+//        Logger.debug("0 - listen");
         var self = this;
 
         this._backendSocket.on("ProfilDescription", function(response) {
@@ -343,7 +343,7 @@ class Client {
      */
     isProfilExist(sdiDescription : any) {
         this._sdiDescription = sdiDescription;
-        Logger.debug("1.3 - isProfilExist");
+//        Logger.debug("1.3 - isProfilExist");
         var self = this;
 
         var checkOK = false;
