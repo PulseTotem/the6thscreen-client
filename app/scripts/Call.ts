@@ -23,6 +23,14 @@ class Call {
      */
     private _id : number;
 
+	/**
+	 * User's id.
+	 *
+	 * @property _userId
+	 * @type number
+	 */
+	private _userId : number;
+
     /**
      * Call's Zone.
      *
@@ -112,10 +120,12 @@ class Call {
      * @constructor
      * @param {number} id - The Call's id.
      * @param {Zone} zone - The Zone's attached to Call.
+	 * @param {number} userId - The User's id.
      */
-    constructor(id : number, zone : Zone) {
+    constructor(id : number, zone : Zone, userId : number) {
         this._id = id;
         this._zone = zone;
+		this._userId = userId;
         this._listInfos = new Array<Info>();
 
         this._sourceConnectionDescription = null;
@@ -226,7 +236,7 @@ class Call {
      */
     private _callDeclaration() {
 //        Logger.debug("Call - 1.3 : Sources server Call declaration");
-        this._sourcesServerSocket.emit("callId", {"id" : this.getId()});
+        this._sourcesServerSocket.emit("callId", {"id" : this.getId(), "userId" : this.getUserId()});
     }
 
     /**
@@ -344,6 +354,16 @@ class Call {
     getId() : number {
         return this._id;
     }
+
+	/**
+	 * Returns User's Id.
+	 *
+	 * @method getUserId
+	 * @return {number} The user's Id.
+	 */
+	getUserId() : number {
+		return this._userId;
+	}
 
     /**
      * Returns Call's Info List.

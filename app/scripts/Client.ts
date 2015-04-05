@@ -594,7 +594,7 @@ class Client {
                         var call = zone.retrieveCall(callId);
 
                         if (call == null) {
-                            call = new Call(callId, zone);
+                            call = new Call(callId, zone, parseInt(self._userId));
 
                             if (window[callTypeDescription.renderer["name"]]) {
                                 var renderer = new window[callTypeDescription.renderer["name"]]();
