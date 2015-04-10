@@ -592,7 +592,6 @@ class Client {
                     for(var iCallId in callIds) {
                         var callId = callIds[iCallId];
                         var call = zone.retrieveCall(callId);
-
                         if (call == null) {
                             call = new Call(callId, zone, parseInt(self._userId));
 

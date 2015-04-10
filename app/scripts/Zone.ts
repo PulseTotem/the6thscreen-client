@@ -218,7 +218,7 @@ class Zone {
      */
     retrieveCall(callId : number) {
         for(var iCall in this._calls) {
-            var call = this._calls[callId];
+            var call = this._calls[iCall];
             if(call.getId() == callId) {
                 return call;
             }
