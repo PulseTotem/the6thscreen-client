@@ -63,6 +63,17 @@ module.exports = function (grunt) {
                     'dependencies',
                     'overrides'
                 ]
+            },
+            packageHeroku: {
+              src: ['packageHeroku.json'],
+              dest: 'heroku/package.json',
+              fields: [
+                'name',
+                'version',
+                'dependencies',
+                'devDependencies',
+                'overrides'
+              ]
             }
         },
 
@@ -132,6 +143,19 @@ module.exports = function (grunt) {
             },
             distScripts: {
                 files: 	[{expand: true, cwd: 'app/scripts', src: ['**/*.js'], dest: 'dist/js/'}]
+            },
+
+            heroku: {
+              files: 	[{expand: true, cwd: 'dist', src: ['**'], dest: 'heroku'}]
+            },
+            herokuProcfile: {
+              files: 	[{expand: true, cwd: '.', src: ['Procfile'], dest: 'heroku'}]
+            },
+            herokuGitignore: {
+              files: 	[{expand: true, cwd: '.', src: ['.gitignore'], dest: 'heroku'}]
+            },
+            herokuWebJS: {
+              files: 	[{expand: true, cwd: '.', src: ['web.js'], dest: 'heroku'}]
             }
         },
 
@@ -365,6 +389,7 @@ module.exports = function (grunt) {
         clean: {
             build: ['build/'],
             dist: ['dist/', 'tmp/'],
+            heroku: ['heroku/'],
             tmp: ['tmp/'],
             configure: ['bower_components', 'bower.json'],
             doc: ['doc'],
@@ -408,6 +433,12 @@ module.exports = function (grunt) {
         }
 
         grunt.task.run(['copyDist', 'typescript:dist', 'less:dist', 'uglify', 'cssmin', 'includeSource:dist', 'wiredep:dist', 'clean:tmp']);
+    });
+
+    grunt.registerTask('heroku', function () {
+      grunt.task.run(['clean:heroku']);
+
+      grunt.task.run(['dist', 'update_json:packageHeroku', 'copy:heroku', 'copy:herokuProcfile', 'copy:herokuGitignore', 'copy:herokuWebJS']);
     });
 
 //    grunt.registerTask('deploy', ['dist', 'sftp:deploy']);

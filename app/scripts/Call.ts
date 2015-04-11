@@ -45,7 +45,8 @@ class Call {
      * @property _sourcesServerURL
      * @type string
      */
-    private _sourcesServerURL : string = "http://localhost:5000/calls";
+    //private _sourcesServerURL : string = "http://localhost:5000/calls";
+	private _sourcesServerURL : string = "http://t6s-sourcesserver.herokuapp.com/calls";
 
     /**
      * The 6th Screen Sources Server's socket.

@@ -12,3 +12,4 @@ deploy-infos.json
 .idea
 t6s-core/*
 core-repos-config.json
+heroku
