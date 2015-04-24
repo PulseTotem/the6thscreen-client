@@ -1,0 +1,15 @@
+build/*
+dist/*
+tmp/*
+bower_components/*
+node_modules/*
+src/**~
+*~
+vendor/**
+bower.json
+doc/
+deploy-infos.json
+.idea
+t6s-core/*
+core-repos-config.json
+heroku
