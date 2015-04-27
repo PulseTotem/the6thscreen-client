@@ -5,6 +5,8 @@
 /// <reference path="../../../t6s-core/core-client/scripts/core/Logger.ts" />
 /// <reference path="../../../t6s-core/core-client/scripts/behaviour/Behaviour.ts" />
 
+/// <reference path="../content/RelativeTimeline.ts" />
+
 declare var $: any; // Use of JQuery
 
 /**
@@ -79,13 +81,20 @@ class Zone {
 	private _behaviour : Behaviour;
 
 	/**
+	 * RelativeTimeline attached to Zone.
+	 *
+	 * @property _relativeTimeline
+	 * @type RelativeTimeline
+	 */
+	private _relativeTimeline : RelativeTimeline;
+
+	/**
 	 * Zone Div.
 	 *
 	 * @property _zoneDiv
 	 * @type DOM Element
 	 */
 	private _zoneDiv : any;
-
 
 	/**
 	 * Constructor.
@@ -108,6 +117,7 @@ class Zone {
 		this._positionFromTop = positionFromTop;
 		this._positionFromLeft = positionFromLeft;
 		this._behaviour = null;
+		this._relativeTimeline = null;
 	}
 
 	/**
@@ -128,6 +138,16 @@ class Zone {
 	 */
 	setBehaviour(behaviour : Behaviour) {
 		this._behaviour = behaviour;
+	}
+
+	/**
+	 * Set the Zone's RelativeTimeline.
+	 *
+	 * @method setRelativeTimeline
+	 * @param {RelativeTimeline} relTimeline - The RelativeTimeline to set.
+	 */
+	setRelativeTimeline(relTimeline : RelativeTimeline) {
+		this._relativeTimeline = relTimeline;
 	}
 
 	/**

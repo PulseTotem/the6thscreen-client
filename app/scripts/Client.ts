@@ -253,6 +253,9 @@ class Client {
 			});
 
 			this._structureReady = true;
+			if(this._profilDescription != null) {
+				this.buildClientContent();
+			}
 		} else {
 			Logger.error("An error occured during Client's structure building.");
 		}
@@ -265,9 +268,46 @@ class Client {
 	buildClientContent() {
 //        Logger.debug("2 - buildClientContent");
 		var self = this;
-		if(this._structureReady) {
-			//TODO
+		if(this._structureReady && this._profilDescription != null) {
+			this._profilDescription.zoneContents.forEach(function(zoneContentDescription : any) {
+				var zone = self._retrieveZone(zoneContentDescription.zone.id);
+
+				if(zoneContentDescription.widget != null) {
+					//TODO
+				} else if(zoneContentDescription.relativeTimeline != null) {
+					var relativeTimelineDescription = zoneContentDescription.relativeTimeline;
+
+					var newRelTimeline : RelativeTimeline = new RelativeTimeline(relativeTimelineDescription.id);
+					relativeTimelineDescription.relativeEvents.forEach(function(relativeEventDescription : any) {
+						var newRelEvent : RelativeEvent = new RelativeEvent(relativeEventDescription.id, relativeEventDescription.position, relativeEventDescription.duration);
+
+						var callDescription = relativeEventDescription.call;
+						var newCall : Call = new Call(callDescription.id);
+
+						newRelEvent.setCall(newCall);
+
+						newRelTimeline.addRelativeEvent(newRelEvent);
+					});
+
+					zone.setRelativeTimeline(newRelTimeline);
+				} else if(zoneContentDescription.absoluteTimeline != null) {
+					//TODO
+				} else {
+					Logger.error("Error in ZoneContent description with '" + zoneContentDescription.id + "' : missing a widget or relative timeline or absolute timeline.");
+				}
+			});
+
+			this.start();
 		}
+	}
+
+	/**
+	 * Step 3 : Start Client !
+	 *
+	 */
+	start() {
+//        Logger.debug("3 - start");
+		//TODO
 	}
 
 /////////////////// HELPER methods ! ///////////////////
