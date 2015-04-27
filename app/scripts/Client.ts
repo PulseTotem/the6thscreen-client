@@ -284,6 +284,9 @@ class Client {
 						var callDescription = relativeEventDescription.call;
 						var newCall : Call = new Call(callDescription.id);
 
+						var callType : CallType = self.retrieveCallType(callDescription.callType.id);
+						newCall.setCallType(callType);
+
 						newRelEvent.setCall(newCall);
 
 						newRelTimeline.addRelativeEvent(newRelEvent);

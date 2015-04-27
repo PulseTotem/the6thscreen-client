@@ -3,6 +3,7 @@
  */
 
 /// <reference path="../../../t6s-core/core-client/scripts/core/Logger.ts" />
+/// <reference path="../structure/CallType.ts" />
 
 /**
  * Represents a Call of The6thScreen Client.
@@ -19,6 +20,13 @@ class Call {
 	 */
 	private _id : number;
 
+	/**
+	 * CallType attached to Call.
+	 *
+	 * @property _callType
+	 * @type CallType
+	 */
+	private _callType : CallType;
 
 	/**
 	 * Constructor.
@@ -28,6 +36,7 @@ class Call {
 	 */
 	constructor(id: number, name : string, description: string) {
 		this._id = id;
+		this._callType = null;
 	}
 
 	/**
@@ -38,5 +47,15 @@ class Call {
 	 */
 	getId() : number {
 		return this._id;
+	}
+
+	/**
+	 * Set the Call's callType.
+	 *
+	 * @method setCallType
+	 * @param {CallType} callType - The CallType to set.
+	 */
+	setCallType(callType : CallType) {
+		this._callType = callType;
 	}
 }
