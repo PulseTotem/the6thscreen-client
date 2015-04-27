@@ -131,6 +131,16 @@ class Zone {
 	}
 
 	/**
+	 * Get the Zone's behaviour.
+	 *
+	 * @method getBehaviour
+	 * @return {Behaviour} behaviour - The Zone's Behaviour.
+	 */
+	getBehaviour() : Behaviour {
+		return this._behaviour;
+	}
+
+	/**
 	 * Set the Zone's behaviour.
 	 *
 	 * @method setBehaviour

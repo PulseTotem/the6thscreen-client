@@ -278,6 +278,7 @@ class Client {
 					var relativeTimelineDescription = zoneContentDescription.relativeTimeline;
 
 					var newRelTimeline : RelativeTimeline = new RelativeTimeline(relativeTimelineDescription.id);
+					newRelTimeline.setBehaviour(zone.getBehaviour());
 					relativeTimelineDescription.relativeEvents.forEach(function(relativeEventDescription : any) {
 						var newRelEvent : RelativeEvent = new RelativeEvent(relativeEventDescription.id, relativeEventDescription.position, relativeEventDescription.duration);
 

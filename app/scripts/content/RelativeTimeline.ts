@@ -3,6 +3,7 @@
  */
 
 /// <reference path="../../../t6s-core/core-client/scripts/core/Logger.ts" />
+/// <reference path="../../../t6s-core/core-client/scripts/behaviour/Behaviour.ts" />
 /// <reference path="./RelativeEvent.ts" />
 
 /**
@@ -21,6 +22,14 @@ class RelativeTimeline {
 	private _id : number;
 
 	/**
+	 * Behaviour attached to RelativeTimeline.
+	 *
+	 * @property _behaviour
+	 * @type Behaviour
+	 */
+	private _behaviour : Behaviour;
+
+	/**
 	 * RelativeEvents attached to RelativeTimeline.
 	 *
 	 * @property _relativeEvents
@@ -37,6 +46,7 @@ class RelativeTimeline {
 	 */
 	constructor(id: number) {
 		this._id = id;
+		this._behaviour = null;
 		this._relativeEvents = new Array<RelativeEvent>();
 	}
 
@@ -48,6 +58,16 @@ class RelativeTimeline {
 	 */
 	getId() : number {
 		return this._id;
+	}
+
+	/**
+	 * Set the RelativeTimeline's behaviour.
+	 *
+	 * @method setBehaviour
+	 * @param {Behaviour} behaviour - The Behaviour to set.
+	 */
+	setBehaviour(behaviour : Behaviour) {
+		this._behaviour = behaviour;
 	}
 
 	/**
