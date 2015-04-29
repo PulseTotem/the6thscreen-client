@@ -311,7 +311,9 @@ class Client {
 	 */
 	start() {
 //        Logger.debug("3 - start");
-		//TODO
+		this._zones.forEach(function(zone : Zone) {
+			zone.start();
+		});
 	}
 
 /////////////////// HELPER methods ! ///////////////////

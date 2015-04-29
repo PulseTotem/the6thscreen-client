@@ -71,6 +71,16 @@ class RelativeEvent {
 	}
 
 	/**
+	 * Get the RelativeEvent's Call.
+	 *
+	 * @method getCall
+	 * @return {Call} The Call linked to RelativeEvent.
+	 */
+	getCall() : Call {
+		return this._call;
+	}
+
+	/**
 	 * Set the RelativeEvent's Call.
 	 *
 	 * @method setCall

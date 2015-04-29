@@ -79,4 +79,17 @@ class RelativeTimeline {
 	addRelativeEvent(relEvent : RelativeEvent) {
 		this._relativeEvents.push(relEvent);
 	}
+
+	/**
+	 * Start RelativeTimeline activity.
+	 *
+	 * @method start
+	 */
+	start() {
+		this._relativeEvents.forEach(function(relEvent : RelativeEvent) {
+			relEvent.getCall().start();
+		});
+
+		//TODO
+	}
 }

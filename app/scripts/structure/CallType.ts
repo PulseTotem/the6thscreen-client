@@ -91,6 +91,16 @@ class CallType {
 	}
 
 	/**
+	 * Get the CallType's renderer.
+	 *
+	 * @method getRenderer
+	 * @return {Renderer} renderer - The CallType's Renderer.
+	 */
+	getRenderer() : Renderer {
+		return this._renderer;
+	}
+
+	/**
 	 * Set the CallType's policy.
 	 *
 	 * @method setPolicy
@@ -98,5 +108,15 @@ class CallType {
 	 */
 	setPolicy(policy : Policy) {
 		this._policy = policy;
+	}
+
+	/**
+	 * Get the CallType's policy.
+	 *
+	 * @method getPolicy
+	 * @return {Policy} policy - The CallType's Policy.
+	 */
+	getPolicy() : Policy {
+		return this._policy;
 	}
 }

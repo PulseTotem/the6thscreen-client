@@ -177,4 +177,25 @@ class Zone {
 
 		$(clientDomId).append(this._zoneDiv);
 	}
+
+	/**
+	 * Start Zone activity.
+	 *
+	 * @method start
+	 */
+	start() {
+		/*if(this._widget != null) {
+
+		} else */
+
+		if(this._relativeTimeline != null) {
+			this._relativeTimeline.start();
+		}
+
+		/* else if(this._absoluteTimeline != null) {
+
+		} else {
+			// ERROR !?
+		}*/
+	}
 }
