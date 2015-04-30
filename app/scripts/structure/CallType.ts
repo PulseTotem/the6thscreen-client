@@ -44,7 +44,7 @@ class CallType {
 	 * @property _renderer
 	 * @type Renderer
 	 */
-	private _renderer : Renderer;
+	private _renderer : Renderer<any>;
 
 	/**
 	 * Policy attached to CallType.
@@ -87,7 +87,7 @@ class CallType {
 	 * @method setRenderer
 	 * @param {Renderer} renderer - The Renderer to set.
 	 */
-	setRenderer(renderer : Renderer) {
+	setRenderer(renderer : Renderer<any>) {
 		this._renderer = renderer;
 	}
 
@@ -97,7 +97,7 @@ class CallType {
 	 * @method getRenderer
 	 * @return {Renderer} renderer - The CallType's Renderer.
 	 */
-	getRenderer() : Renderer {
+	getRenderer() : Renderer<any> {
 		return this._renderer;
 	}
 

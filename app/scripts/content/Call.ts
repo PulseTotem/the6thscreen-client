@@ -76,9 +76,10 @@ class Call {
 	 * @constructor
 	 * @param {number} id - The Call's id.
 	 */
-	constructor(id: number, name : string, description: string) {
+	constructor(id: number) {
 		this._id = id;
 		this._callType = null;
+		this._listInfos = new Array<Info>();
 	}
 
 	/**
@@ -136,7 +137,7 @@ class Call {
 	 * @private
 	 */
 	private _connectToSourcesServer() {
-//        Logger.debug("Call - 1.1 : Sources Server Connection");
+//        Logger.debug("Call '" + this.getId() + "' - 1.1 : Sources Server Connection");
 		var self = this;
 
 		this._sourcesServerSocket = io(Constants.SOURCES_SERVER_URL,
@@ -187,7 +188,7 @@ class Call {
 	 * @private
 	 */
 	private _listenSourcesServer() {
-//        Logger.debug("Call - 1.2 : Sources Server Listening");
+//        Logger.debug("Call '" + this.getId() + "' - 1.2 : Sources Server Listening");
 		var self = this;
 
 		this._sourcesServerSocket.on("sourceConnectionDescription", function(response) {
@@ -223,7 +224,7 @@ class Call {
 	 * @private
 	 */
 	private _callDeclaration() {
-//        Logger.debug("Call - 1.3 : Sources server Call declaration");
+//        Logger.debug("Call '" + this.getId() + "' - 1.3 : Sources server Call declaration");
 		this._sourcesServerSocket.emit("callId", {"id" : this.getId(), "userId" : 1});
 		//this._sourcesServerSocket.emit("callId", {"id" : this.getId()});//TODO
 	}
@@ -235,8 +236,8 @@ class Call {
 	 * @private
 	 */
 	private _connectToSource() {
-//        Logger.debug("Call - 2.1 : Manage connection to Source");
-//        Logger.debug("Call - 2.1 : SourceConnectionDescription URL => " + this._sourceConnectionDescription.url + " HASH => " + this._sourceConnectionDescription.hash);
+//        Logger.debug("Call '" + this.getId() + "' - 2.1 : Manage connection to Source");
+//        Logger.debug("Call '" + this.getId() + "' - 2.1 : SourceConnectionDescription URL => " + this._sourceConnectionDescription.url + " HASH => " + this._sourceConnectionDescription.hash);
 		this._callHash = this._sourceConnectionDescription.hash;
 
 		var self = this;
@@ -289,7 +290,7 @@ class Call {
 	 * @private
 	 */
 	private _listenForSource() {
-//        Logger.debug("Call - 2.2 : Source listening.");
+//        Logger.debug("Call '" + this.getId() + "' - 2.2 : Source listening.");
 		var self = this;
 
 		this._sourceSocket.on("pingAnswer", function(response) {
@@ -318,7 +319,7 @@ class Call {
 	 * @private
 	 */
 	private _manageSourceConnection() {
-//        Logger.debug("Call - 2.3 : Manage Source Connection.");
+//        Logger.debug("Call '" + this.getId() + "' - 2.3 : Manage Source Connection.");
 		this._sourceSocket.emit("ping", {"callHash" : this._callHash});
 	}
 
@@ -329,7 +330,7 @@ class Call {
 	 * @private
 	 */
 	private _callDeclarationToSource() {
-//        Logger.debug("Call - 2.4 : Source Call declaration.");
+//        Logger.debug("Call '" + this.getId() + "' - 2.4 : Source Call declaration.");
 		this._sourceSocket.emit("newCall", {"callHash" : this._callHash});
 	}
 
@@ -341,7 +342,7 @@ class Call {
 	 * @private
 	 */
 	private _onNewInfo(infoDescription : any) {
-//        Logger.debug("Call - 3 : Manage new info reception.");
+//        Logger.debug("Call '" + this.getId() + "' - 3 : Manage new info reception.");
 		var newInfos = this._callType.getRenderer().transformInfo(infoDescription);
 
 		var allInfos = this._listInfos.concat(newInfos);

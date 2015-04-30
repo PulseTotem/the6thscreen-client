@@ -214,6 +214,10 @@ class Client {
 		var self = this;
 
 		if(this._sdiDescription != null) {
+			//TODO : MANAGE STYLE !!!!
+			$('head').append('<link rel="stylesheet/less" type="text/less" href="static/themes/basic.less" />');
+			//TODO : MANAGE STYLE !!!!
+
 			this._sdiDescription.zones.forEach(function(zoneDescription : any) {
 				if(self._retrieveZone(zoneDescription.id) == null) {
 					var newZone:Zone = new Zone(zoneDescription.id, zoneDescription.name, zoneDescription.description, zoneDescription.width, zoneDescription.height, zoneDescription.positionFromTop, zoneDescription.positionFromLeft);
@@ -235,6 +239,7 @@ class Client {
 							if (window[callTypeDescription.renderer["name"]]) {
 								var renderer = new window[callTypeDescription.renderer["name"]]();
 								newCallType.setRenderer(renderer);
+								$('head').append('<link rel="stylesheet/less" type="text/less" href="static/renderers/' + callTypeDescription.renderer["name"] + '.less" />');
 							} else {
 								Logger.error("Renderer '" + callTypeDescription.renderer["name"] + "' was not found.");
 							}
@@ -286,7 +291,7 @@ class Client {
 						var callDescription = relativeEventDescription.call;
 						var newCall : Call = new Call(callDescription.id);
 
-						var callType : CallType = self.retrieveCallType(callDescription.callType.id);
+						var callType : CallType = self._retrieveCallType(callDescription.callType.id);
 						newCall.setCallType(callType);
 
 						newRelEvent.setCall(newCall);
@@ -312,6 +317,9 @@ class Client {
 	 */
 	start() {
 //        Logger.debug("3 - start");
+
+		$('head').append('<script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.3.1/less.min.js"></script>');
+
 		this._zones.forEach(function(zone : Zone) {
 			zone.start();
 		});

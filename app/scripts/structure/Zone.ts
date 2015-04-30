@@ -195,6 +195,7 @@ class Zone {
 	 * @method start
 	 */
 	start() {
+//		Logger.debug("Zone: '" + this.getId() + "' - start");
 		/*if(this._widget != null) {
 
 		} else */

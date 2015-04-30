@@ -108,6 +108,7 @@ class RelativeTimeline {
 	 * @param {RelativeEvent} relEvent - The RelativeEvent to add.
 	 */
 	addRelativeEvent(relEvent : RelativeEvent) {
+//		Logger.debug("RelativeTimeline : '" + this.getId() + "' - addRelativeEvent : '" + relEvent.getId() + "'");
 		this._relativeEvents.push(relEvent);
 		this._relativeEventsSorted = false;
 	}
@@ -118,6 +119,8 @@ class RelativeTimeline {
 	 * @method start
 	 */
 	start() {
+//		Logger.debug("RelativeTimeline: '" + this.getId() + "' - start");
+
 		if(!this._relativeEventsSorted) {
 			this._sortRelativeEvents();
 		}
@@ -148,24 +151,34 @@ class RelativeTimeline {
 
 		var currentEvent = this._relativeEvents[this._currentEventId];
 
-		var renderer : Renderer = currentEvent.getCall().getCallType().getRenderer();
+		var renderer : Renderer<any> = currentEvent.getCall().getCallType().getRenderer();
 
 		var listInfos : Array<Info> = currentEvent.getCall().getListInfos();
 
-		var listInfoRenderers : Array<InfoRenderer> = listInfos.map(function(e, i) {
-			return new InfoRenderer(e, renderer);
-		});
+		if(listInfos.length > 0) {
 
-		if(listInfoRenderers.length > 0) {
-			this._behaviour.stop();
-			this._behaviour.setListInfoRenderers(listInfoRenderers);
-			this._behaviour.start();
+			var listInfoRenderers:Array<InfoRenderer<any>> = listInfos.map(function (e, i) {
+				return new InfoRenderer(e, renderer);
+			});
 
-			this._loopTimeout = setTimeout(function () {
-				self._nextEvent();
-			}, currentEvent.getDuration() * 1000);
+			if (listInfoRenderers.length > 0) {
+				this._behaviour.stop();
+				this._behaviour.setListInfoRenderers(listInfoRenderers);
+				this._behaviour.start();
+
+				this._loopTimeout = setTimeout(function () {
+					self._nextEvent();
+				}, currentEvent.getDuration() * 1000);
+			} else {
+				setTimeout(function() {
+					self._nextEvent();
+				}, 1000);
+			}
+
 		} else {
-			this._nextEvent();
+			setTimeout(function() {
+				self._nextEvent();
+			}, 1000);
 		}
 	}
 
@@ -176,16 +189,18 @@ class RelativeTimeline {
 	 * @private
 	 */
 	private _sortRelativeEvents() {
+		var self = this;
+
 		var map = this._relativeEvents.map(function(e, i) {
 			return { index: i, value: e.getPosition() };
-		})
+		});
 
 		map.sort(function(a, b) {
 			return a.value - b.value;
 		});
 
 		var result = map.map(function(e){
-			return this._relativeEvents[e.index];
+			return self._relativeEvents[e.index];
 		});
 
 		this._relativeEvents = result;
