@@ -1,5 +1,6 @@
 /**
  * @author Christian Brel <christian@the6thscreen.fr, ch.brel@gmail.com>
+ * @author Simon Urli <simon@the6thscreen.fr, simon.urli@gmail.com>
  */
 
 /// <reference path="../../../t6s-core/core-client/scripts/core/Logger.ts" />
@@ -68,6 +69,26 @@ class RelativeEvent {
 	 */
 	getId() : number {
 		return this._id;
+	}
+
+	/**
+	 * Returns RelativeEvent's Position.
+	 *
+	 * @method getPosition
+	 * @return {number} The RelativeEvent's Position.
+	 */
+	getPosition() : number {
+		return this._position;
+	}
+
+	/**
+	 * Returns RelativeEvent's Duration.
+	 *
+	 * @method getDuration
+	 * @return {number} The RelativeEvent's Duration.
+	 */
+	getDuration() : number {
+		return this._duration;
 	}
 
 	/**

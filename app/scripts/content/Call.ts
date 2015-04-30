@@ -1,5 +1,6 @@
 /**
  * @author Christian Brel <christian@the6thscreen.fr, ch.brel@gmail.com>
+ * @author Simon Urli <simon@the6thscreen.fr, simon.urli@gmail.com>
  */
 
 /// <reference path="../../../t6s-core/core-client/scripts/core/Logger.ts" />
@@ -101,12 +102,31 @@ class Call {
 	}
 
 	/**
+	 * Get the Call's callType.
+	 *
+	 * @method getCallType
+	 * @return {CallType} callType - The Call's CallType.
+	 */
+	getCallType() : CallType {
+		return this._callType;
+	}
+
+	/**
+	 * Returns Call's Info List.
+	 *
+	 * @method getListInfos
+	 */
+	getListInfos() : Array<Info> {
+		return this._listInfos;
+	}
+
+	/**
 	 * Start Call activity.
 	 *
 	 * @method start
 	 */
 	start() {
-
+		this._connectToSourcesServer();
 	}
 
 	/**
@@ -323,6 +343,7 @@ class Call {
 	private _onNewInfo(infoDescription : any) {
 //        Logger.debug("Call - 3 : Manage new info reception.");
 		var newInfos = this._callType.getRenderer().transformInfo(infoDescription);
+
 		var allInfos = this._listInfos.concat(newInfos);
 
 		this._listInfos = this._callType.getPolicy().filterInfo(allInfos);

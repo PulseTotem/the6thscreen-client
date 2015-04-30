@@ -1,5 +1,6 @@
 /**
  * @author Christian Brel <christian@the6thscreen.fr, ch.brel@gmail.com>
+ * @author Simon Urli <simon@the6thscreen.fr, simon.urli@gmail.com>
  */
 
 /// <reference path="../../../t6s-core/core-client/scripts/core/Logger.ts" />
@@ -148,6 +149,7 @@ class Zone {
 	 */
 	setBehaviour(behaviour : Behaviour) {
 		this._behaviour = behaviour;
+		this._behaviour.setZone(this);
 	}
 
 	/**
@@ -158,6 +160,15 @@ class Zone {
 	 */
 	setRelativeTimeline(relTimeline : RelativeTimeline) {
 		this._relativeTimeline = relTimeline;
+	}
+
+	/**
+	 * Get the Zone's div.
+	 *
+	 * @method getZoneDiv
+	 */
+	getZoneDiv() {
+		return this._zoneDiv;
 	}
 
 	/**
