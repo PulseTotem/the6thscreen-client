@@ -225,8 +225,7 @@ class Call {
 	 */
 	private _callDeclaration() {
 //        Logger.debug("Call '" + this.getId() + "' - 1.3 : Sources server Call declaration");
-		this._sourcesServerSocket.emit("callId", {"id" : this.getId(), "userId" : 1});
-		//this._sourcesServerSocket.emit("callId", {"id" : this.getId()});//TODO
+		this._sourcesServerSocket.emit("callId", {"id" : this.getId()});
 	}
 
 	/**
