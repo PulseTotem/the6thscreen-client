@@ -4,18 +4,19 @@
  */
 
 /// <reference path="../../../t6s-core/core-client/scripts/core/Logger.ts" />
+/// <reference path="../../../t6s-core/core-client/scripts/core/InfoRenderer.ts" />
+/// <reference path="../../../t6s-core/core-client/scripts/timeline/RelativeTimelineItf.ts" />
 /// <reference path="./RelativeEvent.ts" />
 /// <reference path="../../../t6s-core/core-client/scripts/behaviour/Behaviour.ts" />
-/// <reference path="../../../t6s-core/core-client/scripts/renderer/Renderer.ts" />
-/// <reference path="../../../t6s-core/core-client/t6s-core/core/scripts/infotype/Info.ts" />
-/// <reference path="../../../t6s-core/core-client/scripts/core/InfoRenderer.ts" />
+/// <reference path="../../../t6s-core/core-client/scripts/timelineRunner/TimelineRunner.ts" />
 
 /**
  * Represents a RelativeTimeline of The6thScreen Client.
  *
  * @class RelativeTimeline
+ * @implements RelativeTimelineItf
  */
-class RelativeTimeline {
+class RelativeTimeline implements RelativeTimelineItf {
 
 	/**
 	 * RelativeTimeline's id.
@@ -34,6 +35,14 @@ class RelativeTimeline {
 	private _behaviour : Behaviour;
 
 	/**
+	 * TimelineRunner attached to RelativeTimeline.
+	 *
+	 * @property _timelineRunner
+	 * @type TimelineRunner
+	 */
+	private _timelineRunner : TimelineRunner;
+
+	/**
 	 * Indicates if RelativeEvents array is sorted or not.
 	 *
 	 * @property _relativeEventsSorted
@@ -49,22 +58,6 @@ class RelativeTimeline {
 	 */
 	private _relativeEvents : Array<RelativeEvent>;
 
-	/**
-	 * RelativeTimeline's current RelativeEvent id in _relativeEvents array.
-	 *
-	 * @property _currentEventId
-	 * @type number
-	 */
-	private _currentEventId : number;
-
-	/**
-	 * RelativeTimeline's loop timeout.
-	 *
-	 * @property _loopTimeout
-	 * @type number (id of timeout)
-	 */
-	private _loopTimeout : any;
-
 
 	/**
 	 * Constructor.
@@ -75,10 +68,9 @@ class RelativeTimeline {
 	constructor(id: number) {
 		this._id = id;
 		this._behaviour = null;
+		this._timelineRunner = null;
 		this._relativeEventsSorted = false;
 		this._relativeEvents = new Array<RelativeEvent>();
-		this._currentEventId = null;
-		this._loopTimeout = null;
 	}
 
 	/**
@@ -99,6 +91,27 @@ class RelativeTimeline {
 	 */
 	setBehaviour(behaviour : Behaviour) {
 		this._behaviour = behaviour;
+	}
+
+	/**
+	 * Set the RelativeTimeline's TimelineRunner.
+	 *
+	 * @method setTimelineRunner
+	 * @param {TimelineRunner} behaviour - The TimelineRunner to set.
+	 */
+	setTimelineRunner(timelineRunner : TimelineRunner) {
+		this._timelineRunner = timelineRunner;
+		this._timelineRunner.setRelativeTimeline(this);
+	}
+
+	/**
+	 * Return RelativeTimeline's relativeEvents.
+	 *
+	 * @method getRelativeEvents
+	 * @return {Array<RelativeEvent>} relativeEvents - The RelativeTimeline's relativeEvents.
+	 */
+	getRelativeEvents() : Array<RelativeEvent> {
+		return this._relativeEvents;
 	}
 
 	/**
@@ -129,57 +142,21 @@ class RelativeTimeline {
 			relEvent.getCall().start();
 		});
 
-		this._nextEvent();
+		this._timelineRunner.start();
 	}
 
 	/**
-	 * Manage next event in Timeline.
+	 * Display given InfoRenderer list.
 	 *
-	 * @method _nextEvent
-	 * @private
+	 * @method display
+	 * @param {Array<InfoRenderer<any>>>} listInfoRenderers - InfoRenderer list to display.
 	 */
-	private _nextEvent() {
-		var self = this;
+	display(listInfoRenderers : Array<InfoRenderer<any>>) {
+//		Logger.debug("RelativeTimeline: '" + this.getId() + "' - display");
 
-		this._loopTimeout = null;
-
-		if(this._currentEventId == null) {
-			this._currentEventId = 0;
-		} else {
-			this._currentEventId = (this._currentEventId + 1) % (this._relativeEvents.length);
-		}
-
-		var currentEvent = this._relativeEvents[this._currentEventId];
-
-		var renderer : Renderer<any> = currentEvent.getCall().getCallType().getRenderer();
-
-		var listInfos : Array<Info> = currentEvent.getCall().getListInfos();
-
-		if(listInfos.length > 0) {
-
-			var listInfoRenderers:Array<InfoRenderer<any>> = listInfos.map(function (e, i) {
-				return new InfoRenderer(e, renderer);
-			});
-
-			if (listInfoRenderers.length > 0) {
-				this._behaviour.stop();
-				this._behaviour.setListInfoRenderers(listInfoRenderers);
-				this._behaviour.start();
-
-				this._loopTimeout = setTimeout(function () {
-					self._nextEvent();
-				}, currentEvent.getDuration() * 1000);
-			} else {
-				setTimeout(function() {
-					self._nextEvent();
-				}, 1000);
-			}
-
-		} else {
-			setTimeout(function() {
-				self._nextEvent();
-			}, 1000);
-		}
+		this._behaviour.stop();
+		this._behaviour.setListInfoRenderers(listInfoRenderers);
+		this._behaviour.start();
 	}
 
 	/**

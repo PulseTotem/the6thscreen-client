@@ -4,6 +4,7 @@
  */
 
 /// <reference path="../../../t6s-core/core-client/scripts/core/Logger.ts" />
+/// <reference path="../../../t6s-core/core-client/scripts/timeline/CallItf.ts" />
 /// <reference path="../structure/CallType.ts" />
 /// <reference path="../core/Constants.ts" />
 
@@ -11,8 +12,9 @@
  * Represents a Call of The6thScreen Client.
  *
  * @class Call
+ * @implements CallItf
  */
-class Call {
+class Call implements CallItf {
 
 	/**
 	 * Call's id.
