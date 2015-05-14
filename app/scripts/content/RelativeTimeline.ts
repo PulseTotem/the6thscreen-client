@@ -160,6 +160,44 @@ class RelativeTimeline implements RelativeTimelineItf {
 	}
 
 	/**
+	 * Pause timeline and display InfoRenderer list in priority.
+	 *
+	 * @method pauseAndDisplay
+	 * @param {Array<InfoRenderer<any>>>} listInfoRenderers - InfoRenderer list to display.
+	 */
+	pauseAndDisplay(listInfoRenderers : Array<InfoRenderer<any>>) {
+//		Logger.debug("RelativeTimeline: '" + this.getId() + "' - pauseAndDisplay");
+
+		this._timelineRunner.pause();
+		this._behaviour.pause();
+		this._behaviour.save();
+		this._behaviour.setListInfoRenderers(listInfoRenderers);
+		this._behaviour.start();
+	}
+
+	/**
+	 * Resume.
+	 *
+	 * @method resume
+	 */
+	resume() {
+		this._behaviour.stop();
+		this._behaviour.restore();
+		this._behaviour.resume();
+		this._timelineRunner.resume();
+	}
+
+	/**
+	 * Add some InfoRenderer to current InfoRenderer list.
+	 *
+	 * @method addToCurrentDisplay
+	 * @param {Array<InfoRenderer<any>>>} listInfoRenderers - InfoRenderer list to add.
+	 */
+	addToCurrentDisplay(listInfoRenderers : Array<InfoRenderer<any>>) {
+		this._behaviour.addToCurrentListInfoRenderers(listInfoRenderers);
+	}
+
+	/**
 	 * Sort RelativeTimeline's events.
 	 *
 	 * @method _sortRelativeEvents
