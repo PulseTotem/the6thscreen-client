@@ -111,5 +111,6 @@ class RelativeEvent implements RelativeEventItf {
 	 */
 	setCall(call : Call) {
 		this._call = call;
+		this._call.setEventOwner(this);
 	}
 }
