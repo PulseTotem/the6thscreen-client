@@ -302,6 +302,7 @@ class Client {
 					 	Logger.error("SystemTrigger '" + relativeTimelineDescription.systemTrigger["name"] + "' was not found.");
 					 }*///TODO : Uncomment when systemTrigger is in RelativeTimeline Description
 					systemTrigger = new DefaultSystemTrigger(); // DefaultSystemTrigger
+					systemTrigger.setRelativeTimeline(newRelTimeline);
 
 					relativeTimelineDescription.relativeEvents.forEach(function(relativeEventDescription : any) {
 						var newRelEvent : RelativeEvent = new RelativeEvent(relativeEventDescription.id, relativeEventDescription.position, relativeEventDescription.duration);
