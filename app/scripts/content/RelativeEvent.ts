@@ -4,14 +4,16 @@
  */
 
 /// <reference path="../../../t6s-core/core-client/scripts/core/Logger.ts" />
+/// <reference path="../../../t6s-core/core-client/scripts/timeline/RelativeEventItf.ts" />
 /// <reference path="./Call.ts" />
 
 /**
  * Represents a RelativeEvent of The6thScreen Client.
  *
  * @class RelativeEvent
+ * @implements RelativeEventItf
  */
-class RelativeEvent {
+class RelativeEvent implements RelativeEventItf {
 
 	/**
 	 * RelativeEvent's id.
@@ -109,5 +111,6 @@ class RelativeEvent {
 	 */
 	setCall(call : Call) {
 		this._call = call;
+		this._call.setEventOwner(this);
 	}
 }

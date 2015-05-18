@@ -285,6 +285,25 @@ class Client {
 
 					var newRelTimeline : RelativeTimeline = new RelativeTimeline(relativeTimelineDescription.id);
 					newRelTimeline.setBehaviour(zone.getBehaviour());
+
+					/*if (window[relativeTimelineDescription.runner["name"]]) {
+						var runner = new window[relativeTimelineDescription.runner["name"]]();
+						newRelTimeline.setTimelineRunner(runner);
+					} else {
+						Logger.error("TimelineRunner '" + relativeTimelineDescription.runner["name"] + "' was not found.");
+					}*///TODO : Uncomment when runner is in RelativeTimeline Description
+					newRelTimeline.setTimelineRunner(new DefaultRunner()); // DefaultRunner
+					//newRelTimeline.setTimelineRunner(new ShuffleRunner()); // ShuffleRunner
+
+					var systemTrigger = null;
+					/*if (window[relativeTimelineDescription.systemTrigger["name"]]) {
+					 	systemTrigger = new window[relativeTimelineDescription.systemTrigger["name"]]();
+					 } else {
+					 	Logger.error("SystemTrigger '" + relativeTimelineDescription.systemTrigger["name"] + "' was not found.");
+					 }*///TODO : Uncomment when systemTrigger is in RelativeTimeline Description
+					systemTrigger = new DefaultSystemTrigger(); // DefaultSystemTrigger
+					systemTrigger.setRelativeTimeline(newRelTimeline);
+
 					relativeTimelineDescription.relativeEvents.forEach(function(relativeEventDescription : any) {
 						var newRelEvent : RelativeEvent = new RelativeEvent(relativeEventDescription.id, relativeEventDescription.position, relativeEventDescription.duration);
 
@@ -293,6 +312,10 @@ class Client {
 
 						var callType : CallType = self._retrieveCallType(callDescription.callType.id);
 						newCall.setCallType(callType);
+
+						if(systemTrigger != null) {
+							newCall.setSystemTrigger(systemTrigger);
+						}
 
 						newRelEvent.setCall(newCall);
 

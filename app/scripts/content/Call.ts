@@ -4,15 +4,19 @@
  */
 
 /// <reference path="../../../t6s-core/core-client/scripts/core/Logger.ts" />
+/// <reference path="../../../t6s-core/core-client/scripts/timeline/CallItf.ts" />
+/// <reference path="../../../t6s-core/core-client/scripts/systemTrigger/SystemTrigger.ts" />
 /// <reference path="../structure/CallType.ts" />
 /// <reference path="../core/Constants.ts" />
+/// <reference path="./RelativeEvent.ts" />
 
 /**
  * Represents a Call of The6thScreen Client.
  *
  * @class Call
+ * @implements CallItf
  */
-class Call {
+class Call implements CallItf {
 
 	/**
 	 * Call's id.
@@ -29,6 +33,22 @@ class Call {
 	 * @type CallType
 	 */
 	private _callType : CallType;
+
+	/**
+	 * Call's owner (RelativeEvent).
+	 *
+	 * @property _eventOwner
+	 * @type RelativeEvent
+	 */
+	private _eventOwner : RelativeEvent;
+
+	/**
+	 * SystemTrigger attached to Call.
+	 *
+	 * @property _systemTrigger
+	 * @type SystemTrigger
+	 */
+	private _systemTrigger : SystemTrigger;
 
 	/**
 	 * Sources Server's socket.
@@ -79,6 +99,8 @@ class Call {
 	constructor(id: number) {
 		this._id = id;
 		this._callType = null;
+		this._eventOwner = null;
+		this._systemTrigger = null;
 		this._listInfos = new Array<Info>();
 	}
 
@@ -100,6 +122,26 @@ class Call {
 	 */
 	setCallType(callType : CallType) {
 		this._callType = callType;
+	}
+
+	/**
+	 * Set the Call's owner.
+	 *
+	 * @method setEventOwner
+	 * @param {RelativeEvent} relativeEvent - The RelativeEvent to set as call's owner.
+	 */
+	setEventOwner(relativeEvent : RelativeEvent) {
+		this._eventOwner = relativeEvent;
+	}
+
+	/**
+	 * Set the Call's systemTrigger.
+	 *
+	 * @method setSystemTrigger
+	 * @param {SystemTrigger} systemTrigger - The SystemTrigger to set.
+	 */
+	setSystemTrigger(systemTrigger : SystemTrigger) {
+		this._systemTrigger = systemTrigger;
 	}
 
 	/**
@@ -343,6 +385,8 @@ class Call {
 	private _onNewInfo(infoDescription : any) {
 //        Logger.debug("Call '" + this.getId() + "' - 3 : Manage new info reception.");
 		var newInfos = this._callType.getRenderer().transformInfo(infoDescription);
+
+		this._systemTrigger.trigger(newInfos, this._eventOwner);
 
 		var allInfos = this._listInfos.concat(newInfos);
 

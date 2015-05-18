@@ -4,6 +4,7 @@
  */
 
 /// <reference path="../../../t6s-core/core-client/scripts/core/Logger.ts" />
+/// <reference path="../../../t6s-core/core-client/scripts/timeline/CallTypeItf.ts" />
 /// <reference path="../../../t6s-core/core-client/scripts/renderer/Renderer.ts" />
 /// <reference path="../../../t6s-core/core-client/scripts/policy/Policy.ts" />
 
@@ -11,8 +12,9 @@
  * Represents a CallType of The6thScreen Client.
  *
  * @class CallType
+ * @implements CallTypeItf
  */
-class CallType {
+class CallType implements CallTypeItf{
 
 	/**
 	 * CallType's id.
