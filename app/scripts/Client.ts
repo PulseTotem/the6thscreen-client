@@ -136,13 +136,14 @@ class Client {
          *
          * Hack to update time in screen.
          *
-         */
+         * /
         var updateTime = function() {
             var currentDate : any = new Date();
             $("#date_time").html(currentDate.toString("HH") + "h" + currentDate.toString("mm"));
         };
         updateTime();
         setInterval(updateTime, 1000*10);
+		 */
     }
 
     /**
@@ -214,14 +215,74 @@ class Client {
 		var self = this;
 
 		if(this._sdiDescription != null) {
-			//TODO : MANAGE STYLE !!!!
 			$('head').append('<link rel="stylesheet/less" type="text/less" href="static/themes/basic.less" />');
-			//TODO : MANAGE STYLE !!!!
+
+			if(this._sdiDescription.theme.backgroundImageURL != "") {
+				$('#wrapper').css('background-image', 'url(' + this._sdiDescription.theme.backgroundImageURL + ')');
+			}
+
+			if(this._sdiDescription.theme.opacity != "") {
+				$('#wrapper').css('opacity', this._sdiDescription.theme.opacity);
+			}
+
+			if(this._sdiDescription.theme.backgroundColor != "" && this._sdiDescription.theme.opacity != "") {
+				$('#wrapper').css('background-color', Utils.toRGBA(this._sdiDescription.theme.backgroundColor, this._sdiDescription.theme.opacity));
+			}
+
+			if(this._sdiDescription.theme.font != "") {
+				$('#wrapper').css('font', this._sdiDescription.theme.font);
+			}
+
+			if(this._sdiDescription.theme.color != "") {
+				$('#wrapper').css('color', this._sdiDescription.theme.color);
+			}
 
 			this._sdiDescription.zones.forEach(function(zoneDescription : any) {
 				if(self._retrieveZone(zoneDescription.id) == null) {
 					var newZone:Zone = new Zone(zoneDescription.id, zoneDescription.name, zoneDescription.description, zoneDescription.width, zoneDescription.height, zoneDescription.positionFromTop, zoneDescription.positionFromLeft);
 					newZone.attachToDom("#the6thscreen-client-content");
+
+					if(zoneDescription.theme != null) {
+						if (zoneDescription.theme.backgroundImageURL != "") {
+							newZone.getZoneDiv().css('background-image', 'url(' + zoneDescription.theme.backgroundImageURL + ')');
+						}
+
+						if(zoneDescription.theme.opacity != "") {
+							newZone.getZoneDiv().css('opacity', zoneDescription.theme.opacity);
+						}
+
+						if (zoneDescription.theme.backgroundColor != "" && zoneDescription.theme.opacity != "") {
+							newZone.getZoneDiv().css('background-color', Utils.toRGBA(zoneDescription.theme.backgroundColor, zoneDescription.theme.opacity));
+						}
+
+						if (zoneDescription.theme.font != "") {
+							newZone.getZoneDiv().css('font', zoneDescription.theme.font);
+						}
+
+						if (zoneDescription.theme.color != "") {
+							newZone.getZoneDiv().css('color', zoneDescription.theme.color);
+						}
+					} else {
+						if(this._sdiDescription.theme.themeZone.backgroundImageURL != "") {
+							newZone.getZoneDiv().css('background-image', 'url(' + this._sdiDescription.theme.themeZone.backgroundImageURL + ')');
+						}
+
+						if(this._sdiDescription.theme.themeZone.opacity != "") {
+							newZone.getZoneDiv().css('opacity', this._sdiDescription.theme.themeZone.opacity);
+						}
+
+						if(this._sdiDescription.theme.themeZone.backgroundColor != "" && this._sdiDescription.theme.themeZone.opacity != "") {
+							newZone.getZoneDiv().css('background-color', Utils.toRGBA(this._sdiDescription.theme.themeZone.backgroundColor, this._sdiDescription.theme.themeZone.opacity));
+						}
+
+						if(this._sdiDescription.theme.themeZone.font != "") {
+							newZone.getZoneDiv().css('font', this._sdiDescription.theme.themeZone.font);
+						}
+
+						if(this._sdiDescription.theme.themeZone.color != "") {
+							newZone.getZoneDiv().css('color', this._sdiDescription.theme.themeZone.color);
+						}
+					}
 
 					if (window[zoneDescription.behaviour["name"]]) {
 						var behaviour = new window[zoneDescription.behaviour["name"]]();
@@ -286,22 +347,19 @@ class Client {
 					var newRelTimeline : RelativeTimeline = new RelativeTimeline(relativeTimelineDescription.id);
 					newRelTimeline.setBehaviour(zone.getBehaviour());
 
-					/*if (window[relativeTimelineDescription.runner["name"]]) {
-						var runner = new window[relativeTimelineDescription.runner["name"]]();
-						newRelTimeline.setTimelineRunner(runner);
+					if (window[relativeTimelineDescription.timelineRunner["name"]]) {
+						var timelineRunner = new window[relativeTimelineDescription.timelineRunner["name"]]();
+						newRelTimeline.setTimelineRunner(timelineRunner);
 					} else {
-						Logger.error("TimelineRunner '" + relativeTimelineDescription.runner["name"] + "' was not found.");
-					}*///TODO : Uncomment when runner is in RelativeTimeline Description
-					newRelTimeline.setTimelineRunner(new DefaultRunner()); // DefaultRunner
-					//newRelTimeline.setTimelineRunner(new ShuffleRunner()); // ShuffleRunner
+						Logger.error("TimelineRunner '" + relativeTimelineDescription.timelineRunner["name"] + "' was not found.");
+					}
 
-					var systemTrigger = null;
-					/*if (window[relativeTimelineDescription.systemTrigger["name"]]) {
-					 	systemTrigger = new window[relativeTimelineDescription.systemTrigger["name"]]();
-					 } else {
-					 	Logger.error("SystemTrigger '" + relativeTimelineDescription.systemTrigger["name"] + "' was not found.");
-					 }*///TODO : Uncomment when systemTrigger is in RelativeTimeline Description
-					systemTrigger = new DefaultSystemTrigger(); // DefaultSystemTrigger
+					var systemTrigger : any = null;
+					if (window[relativeTimelineDescription.systemTrigger["name"]]) {
+						systemTrigger = new window[relativeTimelineDescription.systemTrigger["name"]]();
+					} else {
+						Logger.error("SystemTrigger '" + relativeTimelineDescription.systemTrigger["name"] + "' was not found.");
+					}
 					systemTrigger.setRelativeTimeline(newRelTimeline);
 
 					relativeTimelineDescription.relativeEvents.forEach(function(relativeEventDescription : any) {
