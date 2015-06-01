@@ -217,70 +217,73 @@ class Client {
 		if(this._sdiDescription != null) {
 			$('head').append('<link rel="stylesheet/less" type="text/less" href="static/themes/basic.less" />');
 
-			if(this._sdiDescription.theme.backgroundImageURL != "") {
-				$('#wrapper').css('background-image', 'url(' + this._sdiDescription.theme.backgroundImageURL + ')');
+			if(self._sdiDescription.theme.backgroundImageURL != "") {
+				$('#wrapper_background').css('background-image', 'url(' + self._sdiDescription.theme.backgroundImageURL + ')');
 			}
 
-			if(this._sdiDescription.theme.opacity != "") {
-				$('#wrapper').css('opacity', this._sdiDescription.theme.opacity);
+			if(self._sdiDescription.theme.opacity != "") {
+				$('#wrapper_background').css('opacity', self._sdiDescription.theme.opacity);
 			}
 
-			if(this._sdiDescription.theme.backgroundColor != "" && this._sdiDescription.theme.opacity != "") {
-				$('#wrapper').css('background-color', Utils.toRGBA(this._sdiDescription.theme.backgroundColor, this._sdiDescription.theme.opacity));
+			if(self._sdiDescription.theme.backgroundColor != "") {
+				$('#wrapper_background').css('background-color', self._sdiDescription.theme.backgroundColor);
 			}
 
-			if(this._sdiDescription.theme.font != "") {
-				$('#wrapper').css('font', this._sdiDescription.theme.font);
+			if(self._sdiDescription.theme.font != "") {
+				$('#wrapper').css('font', self._sdiDescription.theme.font);
 			}
 
-			if(this._sdiDescription.theme.color != "") {
-				$('#wrapper').css('color', this._sdiDescription.theme.color);
+			if(self._sdiDescription.theme.color != "") {
+				$('#wrapper').css('color', self._sdiDescription.theme.color);
 			}
 
-			this._sdiDescription.zones.forEach(function(zoneDescription : any) {
+			self._sdiDescription.zones.forEach(function(zoneDescription : any) {
 				if(self._retrieveZone(zoneDescription.id) == null) {
 					var newZone:Zone = new Zone(zoneDescription.id, zoneDescription.name, zoneDescription.description, zoneDescription.width, zoneDescription.height, zoneDescription.positionFromTop, zoneDescription.positionFromLeft);
 					newZone.attachToDom("#the6thscreen-client-content");
 
+					var zoneDiv = newZone.getZoneDiv();
+					var zoneBackgroundDiv = newZone.getZoneBackgroundDiv();
+
 					if(zoneDescription.theme != null) {
 						if (zoneDescription.theme.backgroundImageURL != "") {
-							newZone.getZoneDiv().css('background-image', 'url(' + zoneDescription.theme.backgroundImageURL + ')');
+							zoneBackgroundDiv.css('background-image', 'url(' + zoneDescription.theme.backgroundImageURL + ')');
 						}
 
 						if(zoneDescription.theme.opacity != "") {
-							newZone.getZoneDiv().css('opacity', zoneDescription.theme.opacity);
+							zoneBackgroundDiv.css('opacity', zoneDescription.theme.opacity);
 						}
 
-						if (zoneDescription.theme.backgroundColor != "" && zoneDescription.theme.opacity != "") {
-							newZone.getZoneDiv().css('background-color', Utils.toRGBA(zoneDescription.theme.backgroundColor, zoneDescription.theme.opacity));
+						if(zoneDescription.theme.backgroundColor != "") {
+							zoneBackgroundDiv.css('background-color', zoneDescription.theme.backgroundColor);
 						}
 
 						if (zoneDescription.theme.font != "") {
-							newZone.getZoneDiv().css('font', zoneDescription.theme.font);
+							zoneDiv.css('font', zoneDescription.theme.font);
 						}
 
 						if (zoneDescription.theme.color != "") {
-							newZone.getZoneDiv().css('color', zoneDescription.theme.color);
+							zoneDiv.css('color', zoneDescription.theme.color);
 						}
 					} else {
-						if(this._sdiDescription.theme.themeZone.backgroundImageURL != "") {
-							newZone.getZoneDiv().css('background-image', 'url(' + this._sdiDescription.theme.themeZone.backgroundImageURL + ')');
+						if(self._sdiDescription.theme.themeZone.backgroundImageURL != "") {
+							zoneBackgroundDiv.css('background-image', 'url(' + self._sdiDescription.theme.themeZone.backgroundImageURL + ')');
 						}
 
-						if(this._sdiDescription.theme.themeZone.opacity != "") {
-							newZone.getZoneDiv().css('opacity', this._sdiDescription.theme.themeZone.opacity);
+						if(self._sdiDescription.theme.themeZone.opacity != "") {
+							zoneBackgroundDiv.css('opacity', self._sdiDescription.theme.themeZone.opacity);
 						}
 
-						if(this._sdiDescription.theme.themeZone.backgroundColor != "" && this._sdiDescription.theme.themeZone.opacity != "") {
-							newZone.getZoneDiv().css('background-color', Utils.toRGBA(this._sdiDescription.theme.themeZone.backgroundColor, this._sdiDescription.theme.themeZone.opacity));
+						if(self._sdiDescription.theme.themeZone.backgroundColor != "") {
+							zoneBackgroundDiv.css('background-color', self._sdiDescription.theme.themeZone.backgroundColor);
 						}
 
-						if(this._sdiDescription.theme.themeZone.font != "") {
-							newZone.getZoneDiv().css('font', this._sdiDescription.theme.themeZone.font);
+						if(self._sdiDescription.theme.themeZone.font != "") {
+							zoneDiv.css('font', self._sdiDescription.theme.themeZone.font);
 						}
 
-						if(this._sdiDescription.theme.themeZone.color != "") {
-							newZone.getZoneDiv().css('color', this._sdiDescription.theme.themeZone.color);
+						if(self._sdiDescription.theme.themeZone.color != "") {
+							zoneDiv.css('color', self._sdiDescription.theme.themeZone.color);
 						}
 					}
 
@@ -305,11 +308,15 @@ class Client {
 								Logger.error("Renderer '" + callTypeDescription.renderer["name"] + "' was not found.");
 							}
 
-							if (window[callTypeDescription.policy["name"]]) {
-								var policy = new window[callTypeDescription.policy["name"]]();
-								newCallType.setPolicy(policy);
+							if(callTypeDescription.policy == null) {
+								newCallType.setPolicy(new IdemPolicy());
 							} else {
-								Logger.error("Policy '" + callTypeDescription.policy["name"] + "' was not found.");
+								if (window[callTypeDescription.policy["name"]]) {
+									var policy = new window[callTypeDescription.policy["name"]]();
+									newCallType.setPolicy(policy);
+								} else {
+									Logger.error("Policy '" + callTypeDescription.policy["name"] + "' was not found.");
+								}
 							}
 
 							self._callTypes.push(newCallType);
