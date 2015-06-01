@@ -136,13 +136,14 @@ class Client {
          *
          * Hack to update time in screen.
          *
-         */
+         * /
         var updateTime = function() {
             var currentDate : any = new Date();
             $("#date_time").html(currentDate.toString("HH") + "h" + currentDate.toString("mm"));
         };
         updateTime();
         setInterval(updateTime, 1000*10);
+		 */
     }
 
     /**
@@ -214,14 +215,77 @@ class Client {
 		var self = this;
 
 		if(this._sdiDescription != null) {
-			//TODO : MANAGE STYLE !!!!
 			$('head').append('<link rel="stylesheet/less" type="text/less" href="static/themes/basic.less" />');
-			//TODO : MANAGE STYLE !!!!
 
-			this._sdiDescription.zones.forEach(function(zoneDescription : any) {
+			if(self._sdiDescription.theme.backgroundImageURL != "") {
+				$('#wrapper_background').css('background-image', 'url(' + self._sdiDescription.theme.backgroundImageURL + ')');
+			}
+
+			if(self._sdiDescription.theme.opacity != "") {
+				$('#wrapper_background').css('opacity', self._sdiDescription.theme.opacity);
+			}
+
+			if(self._sdiDescription.theme.backgroundColor != "") {
+				$('#wrapper_background').css('background-color', self._sdiDescription.theme.backgroundColor);
+			}
+
+			if(self._sdiDescription.theme.font != "") {
+				$('#wrapper').css('font', self._sdiDescription.theme.font);
+			}
+
+			if(self._sdiDescription.theme.color != "") {
+				$('#wrapper').css('color', self._sdiDescription.theme.color);
+			}
+
+			self._sdiDescription.zones.forEach(function(zoneDescription : any) {
 				if(self._retrieveZone(zoneDescription.id) == null) {
 					var newZone:Zone = new Zone(zoneDescription.id, zoneDescription.name, zoneDescription.description, zoneDescription.width, zoneDescription.height, zoneDescription.positionFromTop, zoneDescription.positionFromLeft);
 					newZone.attachToDom("#the6thscreen-client-content");
+
+					var zoneDiv = newZone.getZoneDiv();
+					var zoneBackgroundDiv = newZone.getZoneBackgroundDiv();
+
+					if(zoneDescription.theme != null) {
+						if (zoneDescription.theme.backgroundImageURL != "") {
+							zoneBackgroundDiv.css('background-image', 'url(' + zoneDescription.theme.backgroundImageURL + ')');
+						}
+
+						if(zoneDescription.theme.opacity != "") {
+							zoneBackgroundDiv.css('opacity', zoneDescription.theme.opacity);
+						}
+
+						if(zoneDescription.theme.backgroundColor != "") {
+							zoneBackgroundDiv.css('background-color', zoneDescription.theme.backgroundColor);
+						}
+
+						if (zoneDescription.theme.font != "") {
+							zoneDiv.css('font', zoneDescription.theme.font);
+						}
+
+						if (zoneDescription.theme.color != "") {
+							zoneDiv.css('color', zoneDescription.theme.color);
+						}
+					} else {
+						if(self._sdiDescription.theme.themeZone.backgroundImageURL != "") {
+							zoneBackgroundDiv.css('background-image', 'url(' + self._sdiDescription.theme.themeZone.backgroundImageURL + ')');
+						}
+
+						if(self._sdiDescription.theme.themeZone.opacity != "") {
+							zoneBackgroundDiv.css('opacity', self._sdiDescription.theme.themeZone.opacity);
+						}
+
+						if(self._sdiDescription.theme.themeZone.backgroundColor != "") {
+							zoneBackgroundDiv.css('background-color', self._sdiDescription.theme.themeZone.backgroundColor);
+						}
+
+						if(self._sdiDescription.theme.themeZone.font != "") {
+							zoneDiv.css('font', self._sdiDescription.theme.themeZone.font);
+						}
+
+						if(self._sdiDescription.theme.themeZone.color != "") {
+							zoneDiv.css('color', self._sdiDescription.theme.themeZone.color);
+						}
+					}
 
 					if (window[zoneDescription.behaviour["name"]]) {
 						var behaviour = new window[zoneDescription.behaviour["name"]]();
@@ -244,11 +308,15 @@ class Client {
 								Logger.error("Renderer '" + callTypeDescription.renderer["name"] + "' was not found.");
 							}
 
-							if (window[callTypeDescription.policy["name"]]) {
-								var policy = new window[callTypeDescription.policy["name"]]();
-								newCallType.setPolicy(policy);
+							if(callTypeDescription.policy == null) {
+								newCallType.setPolicy(new IdemPolicy());
 							} else {
-								Logger.error("Policy '" + callTypeDescription.policy["name"] + "' was not found.");
+								if (window[callTypeDescription.policy["name"]]) {
+									var policy = new window[callTypeDescription.policy["name"]]();
+									newCallType.setPolicy(policy);
+								} else {
+									Logger.error("Policy '" + callTypeDescription.policy["name"] + "' was not found.");
+								}
 							}
 
 							self._callTypes.push(newCallType);
@@ -286,22 +354,19 @@ class Client {
 					var newRelTimeline : RelativeTimeline = new RelativeTimeline(relativeTimelineDescription.id);
 					newRelTimeline.setBehaviour(zone.getBehaviour());
 
-					/*if (window[relativeTimelineDescription.runner["name"]]) {
-						var runner = new window[relativeTimelineDescription.runner["name"]]();
-						newRelTimeline.setTimelineRunner(runner);
+					if (window[relativeTimelineDescription.timelineRunner["name"]]) {
+						var timelineRunner = new window[relativeTimelineDescription.timelineRunner["name"]]();
+						newRelTimeline.setTimelineRunner(timelineRunner);
 					} else {
-						Logger.error("TimelineRunner '" + relativeTimelineDescription.runner["name"] + "' was not found.");
-					}*///TODO : Uncomment when runner is in RelativeTimeline Description
-					newRelTimeline.setTimelineRunner(new DefaultRunner()); // DefaultRunner
-					//newRelTimeline.setTimelineRunner(new ShuffleRunner()); // ShuffleRunner
+						Logger.error("TimelineRunner '" + relativeTimelineDescription.timelineRunner["name"] + "' was not found.");
+					}
 
-					var systemTrigger = null;
-					/*if (window[relativeTimelineDescription.systemTrigger["name"]]) {
-					 	systemTrigger = new window[relativeTimelineDescription.systemTrigger["name"]]();
-					 } else {
-					 	Logger.error("SystemTrigger '" + relativeTimelineDescription.systemTrigger["name"] + "' was not found.");
-					 }*///TODO : Uncomment when systemTrigger is in RelativeTimeline Description
-					systemTrigger = new DefaultSystemTrigger(); // DefaultSystemTrigger
+					var systemTrigger : any = null;
+					if (window[relativeTimelineDescription.systemTrigger["name"]]) {
+						systemTrigger = new window[relativeTimelineDescription.systemTrigger["name"]]();
+					} else {
+						Logger.error("SystemTrigger '" + relativeTimelineDescription.systemTrigger["name"] + "' was not found.");
+					}
 					systemTrigger.setRelativeTimeline(newRelTimeline);
 
 					relativeTimelineDescription.relativeEvents.forEach(function(relativeEventDescription : any) {

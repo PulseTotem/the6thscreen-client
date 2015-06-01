@@ -98,6 +98,14 @@ class Zone {
 	private _zoneDiv : any;
 
 	/**
+	 * Zone Background Div.
+	 *
+	 * @property _zoneBackgroundDiv
+	 * @type DOM Element
+	 */
+	private _zoneBackgroundDiv : any;
+
+	/**
 	 * Constructor.
 	 *
 	 * @constructor
@@ -172,21 +180,39 @@ class Zone {
 	}
 
 	/**
+	 * Get the Zone Background's div.
+	 *
+	 * @method getZoneBackgroundDiv
+	 */
+	getZoneBackgroundDiv() {
+		return this._zoneBackgroundDiv;
+	}
+
+	/**
 	 * Attach Zone to Client's DOM.
 	 *
 	 * @method attachToDom
 	 * @param {string} clientDomId - DOM Id where append ZoneDiv.
 	 */
 	attachToDom(clientDomId : string) {
+		var zoneContentDiv = $("<div>");
+		zoneContentDiv.addClass("zone");
+		zoneContentDiv.css("top", this._positionFromTop + "%");
+		zoneContentDiv.css("left", this._positionFromLeft + "%");
+		zoneContentDiv.css("width", this._width + "%");
+		zoneContentDiv.css("height", this._height + "%");
+
+		this._zoneBackgroundDiv = $("<div>");
+		this._zoneBackgroundDiv.addClass("zone_background");
+
 		this._zoneDiv = $("<div>");
-		this._zoneDiv.addClass("zone");
-		this._zoneDiv.css("top", this._positionFromTop + "%");
-		this._zoneDiv.css("left", this._positionFromLeft + "%");
-		this._zoneDiv.css("width", this._width + "%");
-		this._zoneDiv.css("height", this._height + "%");
+		this._zoneDiv.addClass("zone_content");
+
+		zoneContentDiv.append(this._zoneBackgroundDiv);
+		zoneContentDiv.append(this._zoneDiv);
 
 
-		$(clientDomId).append(this._zoneDiv);
+		$(clientDomId).append(zoneContentDiv);
 	}
 
 	/**
