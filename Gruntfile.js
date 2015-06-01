@@ -214,6 +214,14 @@ module.exports = function (grunt) {
                 files: {
                     "tmp/css/The6thScreenClient.css": "app/styles/*.less"
                 }
+            },
+            renderer: {
+              options: {
+                paths: ["t6s-core/core-client/styles/renderers"]
+              },
+              files: {
+                'renderers/<%= grunt.option("rendererFileName") %>/<%= grunt.option("rendererFileName") %>.css': 't6s-core/core-client/styles/renderers/<%= grunt.option("rendererFileName") %>.less'
+              }
             }
         },
 
@@ -237,6 +245,13 @@ module.exports = function (grunt) {
                     'app/tests/**/*.ts'
                 ],
                 dest: 'tests/Test.js'
+            },
+            renderer: {
+              src: [
+                't6s-core/core-client/scripts/core/Logger.ts',
+                't6s-core/core-client/scripts/renderer/<%= grunt.option("rendererFileName") %>.ts'
+              ],
+              dest: 'renderers/<%= grunt.option("rendererFileName") %>/<%= grunt.option("rendererFileName") %>.js'
             }
         },
 
@@ -393,7 +408,8 @@ module.exports = function (grunt) {
             tmp: ['tmp/'],
             configure: ['bower_components', 'bower.json'],
             doc: ['doc'],
-            test: ['tests']
+            test: ['tests'],
+            renderer: ['renderers/']
         }
 // ---------------------------------------------
     });
@@ -456,5 +472,50 @@ module.exports = function (grunt) {
 
         grunt.task.run(['typescript:test', 'karma:unit']);
     });
+
+
+  var rendererNames = new Array();
+  var rendererId = null;
+
+  grunt.registerTask('nextRenderer', function() {
+    if(rendererId == null) {
+      rendererId = 0;
+    } else {
+      rendererId++;
+    }
+
+    if(rendererId < rendererNames.length) {
+      var rendererName = rendererNames[rendererId];
+      grunt.option('rendererFileName', rendererName);
+      grunt.task.run(['typescript:renderer']);
+      grunt.task.run(['less:renderer']);
+      grunt.task.run(['nextRenderer']);
+    }
+  });
+
+  grunt.registerTask('renderer', function(name) {
+      grunt.task.run(['clean:renderer']);
+      if(arguments.length == 0) {
+        var renderers = grunt.file.expand('t6s-core/core-client/scripts/renderer/**/*.ts');
+        renderers.forEach(function(rendererFile) {
+          var rendererNameSplitted = rendererFile.split('/');
+
+          var rendererTSName = rendererNameSplitted[rendererNameSplitted.length - 1];
+
+          var rendererName = rendererTSName.substr(0, rendererTSName.length - 3);
+
+          if(rendererName != "Renderer") {
+            rendererNames.push(rendererName);
+          }
+        });
+
+        grunt.task.run(['nextRenderer']);
+
+      } else {
+        grunt.option('rendererFileName', name);
+        grunt.task.run(['typescript:renderer']);
+        grunt.task.run(['less:renderer']);
+      }
+  });
 
 }

@@ -13,3 +13,4 @@ deploy-infos.json
 t6s-core/*
 core-repos-config.json
 heroku
+renderers/*

@@ -29,42 +29,13 @@
 
         <script>
             var client;
-            var listener;
 
             $('window').ready(function() {
 //                Logger.clear();
                 Logger.enableDisplay(true);
                 Logger.setLevel(LoggerLevel.Debug);
 
-                //client = new Client("http://localhost:4000");
-                client = new Client("http://t6s-backend.herokuapp.com");
-
-  /*              listener = new window.keypress.Listener();
-
-                var helpDisplay = false;
-                listener.sequence_combo("h e l p", function() {
-                    if(helpDisplay) {
-                        client.hideLogModal();
-                        helpDisplay = false;
-                    } else {
-                        client.showLogModal();
-                        helpDisplay = true;
-                    }
-                });
-
-                listener.stop_listening();
-
-                var listenOK = false;
-                $("#the6thscreen-client-footer, #logo_loading").bind("click", function() {
-                    if(listenOK) {
-                        listener.stop_listening();
-                        listenOK = false;
-                    } else {
-                        listener.listen();
-                        listenOK = true;
-                    }
-                });
-*/
+                client = new Client();
                 client.run();
             });
 
@@ -72,20 +43,21 @@
     </head>
     <body>
         <div id="wrapper">
-            <div id="the6thscreen-client-header">
+            <!-- div id="the6thscreen-client-header">
                 <div id="date_time"></div>
                 <div id="t6s_logo"></div>
                 <div class="clearfix"></div>
-            </div>
+            </div -->
+            <div id="wrapper_background">&nbsp;</div>
             <div id="the6thscreen-client-content">
 
             </div>
-            <div id="the6thscreen-client-footer">
+            <!--div id="the6thscreen-client-footer">
                 &copy; The 6<sup>th</sup> Screen
-            </div>
+            </div-->
             <div id="logo_loading">
                 <div id="logo_loading_img_container">
-                    <img id="loading_img" src="static/images/yc_loading.gif">
+                    <img id="loading_img" src="static/images/the6thscreen_large.png">
                 </div>
             </div>
         </div>
