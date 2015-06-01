@@ -265,6 +265,10 @@ class Client {
 						if (zoneDescription.theme.color != "") {
 							zoneDiv.css('color', zoneDescription.theme.color);
 						}
+
+						if (zoneDescription.theme.border != "") {
+							zoneDiv.css('border', zoneDescription.theme.border);
+						}
 					} else {
 						if(self._sdiDescription.theme.themeZone.backgroundImageURL != "") {
 							zoneBackgroundDiv.css('background-image', 'url(' + self._sdiDescription.theme.themeZone.backgroundImageURL + ')');
@@ -284,6 +288,10 @@ class Client {
 
 						if(self._sdiDescription.theme.themeZone.color != "") {
 							zoneDiv.css('color', self._sdiDescription.theme.themeZone.color);
+						}
+
+						if(self._sdiDescription.theme.themeZone.border != "") {
+							zoneDiv.css('border', self._sdiDescription.theme.themeZone.border);
 						}
 					}
 
