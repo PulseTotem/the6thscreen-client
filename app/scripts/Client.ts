@@ -11,6 +11,8 @@
 /// <reference path="./structure/Zone.ts" />
 /// <reference path="./structure/CallType.ts" />
 
+/// <reference path="../../t6s-core/core-client/scripts/behaviour/Behaviour.ts" />
+
 declare var io: any; // Use of Socket.IO lib
 declare var $: any; // Use of JQuery
 
@@ -48,6 +50,22 @@ class Client {
 	 */
 	private _structureReady : boolean;
 
+	/**
+	 * The Client's Behaviours.
+	 *
+	 * @property _behaviours
+	 * @type Array<boolean>
+	 */
+	private _behaviours : Array<boolean>;
+
+	/**
+	 * The Client's Renderers.
+	 *
+	 * @property _renderers
+	 * @type Array<boolean>
+	 */
+	private _renderers : Array<boolean>;
+
     ///////////// Variables to manage process connection with Backend ///////////
 
     /**
@@ -76,6 +94,8 @@ class Client {
         this._profilDescription = null;
 		this._zones = new Array<Zone>();
 		this._callTypes = new Array<CallType>();
+		this._behaviours = new Array<boolean>();
+		this._renderers = new Array<boolean>();
 		this._structureReady = false;
     }
 
@@ -298,6 +318,12 @@ class Client {
 					if (window[zoneDescription.behaviour["name"]]) {
 						var behaviour = new window[zoneDescription.behaviour["name"]]();
 						newZone.setBehaviour(behaviour);
+
+						if(typeof(self._behaviours[zoneDescription.behaviour["name"]]) == "undefined") {
+							self._behaviours[zoneDescription.behaviour["name"]] = true;
+							$('head').append('<link rel="stylesheet/less" type="text/less" href="static/behaviours/' + zoneDescription.behaviour["name"] + '.less" />');
+						}
+
 					} else {
 						Logger.error("Behaviour '" + zoneDescription.behaviour["name"] + "' was not found.");
 					}
@@ -311,7 +337,11 @@ class Client {
 							if (window[callTypeDescription.renderer["name"]]) {
 								var renderer = new window[callTypeDescription.renderer["name"]]();
 								newCallType.setRenderer(renderer);
-								$('head').append('<link rel="stylesheet/less" type="text/less" href="static/renderers/' + callTypeDescription.renderer["name"] + '.less" />');
+
+								if(typeof(self._renderers[callTypeDescription.renderer["name"]]) == "undefined") {
+									self._renderers[callTypeDescription.renderer["name"]] = true;
+									$('head').append('<link rel="stylesheet/less" type="text/less" href="static/renderers/' + callTypeDescription.renderer["name"] + '.less" />');
+								}
 							} else {
 								Logger.error("Renderer '" + callTypeDescription.renderer["name"] + "' was not found.");
 							}
