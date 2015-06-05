@@ -237,23 +237,23 @@ class Client {
 		if(this._sdiDescription != null) {
 			$('head').append('<link rel="stylesheet/less" type="text/less" href="static/themes/basic.less" />');
 
-			if(self._sdiDescription.theme.backgroundImageURL != "") {
+			if(self._sdiDescription.theme.backgroundImageURL != "" && self._sdiDescription.theme.backgroundImageURL != null) {
 				$('#wrapper_background').css('background-image', 'url(' + self._sdiDescription.theme.backgroundImageURL + ')');
 			}
 
-			if(self._sdiDescription.theme.opacity != "") {
+			if(self._sdiDescription.theme.opacity != "" && self._sdiDescription.theme.opacity != null) {
 				$('#wrapper_background').css('opacity', self._sdiDescription.theme.opacity);
 			}
 
-			if(self._sdiDescription.theme.backgroundColor != "") {
+			if(self._sdiDescription.theme.backgroundColor != "" && self._sdiDescription.theme.backgroundColor != null) {
 				$('#wrapper_background').css('background-color', self._sdiDescription.theme.backgroundColor);
 			}
 
-			if(self._sdiDescription.theme.font != "") {
+			if(self._sdiDescription.theme.font != "" && self._sdiDescription.theme.font != null) {
 				$('#wrapper').css('font', self._sdiDescription.theme.font);
 			}
 
-			if(self._sdiDescription.theme.color != "") {
+			if(self._sdiDescription.theme.color != "" && self._sdiDescription.theme.color != null) {
 				$('#wrapper').css('color', self._sdiDescription.theme.color);
 			}
 
@@ -266,51 +266,51 @@ class Client {
 					var zoneBackgroundDiv = newZone.getZoneBackgroundDiv();
 
 					if(zoneDescription.theme != null) {
-						if (zoneDescription.theme.backgroundImageURL != "") {
+						if (zoneDescription.theme.backgroundImageURL != "" && zoneDescription.theme.backgroundImageURL != null) {
 							zoneBackgroundDiv.css('background-image', 'url(' + zoneDescription.theme.backgroundImageURL + ')');
 						}
 
-						if(zoneDescription.theme.opacity != "") {
+						if(zoneDescription.theme.opacity != "" && zoneDescription.theme.opacity != null) {
 							zoneBackgroundDiv.css('opacity', zoneDescription.theme.opacity);
 						}
 
-						if(zoneDescription.theme.backgroundColor != "") {
+						if(zoneDescription.theme.backgroundColor != "" && zoneDescription.theme.backgroundColor != null) {
 							zoneBackgroundDiv.css('background-color', zoneDescription.theme.backgroundColor);
 						}
 
-						if (zoneDescription.theme.font != "") {
+						if (zoneDescription.theme.font != "" && zoneDescription.theme.font != null) {
 							zoneDiv.css('font', zoneDescription.theme.font);
 						}
 
-						if (zoneDescription.theme.color != "") {
+						if (zoneDescription.theme.color != "" && zoneDescription.theme.color != null) {
 							zoneDiv.css('color', zoneDescription.theme.color);
 						}
 
-						if (zoneDescription.theme.border != "") {
+						if (zoneDescription.theme.border != "" && zoneDescription.theme.border != null) {
 							zoneDiv.css('border', zoneDescription.theme.border);
 						}
 					} else {
-						if(self._sdiDescription.theme.themeZone.backgroundImageURL != "") {
+						if(self._sdiDescription.theme.themeZone.backgroundImageURL != "" && self._sdiDescription.theme.themeZone.backgroundImageURL != null) {
 							zoneBackgroundDiv.css('background-image', 'url(' + self._sdiDescription.theme.themeZone.backgroundImageURL + ')');
 						}
 
-						if(self._sdiDescription.theme.themeZone.opacity != "") {
+						if(self._sdiDescription.theme.themeZone.opacity != "" && self._sdiDescription.theme.themeZone.opacity != null) {
 							zoneBackgroundDiv.css('opacity', self._sdiDescription.theme.themeZone.opacity);
 						}
 
-						if(self._sdiDescription.theme.themeZone.backgroundColor != "") {
+						if(self._sdiDescription.theme.themeZone.backgroundColor != "" && self._sdiDescription.theme.themeZone.backgroundColor != null) {
 							zoneBackgroundDiv.css('background-color', self._sdiDescription.theme.themeZone.backgroundColor);
 						}
 
-						if(self._sdiDescription.theme.themeZone.font != "") {
+						if(self._sdiDescription.theme.themeZone.font != "" && self._sdiDescription.theme.themeZone.font != null) {
 							zoneDiv.css('font', self._sdiDescription.theme.themeZone.font);
 						}
 
-						if(self._sdiDescription.theme.themeZone.color != "") {
+						if(self._sdiDescription.theme.themeZone.color != "" && self._sdiDescription.theme.themeZone.color != null) {
 							zoneDiv.css('color', self._sdiDescription.theme.themeZone.color);
 						}
 
-						if(self._sdiDescription.theme.themeZone.border != "") {
+						if(self._sdiDescription.theme.themeZone.border != "" && self._sdiDescription.theme.themeZone.border != null) {
 							zoneDiv.css('border', self._sdiDescription.theme.themeZone.border);
 						}
 					}
