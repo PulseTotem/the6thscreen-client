@@ -160,7 +160,7 @@ class Call implements CallItf {
 	 * @method getListInfos
 	 */
 	getListInfos() : Array<Info> {
-		this._listInfos = this._callType.getPolicy().filterInfo(this._listInfos);
+		this._listInfos = this._callType.getPolicy().filterOnGet(this._listInfos);
 		return this._listInfos;
 	}
 
@@ -389,6 +389,6 @@ class Call implements CallItf {
 
 		this._systemTrigger.trigger(newInfos, this._eventOwner);
 
-		this._listInfos = this._listInfos.concat(newInfos);
+		this._listInfos = this._callType.getPolicy().filterOnNew(this._listInfos, newInfos);
 	}
 }
