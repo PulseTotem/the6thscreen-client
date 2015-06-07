@@ -402,10 +402,18 @@ class Client {
 					var systemTrigger : any = null;
 					if (window[relativeTimelineDescription.systemTrigger["name"]]) {
 						systemTrigger = new window[relativeTimelineDescription.systemTrigger["name"]]();
+						newRelTimeline.setSystemTrigger(systemTrigger);
 					} else {
 						Logger.error("SystemTrigger '" + relativeTimelineDescription.systemTrigger["name"] + "' was not found.");
 					}
-					systemTrigger.setRelativeTimeline(newRelTimeline);
+
+					var userTrigger : any = null;
+					if (window[relativeTimelineDescription.userTrigger["name"]]) {
+						userTrigger = new window[relativeTimelineDescription.userTrigger["name"]]();
+						newRelTimeline.setUserTrigger(userTrigger);
+					} else {
+						Logger.error("UserTrigger '" + relativeTimelineDescription.userTrigger["name"] + "' was not found.");
+					}
 
 					relativeTimelineDescription.relativeEvents.forEach(function(relativeEventDescription : any) {
 						var newRelEvent : RelativeEvent = new RelativeEvent(relativeEventDescription.id, relativeEventDescription.position, relativeEventDescription.duration);
