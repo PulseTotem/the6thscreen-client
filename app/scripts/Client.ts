@@ -235,7 +235,7 @@ class Client {
 		var self = this;
 
 		if(this._sdiDescription != null) {
-			$('head').append('<link rel="stylesheet/less" type="text/less" href="static/themes/basic.less" />');
+			//TODO: Manage theme. $('head').append('<link rel="stylesheet/less" type="text/less" href="static/themes/basic.less" />');
 
 			if(self._sdiDescription.theme.backgroundImageURL != "" && self._sdiDescription.theme.backgroundImageURL != null) {
 				$('#wrapper_background').css('background-image', 'url(' + self._sdiDescription.theme.backgroundImageURL + ')');
@@ -321,7 +321,7 @@ class Client {
 
 						if(typeof(self._behaviours[zoneDescription.behaviour["name"]]) == "undefined") {
 							self._behaviours[zoneDescription.behaviour["name"]] = true;
-							$('head').append('<link rel="stylesheet/less" type="text/less" href="static/behaviours/' + zoneDescription.behaviour["name"] + '.less" />');
+							//Include by less compilation. $('head').append('<link rel="stylesheet/less" type="text/less" href="static/behaviours/' + zoneDescription.behaviour["name"] + '.less" />');
 						}
 
 					} else {
@@ -340,7 +340,7 @@ class Client {
 
 								if(typeof(self._renderers[callTypeDescription.renderer["name"]]) == "undefined") {
 									self._renderers[callTypeDescription.renderer["name"]] = true;
-									$('head').append('<link rel="stylesheet/less" type="text/less" href="static/renderers/' + callTypeDescription.renderer["name"] + '.less" />');
+									//Include by less compilation. $('head').append('<link rel="stylesheet/less" type="text/less" href="static/renderers/' + callTypeDescription.renderer["name"] + '.less" />');
 								}
 							} else {
 								Logger.error("Renderer '" + callTypeDescription.renderer["name"] + "' was not found.");
@@ -452,7 +452,7 @@ class Client {
 	start() {
 //        Logger.debug("3 - start");
 
-		$('head').append('<script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.3.1/less.min.js"></script>');
+		//Not need by less compilation. $('head').append('<script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.3.1/less.min.js"></script>');
 
 		this._zones.forEach(function(zone : Zone) {
 			zone.start();

@@ -22,6 +22,7 @@
     "karma-phantomjs-launcher": "~0.1.4",
     "grunt-include-source": "~0.3.7",
     "grunt-contrib-symlink": "~0.3.0",
-    "grunt-contrib-less": "~1.0.1"
+    "grunt-contrib-less": "~1.0.1",
+    "grunt-cache-breaker": "~1.0.1"
   }
 }
