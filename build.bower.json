@@ -9,6 +9,7 @@
         "Keypress": "~2.1.0",
         "lodash": "~3.8.0",
         "slick.js": "~1.5.5",
-        "moment": "~2.10.3"
+        "moment": "~2.10.3",
+        "jquery-hammerjs": "~2.0.0"
     }
 }
