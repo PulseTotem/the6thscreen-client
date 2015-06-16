@@ -204,7 +204,29 @@ class Client {
 			    Logger.error(error);
 		    });
 	    });
+
+	    this._backendSocket.on('IdentifyClient', function(response) {
+		    Utils.manageServerResponse(response, function(clientID) {
+			    self.displayIdentifier(clientID);
+		    }, function (error) {
+			    Logger.error(error);
+		    });
+	    });
     }
+
+	displayIdentifier(toDisplay : string) {
+		var self = this;
+		var idZone = $('identifier');
+		idZone.content(toDisplay);
+		idZone.css('display','block');
+
+		setTimeout(self.hideIdentifier, 30000);
+	}
+
+	hideIdentifier() {
+		var idZone = $('identifier');
+		idZone.css('display','none');
+	}
 
     /**
      * Manage connection with backend.
