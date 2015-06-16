@@ -196,6 +196,14 @@ class Client {
                 Logger.error(error);
             });
         });
+
+	    this._backendSocket.on('RefreshClient', function(response) {
+		    Utils.manageServerResponse(response, function() {
+			    location.reload();
+		    }, function (error) {
+			    Logger.error(error);
+		    });
+	    });
     }
 
     /**
