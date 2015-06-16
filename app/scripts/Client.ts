@@ -215,16 +215,18 @@ class Client {
     }
 
 	displayIdentifier(toDisplay : string) {
+		Logger.debug("Get client identity : "+toDisplay);
 		var self = this;
-		var idZone = $('identifier');
-		idZone.content(toDisplay);
+		var idZone = $('#identifier');
+		idZone.empty();
+		idZone.append(toDisplay);
 		idZone.css('display','block');
 
 		setTimeout(self.hideIdentifier, 30000);
 	}
 
 	hideIdentifier() {
-		var idZone = $('identifier');
+		var idZone = $('#identifier');
 		idZone.css('display','none');
 	}
 
