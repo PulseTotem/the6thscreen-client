@@ -11,6 +11,8 @@
         "slick.js": "~1.5.5",
         "moment": "~2.10.3",
         "jquery-hammerjs": "~2.0.0",
-        "jquery.transit": "~0.9.12"
+        "jquery.transit": "~0.9.12",
+        "d3": "~3.5.5",
+        "d3-cloud": "~1.1.2"
     }
 }
