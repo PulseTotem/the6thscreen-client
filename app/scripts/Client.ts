@@ -112,44 +112,7 @@ class Client {
         Logger.info("                                    Welcome and enjoy !                                             ");
         Logger.info("____________________________________________________________________________________________________");
 
-        this._backendSocket = io(Constants.BACKEND_URL,
-            {"reconnection" : true, 'reconnectionAttempts' : 10, "reconnectionDelay" : 1000, "reconnectionDelayMax" : 5000, "timeout" : 5000, "autoConnect" : true, "multiplex": false});
-
-        this.listen();
-
-        this._backendSocket.on("connect", function() {
-            self.manageBackendConnection();
-        });
-
-        this._backendSocket.on("error", function(errorData) {
-            Logger.error("An error occurred during connection to Backend.");
-        });
-
-        this._backendSocket.on("disconnect", function() {
-            Logger.info("Disconnected to Backend.");
-        });
-
-        this._backendSocket.on("reconnect", function(attemptNumber) {
-            Logger.info("Connected to Backend after " + attemptNumber + " attempts.");
-        });
-
-        this._backendSocket.on("reconnect_attempt", function() {
-            Logger.info("Trying to reconnect to Backend.");
-        });
-
-        this._backendSocket.on("reconnecting", function(attemptNumber) {
-            Logger.info("Trying to connect to Backend - Attempt number " + attemptNumber + ".");
-        });
-
-        this._backendSocket.on("reconnect_error", function(errorData) {
-            Logger.error("An error occurred during reconnection to Backend.");
-        });
-
-        this._backendSocket.on("reconnect_failed", function() {
-            Logger.error("Failed to connect to Backend. No new attempt will be done.");
-        });
-
-
+        this.connectToBackend();
 
         /**
          * TODO : Put it in a zone with special behaviour.
@@ -165,6 +128,58 @@ class Client {
         setInterval(updateTime, 1000*10);
 		 */
     }
+
+	/**
+	 * Manage connection to Backend.
+	 *
+	 * @method connectToBackend
+	 */
+	connectToBackend() {
+		var self = this;
+
+		this._backendSocket = io(Constants.BACKEND_URL,
+			{"reconnection" : true, 'reconnectionAttempts' : 10, "reconnectionDelay" : 1000, "reconnectionDelayMax" : 5000, "timeout" : 5000, "autoConnect" : true, "multiplex": false});
+
+		this.listen();
+
+		this._backendSocket.on("connect", function() {
+			self.manageBackendConnection();
+		});
+
+		this._backendSocket.on("error", function(errorData) {
+			Logger.error("An error occurred during connection to Backend.");
+		});
+
+		this._backendSocket.on("disconnect", function() {
+			Logger.info("Disconnected to Backend.");
+		});
+
+		this._backendSocket.on("reconnect", function(attemptNumber) {
+			Logger.info("Connected to Backend after " + attemptNumber + " attempts.");
+		});
+
+		this._backendSocket.on("reconnect_attempt", function() {
+			Logger.info("Trying to reconnect to Backend.");
+		});
+
+		this._backendSocket.on("reconnecting", function(attemptNumber) {
+			Logger.info("Trying to connect to Backend - Attempt number " + attemptNumber + ".");
+		});
+
+		this._backendSocket.on("reconnect_error", function(errorData) {
+			Logger.error("An error occurred during reconnection to Backend.");
+		});
+
+		this._backendSocket.on("reconnect_failed", function() {
+			Logger.error("Failed to connect to Backend. New attempt will be done in 5 seconds. Administrators received an Alert !");
+			//TODO: Send an email and Notification to Admins !
+
+			setTimeout(function() {
+				self._backendSocket = null;
+				self.connectToBackend();
+			}, 5000);
+		});
+	}
 
     /**
      * Step 0.1 : Listen for Backend answers.

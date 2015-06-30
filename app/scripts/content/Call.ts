@@ -91,6 +91,15 @@ class Call implements CallItf {
 	private _sourceConnectionDescription : any;
 
 	/**
+	 * Call's 'connectedToSource' status.
+	 *
+	 * @property _connectedToSource
+	 * @type boolean
+	 */
+	private _connectedToSource : boolean;
+
+
+	/**
 	 * Constructor.
 	 *
 	 * @constructor
@@ -102,6 +111,8 @@ class Call implements CallItf {
 		this._eventOwner = null;
 		this._systemTrigger = null;
 		this._listInfos = new Array<Info>();
+
+		this._connectedToSource = false;
 	}
 
 	/**
@@ -220,8 +231,28 @@ class Call implements CallItf {
 		});
 
 		this._sourcesServerSocket.on("reconnect_failed", function() {
-			Logger.error("Call#" + self.getId() + "::_connectToSourcesServer : Failed to connect to Sources Server. No new attempt will be done.");
+			Logger.error("Call#" + self.getId() + "::_connectToSourcesServer : Failed to connect to Sources Server. New attempt will be done in 5 seconds. Administrators received an Alert !");
+			//TODO: Send an email and Notification to Admins !
+
+			setTimeout(function() {
+				self._sourcesServerSocket = null;
+				self._connectToSourcesServer();
+			}, 5000);
 		});
+	}
+
+	/**
+	 * Disconnection from SourcesServer.
+	 *
+	 * @method _disconnectFromSourcesServer
+	 * @private
+	 */
+	private _disconnectFromSourcesServer() {
+		if(typeof(this._sourcesServerSocket) != "undefined" && this._sourcesServerSocket != null) {
+			//Disconnection from SourcesServer
+			this._sourcesServerSocket.disconnect();
+			this._sourcesServerSocket = null;
+		} // else // Nothing to do...
 	}
 
 	/**
@@ -237,6 +268,8 @@ class Call implements CallItf {
 		this._sourcesServerSocket.on("sourceConnectionDescription", function(response) {
 			Utils.manageServerResponse(response, function(sourceConnectionDescription) {
 				self._sourceConnectionDescription = sourceConnectionDescription;
+
+				self._disconnectFromSourcesServer();
 
 				self._connectToSource();
 			}, function(error) {
@@ -321,8 +354,28 @@ class Call implements CallItf {
 		});
 
 		this._sourceSocket.on("reconnect_failed", function() {
-			Logger.error("Call#" + self.getId() + "::_connectToSource : Failed to connect to Source. No new attempt will be done.");
+			Logger.error("Call#" + self.getId() + "::_connectToSource : Failed to connect to Source. New attempt will be done in 5 seconds. Administrators received an Alert !");
+			//TODO: Send an email and Notification to Admins !
+
+			setTimeout(function() {
+				self._sourceSocket = null;
+				self._connectToSource();
+			}, 5000);
 		});
+	}
+
+	/**
+	 * Disconnection from Source.
+	 *
+	 * @method _disconnectFromSource
+	 * @private
+	 */
+	private _disconnectFromSource() {
+		if(typeof(this._sourceSocket) != "undefined" && this._sourceSocket != null) {
+			//Disconnection from SourcesServer
+			this._sourceSocket.disconnect();
+			this._sourceSocket = null;
+		} // else // Nothing to do...
 	}
 
 	/**
@@ -335,18 +388,17 @@ class Call implements CallItf {
 //        Logger.debug("Call '" + this.getId() + "' - 2.2 : Source listening.");
 		var self = this;
 
-		this._sourceSocket.on("pingAnswer", function(response) {
-			Utils.manageServerResponse(response, function(pingAnswer) {
-				if(! pingAnswer.sendingInfos) {
-					Logger.debug("pingAnswer false so do nothing...");
-					//self._callDeclarationToSource();
-				} else {
-					self._callDeclarationToSource();
-				}
-			}, function(error) {
-				Logger.error(error);
+		this._sourceSocket.on("CallOK", function(response) {
+			Utils.manageServerResponse(response, function(hashDescription) {
+				self._connectedToSource = true;
+			}, function(hashDescription) {
+				self._disconnectFromSource();
+				self._disconnectFromSourcesServer();
+				self._sourceConnectionDescription = null;
+				self._callHash = "";
+				self._connectedToSource = false;
+				self._connectToSourcesServer();
 			});
-
 		});
 
 		this._sourceSocket.on("newInfo", function(infoDescription) {
@@ -362,18 +414,11 @@ class Call implements CallItf {
 	 */
 	private _manageSourceConnection() {
 //        Logger.debug("Call '" + this.getId() + "' - 2.3 : Manage Source Connection.");
-		this._sourceSocket.emit("ping", {"callHash" : this._callHash});
-	}
 
-	/**
-	 * Step 2.4 : Perform call declaration to Source.
-	 *
-	 * @method _callDeclarationToSource
-	 * @private
-	 */
-	private _callDeclarationToSource() {
-//        Logger.debug("Call '" + this.getId() + "' - 2.4 : Source Call declaration.");
-		this._sourceSocket.emit("newCall", {"callHash" : this._callHash});
+		if(! this._connectedToSource) {
+	//        Logger.debug("Call '" + this.getId() + "' - Source Call declaration.");
+			this._sourceSocket.emit("newCall", {"callHash": this._callHash});
+		}
 	}
 
 	/**
