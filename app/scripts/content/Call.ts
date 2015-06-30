@@ -215,6 +215,7 @@ class Call implements CallItf {
 
 		this._sourcesServerSocket.on("reconnect", function(attemptNumber) {
 			Logger.info("Call#" + self.getId() + "::_connectToSourcesServer : Connected to Sources Server after " + attemptNumber + " attempts.");
+			self._manageSourcesServerConnection();
 		});
 
 		this._sourcesServerSocket.on("reconnect_attempt", function() {
@@ -338,6 +339,8 @@ class Call implements CallItf {
 
 		this._sourceSocket.on("reconnect", function(attemptNumber) {
 			Logger.info("Call#" + self.getId() + "::_connectToSource : Connected to Source after " + attemptNumber + " attempts.");
+			self._disconnectFromSource();
+			self._connectToSource();
 		});
 
 		this._sourceSocket.on("reconnect_attempt", function() {
