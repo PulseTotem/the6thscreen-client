@@ -320,6 +320,16 @@ class RelativeTimeline implements RelativeTimelineItf {
 	}
 
 	/**
+	 * Update Info if it's currently display
+	 *
+	 * @method updateInfoIfCurrentlyDisplay
+	 * @param {Info} info - Info to update.
+	 */
+	updateInfoIfCurrentlyDisplay(info : Info) {
+		this._behaviour.updateInfoIfCurrentlyDisplay(info);
+	}
+
+	/**
 	 * Sort RelativeTimeline's events.
 	 *
 	 * @method _sortRelativeEvents
