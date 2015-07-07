@@ -58,6 +58,15 @@ class CallType implements CallTypeItf{
 
 
 	/**
+	 * StaticSource name if existing, else null.
+	 *
+	 * @property _staticSourceName
+	 * @type string
+	 */
+	private _staticSourceName : string;
+
+
+	/**
 	 * Constructor.
 	 *
 	 * @constructor
@@ -71,6 +80,7 @@ class CallType implements CallTypeItf{
 		this._description = description;
 		this._renderer = null;
 		this._policy = null;
+		this._staticSourceName = null;
 	}
 
 	/**
@@ -121,5 +131,25 @@ class CallType implements CallTypeItf{
 	 */
 	getPolicy() : Policy {
 		return this._policy;
+	}
+
+	/**
+	 * Set the CallType's static source name
+	 *
+	 * @method setStaticSourceName
+	 * @param staticSourceName - The static source name
+	 */
+	setStaticSourceName(staticSourceName : string) {
+		this._staticSourceName = staticSourceName;
+	}
+
+	/**
+	 * Get the CallType's static source name
+	 *
+	 * @method  getStaticSourceName
+	 * @returns {string}
+	 */
+	getStaticSourceName() : string {
+		return this._staticSourceName;
 	}
 }

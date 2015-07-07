@@ -389,6 +389,10 @@ class Client {
 									self._renderers[callTypeDescription.renderer["name"]] = true;
 									//Include by less compilation. $('head').append('<link rel="stylesheet/less" type="text/less" href="static/renderers/' + callTypeDescription.renderer["name"] + '.less" />');
 								}
+
+								if (callTypeDescription.source.isStatic) {
+									newCallType.setStaticSourceName(callTypeDescription.source["name"]);
+								}
 							} else {
 								Logger.error("Renderer '" + callTypeDescription.renderer["name"] + "' was not found.");
 							}
@@ -431,9 +435,7 @@ class Client {
 			this._profilDescription.zoneContents.forEach(function(zoneContentDescription : any) {
 				var zone = self._retrieveZone(zoneContentDescription.zone.id);
 
-				if(zoneContentDescription.widget != null) {
-					//TODO
-				} else if(zoneContentDescription.relativeTimeline != null) {
+				if(zoneContentDescription.relativeTimeline != null) {
 					var relativeTimelineDescription = zoneContentDescription.relativeTimeline;
 
 					var newRelTimeline : RelativeTimeline = new RelativeTimeline(relativeTimelineDescription.id);
@@ -470,6 +472,11 @@ class Client {
 
 						var callType : CallType = self._retrieveCallType(callDescription.callType.id);
 						newCall.setCallType(callType);
+
+						if (callType.getStaticSourceName() != null) {
+							var staticsource = new window[callType.getStaticSourceName()]();
+							newCall.setStaticSource(staticsource);
+						}
 
 						if(systemTrigger != null) {
 							newCall.setSystemTrigger(systemTrigger);

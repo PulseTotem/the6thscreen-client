@@ -6,6 +6,7 @@
 /// <reference path="../../../t6s-core/core-client/scripts/core/Logger.ts" />
 /// <reference path="../../../t6s-core/core-client/scripts/timeline/CallItf.ts" />
 /// <reference path="../../../t6s-core/core-client/scripts/systemTrigger/SystemTrigger.ts" />
+/// <reference path="../../../t6s-core/core-client/scripts/staticSource/StaticSource.ts" />
 /// <reference path="../structure/CallType.ts" />
 /// <reference path="../core/Constants.ts" />
 /// <reference path="./RelativeEvent.ts" />
@@ -98,6 +99,14 @@ class Call implements CallItf {
 	 */
 	private _connectedToSource : boolean;
 
+	/**
+	 * StaticSource instance if this call refers to a static source
+	 *
+	 * @property _staticSource
+	 * @type StaticSource
+	 */
+	private _staticSource : StaticSource<any>;
+
 
 	/**
 	 * Constructor.
@@ -113,6 +122,7 @@ class Call implements CallItf {
 		this._listInfos = new Array<Info>();
 
 		this._connectedToSource = false;
+		this._staticSource = null;
 	}
 
 	/**
@@ -156,6 +166,26 @@ class Call implements CallItf {
 	}
 
 	/**
+	 * Set the Call's staticSource
+	 *
+	 * @method setStaticSource
+	 * @param staticSource
+	 */
+	setStaticSource(staticSource : StaticSource<any>) {
+		this._staticSource = staticSource;
+	}
+
+	/**
+	 * Get the Call's staticSource
+	 *
+	 * @method getStaticSource
+	 * @returns {StaticSource}
+	 */
+	getStaticSource() : StaticSource<any> {
+		return this._staticSource;
+	}
+
+	/**
 	 * Get the Call's callType.
 	 *
 	 * @method getCallType
@@ -181,7 +211,12 @@ class Call implements CallItf {
 	 * @method start
 	 */
 	start() {
-		this._connectToSourcesServer();
+		if (this._staticSource == null) {
+			this._connectToSourcesServer();
+		} else {
+			this._staticSource.setCall(this);
+			this._staticSource.start();
+		}
 	}
 
 	/**
@@ -405,7 +440,7 @@ class Call implements CallItf {
 		});
 
 		this._sourceSocket.on("newInfo", function(infoDescription) {
-			self._onNewInfo(infoDescription);
+			self.onNewInfo(infoDescription);
 		});
 	}
 
@@ -427,11 +462,10 @@ class Call implements CallItf {
 	/**
 	 * Step 3 : Manage new info reception.
 	 *
-	 * @method _onNewInfo
+	 * @method onNewInfo
 	 * @param {JSON Object} infoDescription - The new Info Description.
-	 * @private
 	 */
-	private _onNewInfo(infoDescription : any) {
+	public onNewInfo(infoDescription : any) {
 //        Logger.debug("Call '" + this.getId() + "' - 3 : Manage new info reception.");
 		var newInfos = this._callType.getRenderer().transformInfo(infoDescription);
 
