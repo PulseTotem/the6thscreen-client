@@ -56,6 +56,13 @@ class CallType implements CallTypeItf{
 	 */
 	private _policy : Policy;
 
+	/**
+	 * RefreshTime if is linked to a StaticSource, else null.
+	 *
+	 * @property _staticRefreshTime
+	 * @type number
+	 */
+	private _staticRefreshTime : number;
 
 	/**
 	 * StaticSource name if existing, else null.
@@ -80,6 +87,7 @@ class CallType implements CallTypeItf{
 		this._description = description;
 		this._renderer = null;
 		this._policy = null;
+		this._staticRefreshTime = null;
 		this._staticSourceName = null;
 	}
 
@@ -151,5 +159,25 @@ class CallType implements CallTypeItf{
 	 */
 	getStaticSourceName() : string {
 		return this._staticSourceName;
+	}
+
+	/**
+	 * Set the CallType's static refreshTime
+	 *
+	 * @method setStaticRefreshTime
+	 * @param {number} staticRefreshTime - The static refreshTime
+	 */
+	setStaticRefreshTime(staticRefreshTime : number) {
+		this._staticRefreshTime = staticRefreshTime;
+	}
+
+	/**
+	 * Get the CallType's static refreshTime
+	 *
+	 * @method  getStaticRefreshTime
+	 * @returns {number} the static refreshTime
+	 */
+	getStaticRefreshTime() : number {
+		return this._staticRefreshTime;
 	}
 }
