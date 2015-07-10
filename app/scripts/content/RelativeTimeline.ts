@@ -320,13 +320,15 @@ class RelativeTimeline implements RelativeTimelineItf {
 	}
 
 	/**
-	 * Update Info if it's currently display
+	 * Update Info
 	 *
-	 * @method updateInfoIfCurrentlyDisplay
+	 * @method updateInfo
 	 * @param {Info} info - Info to update.
 	 */
-	updateInfoIfCurrentlyDisplay(info : Info) {
-		this._behaviour.updateInfoIfCurrentlyDisplay(info);
+	updateInfo(info : Info) {
+		if(this._behaviour.updateInfo(info)) {
+			this._timelineRunner.updateCurrentTimer();
+		}
 	}
 
 	/**
