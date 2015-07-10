@@ -6,6 +6,7 @@
 /// <reference path="../../../t6s-core/core-client/scripts/core/Logger.ts" />
 /// <reference path="../../../t6s-core/core-client/scripts/core/InfoRenderer.ts" />
 /// <reference path="../../../t6s-core/core-client/scripts/timeline/RelativeTimelineItf.ts" />
+/// <reference path="../../../t6s-core/core-client/scripts/timeline/RelativeTimelineState.ts" />
 /// <reference path="./RelativeEvent.ts" />
 /// <reference path="../../../t6s-core/core-client/scripts/behaviour/Behaviour.ts" />
 /// <reference path="../../../t6s-core/core-client/scripts/timelineRunner/TimelineRunner.ts" />
@@ -77,6 +78,14 @@ class RelativeTimeline implements RelativeTimelineItf {
 	 */
 	private _relativeEvents : Array<RelativeEvent>;
 
+	/**
+	 * RelativeTimeline's state.
+	 *
+	 * @property _state
+	 * @private
+	 * @type RelativeTimelineState
+	 */
+	private _state : RelativeTimelineState;
 
 	/**
 	 * Constructor.
@@ -157,8 +166,6 @@ class RelativeTimeline implements RelativeTimelineItf {
 		this._userTrigger.setRelativeTimeline(this);
 	}
 
-
-
 	/**
 	 * Return RelativeTimeline's relativeEvents.
 	 *
@@ -197,6 +204,7 @@ class RelativeTimeline implements RelativeTimelineItf {
 			relEvent.getCall().start();
 		});
 
+		this._state = RelativeTimelineState.RUNNER;
 		this._timelineRunner.start();
 	}
 
@@ -208,8 +216,16 @@ class RelativeTimeline implements RelativeTimelineItf {
 	pause() {
 //		Logger.debug("RelativeTimeline: '" + this.getId() + "' - pause");
 
-		this._timelineRunner.pause();
-		this._behaviour.pause();
+		switch(this._state) {
+			case RelativeTimelineState.RUNNER :
+				this._timelineRunner.pause();
+				this._behaviour.pause();
+				break;
+			case RelativeTimelineState.SYSTEMTRIGGER :
+				this._systemTrigger.pause();
+				this._behaviour.pause();
+				break;
+		}
 	}
 
 	/**
@@ -218,8 +234,16 @@ class RelativeTimeline implements RelativeTimelineItf {
 	 * @method resume
 	 */
 	resume() {
-		this._behaviour.resume();
-		this._timelineRunner.resume();
+		switch(this._state) {
+			case RelativeTimelineState.RUNNER :
+				this._behaviour.resume();
+				this._timelineRunner.resume();
+				break;
+			case RelativeTimelineState.SYSTEMTRIGGER :
+				this._behaviour.resume();
+				this._systemTrigger.resume();
+				break;
+		}
 	}
 
 	/**
