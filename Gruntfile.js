@@ -196,10 +196,10 @@ module.exports = function (grunt) {
                     paths: ["app/styles"]
                 },
                 files: [
-                  {"tmp/css/The6thScreenClient.css": "app/styles/*.less"},
-                  {"tmp/css/The6thScreenClientRenderers.css": "t6s-core/core-client/styles/renderers/*.less"},
-                  {"tmp/css/The6thScreenClientBehaviours.css": "t6s-core/core-client/styles/behaviours/*.less"},
-                  {"tmp/css/The6thScreenClientThemes.css": "t6s-core/core-client/styles/themes/*.less"}
+                  {"tmp/css/The6thScreenClient.css": "app/styles/**/*.less"},
+                  {"tmp/css/The6thScreenClientRenderers.css": "t6s-core/core-client/styles/renderers/**/*.less"},
+                  {"tmp/css/The6thScreenClientBehaviours.css": "t6s-core/core-client/styles/behaviours/**/*.less"},
+                  {"tmp/css/The6thScreenClientThemes.css": "t6s-core/core-client/styles/themes/**/*.less"}
                 ]
             },
             renderer: {
