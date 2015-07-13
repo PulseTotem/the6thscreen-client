@@ -88,6 +88,15 @@ class RelativeTimeline implements RelativeTimelineItf {
 	private _state : RelativeTimelineState;
 
 	/**
+	 * RelativeTimeline's backup state.
+	 *
+	 * @property _backupState
+	 * @private
+	 * @type RelativeTimelineState
+	 */
+	private _backupState : RelativeTimelineState;
+
+	/**
 	 * Constructor.
 	 *
 	 * @constructor
@@ -189,6 +198,97 @@ class RelativeTimeline implements RelativeTimelineItf {
 	}
 
 	/**
+	 * Return current list of displayed InfoRenderers.
+	 *
+	 * @method getCurrentListInfoRenderers
+	 * @returns {Array<InfoRenderer<any>>} current list of displayed InfoRenderers.
+	 */
+	getCurrentListInfoRenderers() : Array<InfoRenderer<any>> {
+		return this._behaviour.getListInfoRenderers();
+	}
+
+///// BEGIN: MANAGE RELATIVE TIMELINE STATES /////
+
+	/**
+	 * Switch to RUNNER State if it's possible.
+	 *
+	 * @method switchToRunnerState
+	 * @return {boolean} 'true' if it's done, 'false' otherwise
+	 */
+	switchToRunnerState() : boolean {
+		switch(this._state) {
+			case RelativeTimelineState.RUNNER :
+				return true;
+				break;
+			case RelativeTimelineState.SYSTEMTRIGGER :
+				this._state = RelativeTimelineState.RUNNER;
+				return true;
+				break;
+			case RelativeTimelineState.USERTRIGGER :
+				return false;
+				break;
+		}
+	}
+
+	/**
+	 * Switch to SYSTEMTRIGGER State if it's possible.
+	 *
+	 * @method switchToSystemTriggerState
+	 * @return {boolean} 'true' if it's done, 'false' otherwise
+	 */
+	switchToSystemTriggerState() : boolean {
+		switch(this._state) {
+			case RelativeTimelineState.RUNNER :
+				this._state = RelativeTimelineState.SYSTEMTRIGGER;
+				return true;
+				break;
+			case RelativeTimelineState.SYSTEMTRIGGER :
+				return true;
+				break;
+			case RelativeTimelineState.USERTRIGGER :
+				return false;
+				break;
+		}
+	}
+
+	/**
+	 * Lock to USERTRIGGER State and backup previous state.
+	 *
+	 * @method lockInUserTriggerState
+	 */
+	lockInUserTriggerState() {
+		switch(this._state) {
+			case RelativeTimelineState.RUNNER :
+				this._backupState = RelativeTimelineState.RUNNER;
+				this._state = RelativeTimelineState.USERTRIGGER;
+				break;
+			case RelativeTimelineState.SYSTEMTRIGGER :
+				this._backupState = RelativeTimelineState.SYSTEMTRIGGER;
+				this._state = RelativeTimelineState.USERTRIGGER;
+				break;
+			case RelativeTimelineState.USERTRIGGER :
+				//Nothing to do
+				break;
+		}
+	}
+
+	/**
+	 * Unlock from USERTRIGGER State and come back to previous state.
+	 *
+	 * @method unlockFromUserTriggerState
+	 */
+	unlockFromUserTriggerState() {
+		if(this._backupState != null) {
+			this._state = this._backupState;
+			this._backupState = null;
+		} else {
+			this._backupState = RelativeTimelineState.RUNNER;
+		}
+	}
+
+///// END: MANAGE RELATIVE TIMELINE STATES /////
+
+	/**
 	 * Start RelativeTimeline activity.
 	 *
 	 * @method start
@@ -205,6 +305,7 @@ class RelativeTimeline implements RelativeTimelineItf {
 		});
 
 		this._state = RelativeTimelineState.RUNNER;
+		this._backupState = null;
 		this._timelineRunner.start();
 	}
 
@@ -225,6 +326,9 @@ class RelativeTimeline implements RelativeTimelineItf {
 				this._systemTrigger.pause();
 				this._behaviour.pause();
 				break;
+			case RelativeTimelineState.USERTRIGGER :
+				//Nothing to do.
+				break;
 		}
 	}
 
@@ -243,6 +347,9 @@ class RelativeTimeline implements RelativeTimelineItf {
 				this._behaviour.resume();
 				this._systemTrigger.resume();
 				break;
+			case RelativeTimelineState.USERTRIGGER :
+				//Nothing to do.
+				break;
 		}
 	}
 
@@ -254,43 +361,42 @@ class RelativeTimeline implements RelativeTimelineItf {
 	 */
 	display(listInfoRenderers : Array<InfoRenderer<any>>) {
 //		Logger.debug("RelativeTimeline: '" + this.getId() + "' - display");
-
-		this._behaviour.stop();
-		this._behaviour.setListInfoRenderers(listInfoRenderers);
-		this._behaviour.start();
-	}
-
-	/**
-	 * Pause timeline and display InfoRenderer list in priority.
-	 *
-	 * @method pauseAndDisplay
-	 * @param {Array<InfoRenderer<any>>>} listInfoRenderers - InfoRenderer list to display.
-	 */
-	pauseAndDisplay(listInfoRenderers : Array<InfoRenderer<any>>) {
-//		Logger.debug("RelativeTimeline: '" + this.getId() + "' - pauseAndDisplay");
-
-		if(this._userTrigger.getState() == UserTriggerState.WAITING) {
-			this._timelineRunner.pause();
-			this._behaviour.pause();
-			this._behaviour.save();
-			this._behaviour.setListInfoRenderers(listInfoRenderers);
-			this._behaviour.start();
-			return true;
-		} else {
-			return false;
+		switch(this._state) {
+			case RelativeTimelineState.RUNNER :
+				this._behaviour.stop();
+				this._behaviour.setListInfoRenderers(listInfoRenderers);
+				this._behaviour.start();
+				break;
+			case RelativeTimelineState.SYSTEMTRIGGER :
+				this._behaviour.save();
+				this._behaviour.setListInfoRenderers(listInfoRenderers);
+				this._behaviour.start();
+				break;
+			case RelativeTimelineState.USERTRIGGER :
+				switch(this._backupState) {
+					case RelativeTimelineState.RUNNER :
+						this._behaviour.stop();
+						this._behaviour.setListInfoRenderers(listInfoRenderers);
+						break;
+					case RelativeTimelineState.SYSTEMTRIGGER :
+						//Nothing to do.
+						break;
+					case RelativeTimelineState.USERTRIGGER :
+						//Nothing to do.
+						break;
+				}
+				break;
 		}
 	}
 
 	/**
-	 * Restore and Resume.
+	 * Restore.
 	 *
-	 * @method restoreAndResume
+	 * @method restore
 	 */
-	restoreAndResume() {
+	restore() {
 		this._behaviour.stop();
 		this._behaviour.restore();
-		this._behaviour.resume();
-		this._timelineRunner.resume();
 	}
 
 	/**
@@ -300,7 +406,17 @@ class RelativeTimeline implements RelativeTimelineItf {
 	 * @param {Array<InfoRenderer<any>>>} listInfoRenderers - InfoRenderer list to add.
 	 */
 	addToCurrentDisplay(listInfoRenderers : Array<InfoRenderer<any>>) {
-		this._behaviour.addToCurrentListInfoRenderers(listInfoRenderers);
+		switch(this._state) {
+			case RelativeTimelineState.RUNNER :
+				this._behaviour.addToCurrentListInfoRenderers(listInfoRenderers);
+				break;
+			case RelativeTimelineState.SYSTEMTRIGGER :
+				this._behaviour.addToCurrentListInfoRenderers(listInfoRenderers);
+				break;
+			case RelativeTimelineState.USERTRIGGER :
+				//Nothing to do.
+				break;
+		}
 	}
 
 	/**
@@ -309,8 +425,27 @@ class RelativeTimeline implements RelativeTimelineItf {
 	 * @method displayPreviousInfo
 	 */
 	displayPreviousInfo() {
-		if(! this._behaviour.displayPreviousInfo()) {
-			this._timelineRunner.displayLastInfoOfPreviousEvent();
+		switch(this._state) {
+			case RelativeTimelineState.RUNNER :
+				//Nothing to do.
+				break;
+			case RelativeTimelineState.SYSTEMTRIGGER :
+				//Nothing to do.
+				break;
+			case RelativeTimelineState.USERTRIGGER :
+				switch(this._backupState) {
+					case RelativeTimelineState.RUNNER :
+						if(! this._behaviour.displayPreviousInfo()) {
+							this._timelineRunner.displayLastInfoOfPreviousEvent();
+						}
+						break;
+					case RelativeTimelineState.SYSTEMTRIGGER :
+						if(! this._behaviour.displayPreviousInfo()) {
+							this._behaviour.displayLastInfo();
+						}
+						break;
+				}
+				break;
 		}
 	}
 
@@ -320,8 +455,27 @@ class RelativeTimeline implements RelativeTimelineItf {
 	 * @method displayNextInfo
 	 */
 	displayNextInfo() {
-		if(! this._behaviour.displayNextInfo()) {
-			this._timelineRunner.displayFirstInfoOfNextEvent();
+		switch(this._state) {
+			case RelativeTimelineState.RUNNER :
+				//Nothing to do.
+				break;
+			case RelativeTimelineState.SYSTEMTRIGGER :
+				//Nothing to do.
+				break;
+			case RelativeTimelineState.USERTRIGGER :
+				switch(this._backupState) {
+					case RelativeTimelineState.RUNNER :
+						if(! this._behaviour.displayNextInfo()) {
+							this._timelineRunner.displayFirstInfoOfNextEvent();
+						}
+						break;
+					case RelativeTimelineState.SYSTEMTRIGGER :
+						if(! this._behaviour.displayNextInfo()) {
+							this._behaviour.displayFirstInfo();
+						}
+						break;
+				}
+				break;
 		}
 	}
 
@@ -350,8 +504,20 @@ class RelativeTimeline implements RelativeTimelineItf {
 	 * @param {Info} info - Info to update.
 	 */
 	updateInfo(info : Info) {
-		if(this._behaviour.updateInfo(info)) {
-			this._timelineRunner.updateCurrentTimer();
+		switch(this._state) {
+			case RelativeTimelineState.RUNNER :
+				if(this._behaviour.updateInfo(info)) {
+					this._timelineRunner.updateCurrentTimer();
+				}
+				break;
+			case RelativeTimelineState.SYSTEMTRIGGER :
+				if(this._behaviour.updateInfo(info)) {
+					this._systemTrigger.updateCurrentTimer();
+				}
+				break;
+			case RelativeTimelineState.USERTRIGGER :
+				//Nothing to do.
+				break;
 		}
 	}
 
