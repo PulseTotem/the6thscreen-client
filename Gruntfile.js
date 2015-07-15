@@ -45,26 +45,6 @@ module.exports = function (grunt) {
         },
 
         update_json: {
-            bowerBuild: {
-                src: ['build.bower.json'],
-                dest: 'bower.json',
-                fields: [
-                    'name',
-                    'version',
-                    'dependencies',
-                    'overrides'
-                ]
-            },
-            bowerTest: {
-                src: ['build.bower.json'/*, 'tests.bower.json'*/],
-                dest: 'bower.json',
-                fields: [
-                    'name',
-                    'version',
-                    'dependencies',
-                    'overrides'
-                ]
-            },
             packageHeroku: {
               src: ['packageHeroku.json'],
               dest: 'heroku/package.json',
@@ -205,10 +185,10 @@ module.exports = function (grunt) {
                     paths: ["app/styles", "t6s-core/core-client/styles/**/*"]
                 },
                 files: [
-                  {"build/css/The6thScreenClient.css": "app/styles/*.less"},
-                  {"build/css/The6thScreenClientRenderers.css": "t6s-core/core-client/styles/renderers/*.less"},
-                  {"build/css/The6thScreenClientBehaviours.css": "t6s-core/core-client/styles/behaviours/*.less"},
-                  {"build/css/The6thScreenClientThemes.css": "t6s-core/core-client/styles/themes/*.less"}
+                  {"build/css/The6thScreenClient.css": "app/styles/**/*.less"},
+                  {"build/css/The6thScreenClientRenderers.css": "t6s-core/core-client/styles/renderers/**/*.less"},
+                  {"build/css/The6thScreenClientBehaviours.css": "t6s-core/core-client/styles/behaviours/**/*.less"},
+                  {"build/css/The6thScreenClientThemes.css": "t6s-core/core-client/styles/themes/**/*.less"}
                 ]
             },
             dist: {
@@ -216,10 +196,10 @@ module.exports = function (grunt) {
                     paths: ["app/styles"]
                 },
                 files: [
-                  {"tmp/css/The6thScreenClient.css": "app/styles/*.less"},
-                  {"tmp/css/The6thScreenClientRenderers.css": "t6s-core/core-client/styles/renderers/*.less"},
-                  {"tmp/css/The6thScreenClientBehaviours.css": "t6s-core/core-client/styles/behaviours/*.less"},
-                  {"tmp/css/The6thScreenClientThemes.css": "t6s-core/core-client/styles/themes/*.less"}
+                  {"tmp/css/The6thScreenClient.css": "app/styles/**/*.less"},
+                  {"tmp/css/The6thScreenClientRenderers.css": "t6s-core/core-client/styles/renderers/**/*.less"},
+                  {"tmp/css/The6thScreenClientBehaviours.css": "t6s-core/core-client/styles/behaviours/**/*.less"},
+                  {"tmp/css/The6thScreenClientThemes.css": "t6s-core/core-client/styles/themes/**/*.less"}
                 ]
             },
             renderer: {
@@ -428,7 +408,7 @@ module.exports = function (grunt) {
             dist: ['dist/', 'tmp/'],
             heroku: ['heroku/'],
             tmp: ['tmp/'],
-            configure: ['bower_components', 'bower.json'],
+            configure: ['bower_components'],
             doc: ['doc'],
             test: ['tests'],
             renderer: ['renderers/']
@@ -442,11 +422,11 @@ module.exports = function (grunt) {
     grunt.registerTask('init', ['symlink']);
 
     grunt.registerTask('configure', function() {
-        grunt.task.run(['update_json:bowerBuild', 'bower']);
+        grunt.task.run(['bower']);
     });
 
     grunt.registerTask('configureTest', function() {
-        grunt.task.run(['update_json:bowerTest', 'bower']);
+        grunt.task.run(['bower']);
     });
 
     //grunt.registerTask('copyBuild', ['copy:buildBowerComponents', 'copy:buildBowerrc', 'copy:buildBowerFile', 'copy:buildAssets', 'copy:buildStyles', 'copy:buildScripts', 'copy:buildLessStyles', 'copy:buildStaticImages']);

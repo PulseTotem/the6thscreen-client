@@ -6,7 +6,6 @@ node_modules/*
 src/**~
 *~
 vendor/**
-bower.json
 doc/
 deploy-infos.json
 .idea

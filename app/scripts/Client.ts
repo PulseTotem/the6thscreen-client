@@ -391,7 +391,8 @@ class Client {
 								}
 
 								if (callTypeDescription.source.isStatic) {
-									newCallType.setStaticSourceName(callTypeDescription.source["name"]);
+									newCallType.setStaticSourceName(callTypeDescription.source.name);
+									newCallType.setStaticRefreshTime(callTypeDescription.source.refreshTime);
 								}
 							} else {
 								Logger.error("Renderer '" + callTypeDescription.renderer["name"] + "' was not found.");
@@ -474,8 +475,15 @@ class Client {
 						newCall.setCallType(callType);
 
 						if (callType.getStaticSourceName() != null) {
-							var staticsource = new window[callType.getStaticSourceName()]();
-							newCall.setStaticSource(staticsource);
+
+							var params = [];
+
+							callDescription.paramValues.forEach(function(paramValue : any) {
+								params[paramValue.paramType.name] = paramValue.value;
+							});
+
+							var staticSource = new window[callType.getStaticSourceName()](callType.getStaticRefreshTime(), params);
+							newCall.setStaticSource(staticSource);
 						}
 
 						if(systemTrigger != null) {
