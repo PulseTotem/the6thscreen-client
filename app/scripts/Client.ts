@@ -113,20 +113,6 @@ class Client {
         Logger.info("____________________________________________________________________________________________________");
 
         this.connectToBackend();
-
-        /**
-         * TODO : Put it in a zone with special behaviour.
-         *
-         * Hack to update time in screen.
-         *
-         * /
-        var updateTime = function() {
-            var currentDate : any = new Date();
-            $("#date_time").html(currentDate.toString("HH") + "h" + currentDate.toString("mm"));
-        };
-        updateTime();
-        setInterval(updateTime, 1000*10);
-		 */
     }
 
 	/**
@@ -512,12 +498,19 @@ class Client {
 	 *
 	 */
 	start() {
+		var self = this;
 //        Logger.debug("3 - start");
 
 		//Not need by less compilation. $('head').append('<script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.3.1/less.min.js"></script>');
 
 		this._zones.forEach(function(zone : Zone) {
 			zone.start();
+		});
+
+		$(window).resize(function() {
+			self._zones.forEach(function(zone : Zone) {
+				zone.setOrientation();
+			});
 		});
 
 		setTimeout(function() {
