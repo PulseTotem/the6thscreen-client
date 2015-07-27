@@ -148,6 +148,46 @@ class Zone {
 	}
 
 	/**
+	 * Returns Zone's positionFromTop.
+	 *
+	 * @method getPositionFromTop
+	 * @return {number} The zone's positionFromTop.
+	 */
+	getPositionFromTop() : number {
+		return this._positionFromTop;
+	}
+
+	/**
+	 * Returns Zone's positionFromLeft.
+	 *
+	 * @method getPositionFromLeft
+	 * @return {number} The zone's positionFromLeft.
+	 */
+	getPositionFromLeft() : number {
+		return this._positionFromLeft;
+	}
+
+	/**
+	 * Returns Zone's width.
+	 *
+	 * @method getWidth
+	 * @return {number} The zone's width.
+	 */
+	getWidth() : number {
+		return this._width;
+	}
+
+	/**
+	 * Returns Zone's height.
+	 *
+	 * @method getHeight
+	 * @return {number} The zone's height.
+	 */
+	getHeight() : number {
+		return this._height;
+	}
+
+	/**
 	 * Get the Zone's behaviour.
 	 *
 	 * @method getBehaviour
@@ -176,6 +216,15 @@ class Zone {
 	 */
 	setRelativeTimeline(relTimeline : RelativeTimeline) {
 		this._relativeTimeline = relTimeline;
+	}
+
+	/**
+	 * Get the ZoneContent's div.
+	 *
+	 * @method getZoneContentDiv
+	 */
+	getZoneContentDiv() {
+		return this._zoneContentDiv;
 	}
 
 	/**
