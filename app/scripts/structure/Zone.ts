@@ -90,6 +90,14 @@ class Zone {
 	private _relativeTimeline : RelativeTimeline;
 
 	/**
+	 * ZoneContent Div. (div representing the zone)
+	 *
+	 * @property _zoneContentDiv
+	 * @type DOM Element
+	 */
+	private _zoneContentDiv : any;
+
+	/**
 	 * Zone Div.
 	 *
 	 * @property _zoneDiv
@@ -140,6 +148,46 @@ class Zone {
 	}
 
 	/**
+	 * Returns Zone's positionFromTop.
+	 *
+	 * @method getPositionFromTop
+	 * @return {number} The zone's positionFromTop.
+	 */
+	getPositionFromTop() : number {
+		return this._positionFromTop;
+	}
+
+	/**
+	 * Returns Zone's positionFromLeft.
+	 *
+	 * @method getPositionFromLeft
+	 * @return {number} The zone's positionFromLeft.
+	 */
+	getPositionFromLeft() : number {
+		return this._positionFromLeft;
+	}
+
+	/**
+	 * Returns Zone's width.
+	 *
+	 * @method getWidth
+	 * @return {number} The zone's width.
+	 */
+	getWidth() : number {
+		return this._width;
+	}
+
+	/**
+	 * Returns Zone's height.
+	 *
+	 * @method getHeight
+	 * @return {number} The zone's height.
+	 */
+	getHeight() : number {
+		return this._height;
+	}
+
+	/**
 	 * Get the Zone's behaviour.
 	 *
 	 * @method getBehaviour
@@ -171,6 +219,15 @@ class Zone {
 	}
 
 	/**
+	 * Get the ZoneContent's div.
+	 *
+	 * @method getZoneContentDiv
+	 */
+	getZoneContentDiv() {
+		return this._zoneContentDiv;
+	}
+
+	/**
 	 * Get the Zone's div.
 	 *
 	 * @method getZoneDiv
@@ -195,12 +252,14 @@ class Zone {
 	 * @param {string} clientDomId - DOM Id where append ZoneDiv.
 	 */
 	attachToDom(clientDomId : string) {
-		var zoneContentDiv = $("<div>");
-		zoneContentDiv.addClass("zone");
-		zoneContentDiv.css("top", this._positionFromTop + "%");
-		zoneContentDiv.css("left", this._positionFromLeft + "%");
-		zoneContentDiv.css("width", this._width + "%");
-		zoneContentDiv.css("height", this._height + "%");
+		var self = this;
+
+		this._zoneContentDiv = $("<div>");
+		this._zoneContentDiv.addClass("zone");
+		this._zoneContentDiv.css("top", this._positionFromTop + "%");
+		this._zoneContentDiv.css("left", this._positionFromLeft + "%");
+		this._zoneContentDiv.css("width", this._width + "%");
+		this._zoneContentDiv.css("height", this._height + "%");
 
 		this._zoneBackgroundDiv = $("<div>");
 		this._zoneBackgroundDiv.addClass("zone_background");
@@ -208,11 +267,51 @@ class Zone {
 		this._zoneDiv = $("<div>");
 		this._zoneDiv.addClass("zone_content");
 
-		zoneContentDiv.append(this._zoneBackgroundDiv);
-		zoneContentDiv.append(this._zoneDiv);
+		this._zoneContentDiv.append(this._zoneBackgroundDiv);
+		this._zoneContentDiv.append(this._zoneDiv);
 
+		$(clientDomId).append(this._zoneContentDiv);
 
-		$(clientDomId).append(zoneContentDiv);
+		this.setOrientation();
+
+		if(this._width >= 75) {
+			this._zoneDiv.addClass("width_lg");
+		} else if(this._width >= 50) {
+			this._zoneDiv.addClass("width_md");
+		} else if(this._width >= 25) {
+			this._zoneDiv.addClass("width_sm");
+		} else {
+			this._zoneDiv.addClass("width_xs");
+		}
+
+		if(this._height >= 75) {
+			this._zoneDiv.addClass("height_lg");
+		} else if(this._height >= 50) {
+			this._zoneDiv.addClass("height_md");
+		} else if(this._height >= 25) {
+			this._zoneDiv.addClass("height_sm");
+		} else {
+			this._zoneDiv.addClass("height_xs");
+		}
+	}
+
+	/**
+	 * Set the zone's orientation dealing with zone width and height in pixels.
+	 *
+	 * @method setOrientation
+	 */
+	setOrientation() {
+		this._zoneContentDiv.removeClass("landscape");
+		this._zoneContentDiv.removeClass("portrait");
+
+		var zoneWidth = this._zoneContentDiv.width();
+		var zoneHeight = this._zoneContentDiv.height();
+
+		if(zoneWidth >= zoneHeight) {
+			this._zoneContentDiv.addClass("landscape");
+		} else {
+			this._zoneContentDiv.addClass("portrait");
+		}
 	}
 
 	/**

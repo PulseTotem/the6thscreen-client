@@ -113,20 +113,6 @@ class Client {
         Logger.info("____________________________________________________________________________________________________");
 
         this.connectToBackend();
-
-        /**
-         * TODO : Put it in a zone with special behaviour.
-         *
-         * Hack to update time in screen.
-         *
-         * /
-        var updateTime = function() {
-            var currentDate : any = new Date();
-            $("#date_time").html(currentDate.toString("HH") + "h" + currentDate.toString("mm"));
-        };
-        updateTime();
-        setInterval(updateTime, 1000*10);
-		 */
     }
 
 	/**
@@ -276,6 +262,7 @@ class Client {
 	/**
 	 * Step 1 : Build Client Structure from SDI Description.
 	 *
+	 * @method buildClientStructure
 	 */
 	buildClientStructure() {
 //        Logger.debug("1 - buildClientStructure");
@@ -428,6 +415,7 @@ class Client {
 	/**
 	 * Step 2 : Build Client Content from Profil Description.
 	 *
+	 * @method buildClientContent
 	 */
 	buildClientContent() {
 //        Logger.debug("2 - buildClientContent");
@@ -510,19 +498,68 @@ class Client {
 	/**
 	 * Step 3 : Start Client !
 	 *
+	 * @method start
 	 */
 	start() {
+		var self = this;
 //        Logger.debug("3 - start");
 
 		//Not need by less compilation. $('head').append('<script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.3.1/less.min.js"></script>');
+
+		this.manageScreenSize();
 
 		this._zones.forEach(function(zone : Zone) {
 			zone.start();
 		});
 
+		$(window).resize(function() {
+			self.manageScreenSize();
+			self._zones.forEach(function(zone : Zone) {
+				zone.setOrientation();
+			});
+		});
+
 		setTimeout(function() {
 			$('#logo_loading').fadeOut(1000);
 		}, 2000);
+	}
+
+	/**
+	 * Manage extra small screen for screen size and zones layout.
+	 *
+	 * @method manageScreenSize
+	 */
+	manageScreenSize() {
+		if($(window).width() < Constants.EXTRA_SMALL_SCREEN_WIDTH) {
+			if(! $("#the6thscreen-client-content").hasClass("xs_screen")) {
+				var top = 0;
+
+				$("#the6thscreen-client-content").addClass("xs_screen");
+
+				this._zones.forEach(function (zone:Zone) {
+
+					var newHeight = (zone.getHeight() * 100) / zone.getWidth();
+
+					zone.getZoneContentDiv().css("top", top + "%");
+					zone.getZoneContentDiv().css("left", "0%");
+					zone.getZoneContentDiv().css("width", "100%");
+					zone.getZoneContentDiv().css("height", newHeight + "%");
+
+					top = top + 2;
+				});
+			}
+		} else {
+			if($("#the6thscreen-client-content").hasClass("xs_screen")) {
+				$("#the6thscreen-client-content").removeClass("xs_screen");
+
+				this._zones.forEach(function (zone:Zone) {
+					zone.getZoneContentDiv().css("top", zone.getPositionFromTop() + "%");
+					zone.getZoneContentDiv().css("left", zone.getPositionFromLeft() + "%");
+					zone.getZoneContentDiv().css("width", zone.getWidth() + "%");
+					zone.getZoneContentDiv().css("height", zone.getHeight() + "%");
+				});
+			}
+		}
 	}
 
 /////////////////// HELPER methods ! ///////////////////

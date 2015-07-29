@@ -15,6 +15,7 @@
     "d3": "~3.5.5",
     "d3-cloud": "~1.1.2",
     "Snap.svg": "~0.4.1",
-    "webcamjs": "*"
+    "webcamjs": "*",
+    "jquery-textfill": "~0.6.0"
   }
 }
