@@ -16,7 +16,6 @@
     "d3-cloud": "~1.1.2",
     "Snap.svg": "~0.4.1",
     "webcamjs": "*",
-    "bigtext": "~0.1.8",
-    "FitText.js": "~1.2.0"
+    "jquery-textfill": "~0.6.0"
   }
 }
