@@ -21,6 +21,6 @@ absolutePathCore=`pwd`
 cd $currentDir
 
 npm install
-echo '{ "coreClientRepoPath" : "'absolutePathClient'", "coreRepoPath": "'$absolutePathCore'" }' > core-repos-config.json
+echo '{ "coreClientRepoPath" : "'$absolutePathClient'", "coreRepoPath": "'$absolutePathCore'" }' > core-repos-config.json
 grunt initJenkins
 grunt test --verbose
