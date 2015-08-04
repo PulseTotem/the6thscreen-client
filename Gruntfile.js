@@ -45,7 +45,7 @@ module.exports = function (grunt) {
             },
             core: {
                 src: '<%= coreReposConfig.coreRepoPath %>',
-                dest: 't6s-core/core-backend/t6s-core/core'
+                dest: 't6s-core/core-client/t6s-core/core'
             }
         },
 
