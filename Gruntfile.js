@@ -29,10 +29,11 @@ module.exports = function (grunt) {
 // ---------------------------------------------
 //                               configure tasks
 // ---------------------------------------------
+
         symlink: {
             // Enable overwrite to delete symlinks before recreating them
             options: {
-                overwrite: false
+                overwrite: true
             },
             // The "build/target.txt" symlink will be created and linked to
             // "source/target.txt". It should appear like this in a file listing:
@@ -41,6 +42,10 @@ module.exports = function (grunt) {
             coreClient: {
                 src: '<%= coreReposConfig.coreClientRepoPath %>',
                 dest: 't6s-core/core-client'
+            },
+            core: {
+                src: '<%= coreReposConfig.coreRepoPath %>',
+                dest: 't6s-core/core-backend/t6s-core/core'
             }
         },
 
@@ -137,6 +142,9 @@ module.exports = function (grunt) {
             },
             herokuWebJS: {
               files: 	[{expand: true, cwd: '.', src: ['web.js'], dest: 'heroku'}]
+            },
+            karmaconf: {
+                files: [{'build/tests/karma.conf.js': 'karma.conf.js'}]
             }
         },
 
@@ -176,6 +184,22 @@ module.exports = function (grunt) {
             dist: {
                 cwd: 'dist',
                 src: ['dist/index.html']
+            },
+            karma: {
+                cwd: 'build',
+                src: ['build/tests/karma.conf.js'],
+                fileTypes: {
+                    js: {
+                        block: /(([\s\t]*)\/\/\s*bower:*(\S*))(\n|\r|.)*?(\/\/\s*endbower)/gi,
+                        detect: {
+                            js: /'(.*\.js)'/gi
+                        },
+                        replace: {
+                            js: '\'{{filePath}}\','
+                        }
+                    }
+                },
+                devDependencies: true
             }
         },
 
@@ -229,9 +253,9 @@ module.exports = function (grunt) {
             },
             test: {
                 src: [
-                    'app/tests/**/*.ts'
+                    'tests/**/*.ts'
                 ],
-                dest: 'tests/Test.js'
+                dest: 'build/tests/Test.js'
             },
             renderer: {
               src: [
@@ -394,7 +418,7 @@ module.exports = function (grunt) {
 // ---------------------------------------------
         karma: {
             unit: {
-                configFile: 'karma.conf.js',
+                configFile: 'build/tests/karma.conf.js',
                 singleRun: true
             }
         },
@@ -410,7 +434,7 @@ module.exports = function (grunt) {
             tmp: ['tmp/'],
             configure: ['bower_components'],
             doc: ['doc'],
-            test: ['tests'],
+            test: ['build/tests/'],
             renderer: ['renderers/']
         }
 // ---------------------------------------------
@@ -471,13 +495,13 @@ module.exports = function (grunt) {
     grunt.registerTask('doc', ['clean:doc', 'yuidoc']);
 
     grunt.registerTask('test', function() {
-        grunt.task.run(['clean:test']);
+        grunt.task.run(['build']);
 
         if (! grunt.file.exists('./bower_components')) {
             grunt.task.run(['configureTest']);
         }
 
-        grunt.task.run(['typescript:test', 'karma:unit']);
+        grunt.task.run(['typescript:test', 'copy:karmaconf', 'wiredep:karma', 'karma:unit']);
     });
 
 

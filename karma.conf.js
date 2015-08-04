@@ -7,13 +7,13 @@ module.exports = function(config) {
         basePath: '',
 
         // testing framework to use (jasmine/mocha/qunit/...)
-        frameworks: ['jasmine'],
+        frameworks: ['mocha','chai'],
 
         // list of files / patterns to load in the browser
         files: [
-            'bower_components/jquery/dist/jquery.js',
-            'bower_components/log/log.js',
-            'tests/Test.js'
+            // bower:js
+            // endbower
+            './Test.js'
         ],
 
         // list of files / patterns to exclude
@@ -40,6 +40,26 @@ module.exports = function(config) {
         // - PhantomJS
         // - IE (only Windows)
         browsers: ['PhantomJS'],
+
+        reporters: ['progress', 'jenkins', 'coverage'],
+
+        jenkinsReporter: {
+            outputFile: 'report.xml'
+        },
+
+        preprocessors: {
+            // source files, that you wanna generate coverage for
+            // do not include tests or libraries
+            // (these files will be instrumented by Istanbul)
+            '*.js': ['coverage']
+        },
+
+        coverageReporter: {
+            reporters: [
+                { type: "html", dir: '../coverage' },
+                { type: "cobertura", dir: '../coverage' },
+            ]
+        },
 
 
         // Continuous Integration mode
