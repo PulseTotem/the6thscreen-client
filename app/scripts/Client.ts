@@ -12,6 +12,7 @@
 /// <reference path="./structure/CallType.ts" />
 
 /// <reference path="../../t6s-core/core-client/scripts/behaviour/Behaviour.ts" />
+/// <reference path="../../t6s-core/core-client/scripts/policy/IdemPolicy.ts" />
 
 declare var io: any; // Use of Socket.IO lib
 declare var $: any; // Use of JQuery
