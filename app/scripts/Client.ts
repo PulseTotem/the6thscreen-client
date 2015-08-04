@@ -28,6 +28,14 @@ class Client {
     private _backendSocket : any;
 
 	/**
+	 * The Client's hash.
+	 *
+	 * @property _hash
+	 * @type string
+	 */
+	private _hash : string;
+
+	/**
 	 * The Client's Zones.
 	 *
 	 * @property _zones
@@ -91,6 +99,7 @@ class Client {
      * @constructor
      */
     constructor() {
+		this._hash = null;
         this._sdiDescription = null;
         this._profilDescription = null;
 		this._zones = new Array<Zone>();
@@ -113,7 +122,13 @@ class Client {
         Logger.info("                                    Welcome and enjoy !                                             ");
         Logger.info("____________________________________________________________________________________________________");
 
-        this.connectToBackend();
+		this._hash = this.getQueryVariable("hash");
+
+		if(this._hash != "") {
+			this.connectToBackend();
+		} else {
+			Logger.error("The 6th Screen Client's URL is not correct : Missing parameters.");
+		}
     }
 
 	/**
@@ -251,10 +266,8 @@ class Client {
      */
     init() {
 //        Logger.debug("0.2 - init");
-        var hash = this.getQueryVariable("hash");
-
-        if(hash != "") {
-			this._backendSocket.emit("HashDescription", {"hash" : hash});
+        if(this._hash != "") {
+			this._backendSocket.emit("HashDescription", {"hash" : this._hash});
         } else {
             Logger.error("The 6th Screen Client's URL is not correct : Missing parameters.");
         }
