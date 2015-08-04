@@ -9,6 +9,6 @@ declare var expect;
 
 describe('Client', function() {
 	it('should always pass', function () {
-		expect(true).to.be.false;
+		expect(true).to.be.true;
 	});
 });
