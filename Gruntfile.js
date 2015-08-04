@@ -443,7 +443,9 @@ module.exports = function (grunt) {
     // register tasks
     grunt.registerTask('default', ['build']);
 
-    grunt.registerTask('init', ['symlink']);
+    grunt.registerTask('init', ['symlink:coreBackend']);
+
+    grunt.registerTask('initJenkins', ['init','symlink:core']);
 
     grunt.registerTask('configure', function() {
         grunt.task.run(['bower']);
