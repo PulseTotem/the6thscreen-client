@@ -114,6 +114,14 @@ class Zone {
 	private _zoneBackgroundDiv : any;
 
 	/**
+	 * Zone's z-index backup.
+	 *
+	 * @property _zIndexBackup
+	 * @type number
+	 */
+	private _zIndexBackup : number;
+
+	/**
 	 * Constructor.
 	 *
 	 * @constructor
@@ -135,6 +143,7 @@ class Zone {
 		this._positionFromLeft = positionFromLeft;
 		this._behaviour = null;
 		this._relativeTimeline = null;
+		this._zIndexBackup = null;
 	}
 
 	/**
@@ -311,6 +320,71 @@ class Zone {
 			this._zoneContentDiv.addClass("landscape");
 		} else {
 			this._zoneContentDiv.addClass("portrait");
+		}
+	}
+
+	/**
+	 * Enable zone in fullscreen.
+	 *
+	 * @method enableFullscreen
+	 */
+	enableFullscreen() {
+		this._zIndexBackup = this._zoneContentDiv.css("z-index");
+		this._zoneContentDiv.css("z-index", 10000);
+
+		this._zoneContentDiv.css("top", "0%");
+		this._zoneContentDiv.css("left", "0%");
+		this._zoneContentDiv.css("width", "100%");
+		this._zoneContentDiv.css("height", "100%");
+
+		this.setOrientation();
+
+		this._zoneDiv.removeClass("width_lg");
+		this._zoneDiv.removeClass("width_md");
+		this._zoneDiv.removeClass("width_sm");
+		this._zoneDiv.removeClass("width_xs");
+		this._zoneDiv.removeClass("height_lg");
+		this._zoneDiv.removeClass("height_md");
+		this._zoneDiv.removeClass("height_sm");
+		this._zoneDiv.removeClass("height_xs");
+
+		this._zoneDiv.addClass("width_lg");
+		this._zoneDiv.addClass("height_lg");
+	}
+
+	/**
+	 * Disable zone in fullscreen.
+	 *
+	 * @method disableFullscreen
+	 */
+	disableFullscreen() {
+		this._zoneContentDiv.css("z-index", this._zIndexBackup);
+
+		this._zoneContentDiv.css("top", this._positionFromTop + "%");
+		this._zoneContentDiv.css("left", this._positionFromLeft + "%");
+		this._zoneContentDiv.css("width", this._width + "%");
+		this._zoneContentDiv.css("height", this._height + "%");
+
+		this.setOrientation();
+
+		if(this._width >= 75) {
+			this._zoneDiv.addClass("width_lg");
+		} else if(this._width >= 50) {
+			this._zoneDiv.addClass("width_md");
+		} else if(this._width >= 25) {
+			this._zoneDiv.addClass("width_sm");
+		} else {
+			this._zoneDiv.addClass("width_xs");
+		}
+
+		if(this._height >= 75) {
+			this._zoneDiv.addClass("height_lg");
+		} else if(this._height >= 50) {
+			this._zoneDiv.addClass("height_md");
+		} else if(this._height >= 25) {
+			this._zoneDiv.addClass("height_sm");
+		} else {
+			this._zoneDiv.addClass("height_xs");
 		}
 	}
 
