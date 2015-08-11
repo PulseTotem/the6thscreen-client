@@ -114,6 +114,14 @@ class Zone {
 	private _zoneBackgroundDiv : any;
 
 	/**
+	 * Zone's z-index backup.
+	 *
+	 * @property _zIndexBackup
+	 * @type number
+	 */
+	private _zIndexBackup : number;
+
+	/**
 	 * Constructor.
 	 *
 	 * @constructor
@@ -135,6 +143,7 @@ class Zone {
 		this._positionFromLeft = positionFromLeft;
 		this._behaviour = null;
 		this._relativeTimeline = null;
+		this._zIndexBackup = null;
 	}
 
 	/**
@@ -312,6 +321,79 @@ class Zone {
 		} else {
 			this._zoneContentDiv.addClass("portrait");
 		}
+	}
+
+	/**
+	 * Enable zone in fullscreen.
+	 *
+	 * @method enableFullscreen
+	 */
+	enableFullscreen() {
+		var self = this;
+
+		this._zIndexBackup = this._zoneContentDiv.css("z-index");
+		this._zoneContentDiv.css("z-index", 10000);
+
+		this._zoneContentDiv.transition( {
+			"top" : "0%",
+			"left" : "0%",
+			"width" : "100%",
+			"height" : "100%"
+		}, function() {
+			self.setOrientation();
+
+			self._zoneDiv.removeClass("width_lg");
+			self._zoneDiv.removeClass("width_md");
+			self._zoneDiv.removeClass("width_sm");
+			self._zoneDiv.removeClass("width_xs");
+			self._zoneDiv.removeClass("height_lg");
+			self._zoneDiv.removeClass("height_md");
+			self._zoneDiv.removeClass("height_sm");
+			self._zoneDiv.removeClass("height_xs");
+
+			self._zoneDiv.addClass("width_lg");
+			self._zoneDiv.addClass("height_lg");
+		});
+	}
+
+	/**
+	 * Disable zone in fullscreen.
+	 *
+	 * @method disableFullscreen
+	 */
+	disableFullscreen() {
+		var self = this;
+
+		this._zoneContentDiv.transition( {
+			"top" : self._positionFromTop + "%",
+			"left" : self._positionFromLeft + "%",
+			"width" : self._width + "%",
+			"height" : self._height + "%"
+		}, function() {
+			self.setOrientation();
+
+			if(self._width >= 75) {
+				self._zoneDiv.addClass("width_lg");
+			} else if(self._width >= 50) {
+				self._zoneDiv.addClass("width_md");
+			} else if(self._width >= 25) {
+				self._zoneDiv.addClass("width_sm");
+			} else {
+				self._zoneDiv.addClass("width_xs");
+			}
+
+			if(self._height >= 75) {
+				self._zoneDiv.addClass("height_lg");
+			} else if(self._height >= 50) {
+				self._zoneDiv.addClass("height_md");
+			} else if(self._height >= 25) {
+				self._zoneDiv.addClass("height_sm");
+			} else {
+				self._zoneDiv.addClass("height_xs");
+			}
+
+			self._zoneContentDiv.css("z-index", self._zIndexBackup);
+		});
 	}
 
 	/**

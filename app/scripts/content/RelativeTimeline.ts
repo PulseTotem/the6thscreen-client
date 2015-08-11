@@ -522,6 +522,24 @@ class RelativeTimeline implements RelativeTimelineItf {
 	}
 
 	/**
+	 * Enable fullscreen on zone.
+	 *
+	 * @method enableFullscreenZone
+	 */
+	enableFullscreenZone() {
+		this._behaviour.enableFullscreenZone();
+	}
+
+	/**
+	 * Disable fullscreen on zone.
+	 *
+	 * @method disableFullscreenZone
+	 */
+	disableFullscreenZone() {
+		this._behaviour.disableFullscreenZone();
+	}
+
+	/**
 	 * Sort RelativeTimeline's events.
 	 *
 	 * @method _sortRelativeEvents
