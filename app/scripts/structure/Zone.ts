@@ -327,8 +327,9 @@ class Zone {
 	 * Enable zone in fullscreen.
 	 *
 	 * @method enableFullscreen
+	 * @param {Function} callback - Callback function when fullscreen is finished
 	 */
-	enableFullscreen() {
+	enableFullscreen(callback : Function = null) {
 		var self = this;
 
 		this._zIndexBackup = this._zoneContentDiv.css("z-index");
@@ -353,6 +354,10 @@ class Zone {
 
 			self._zoneDiv.addClass("width_lg");
 			self._zoneDiv.addClass("height_lg");
+
+			if(callback != null) {
+				callback();
+			}
 		});
 	}
 
@@ -360,8 +365,9 @@ class Zone {
 	 * Disable zone in fullscreen.
 	 *
 	 * @method disableFullscreen
+	 * @param {Function} callback - Callback function when fullscreen is finished
 	 */
-	disableFullscreen() {
+	disableFullscreen(callback : Function = null) {
 		var self = this;
 
 		this._zoneContentDiv.transition( {
@@ -393,6 +399,10 @@ class Zone {
 			}
 
 			self._zoneContentDiv.css("z-index", self._zIndexBackup);
+
+			if(callback != null) {
+				callback();
+			}
 		});
 	}
 
