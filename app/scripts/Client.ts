@@ -283,10 +283,14 @@ class Client {
 		var self = this;
 
 		if(this._sdiDescription != null) {
-			//TODO: Manage theme. $('head').append('<link rel="stylesheet/less" type="text/less" href="static/themes/basic.less" />');
+			//TODO: Manage theme. $('head').append('<link rel="stylesheet/less" type="text/less" href="static/themes/basic.less" />')
 
 			if(self._sdiDescription.theme.backgroundImageURL != "" && self._sdiDescription.theme.backgroundImageURL != null) {
-				$('#wrapper_background').css('background-image', 'url(' + self._sdiDescription.theme.backgroundImageURL + ')');
+				if(Utils.beginsWithHttp(self._sdiDescription.theme.backgroundImageURL)) {
+					$('#wrapper_background').css('background-image', 'url(\'' + self._sdiDescription.theme.backgroundImageURL + '\')');
+				} else {
+					$('#wrapper_background').css('background-image', self._sdiDescription.theme.backgroundImageURL);
+				}
 			}
 
 			if(self._sdiDescription.theme.opacity != "" && self._sdiDescription.theme.opacity != null) {
