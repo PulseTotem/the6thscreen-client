@@ -231,7 +231,7 @@ module.exports = function (grunt) {
                 paths: ["t6s-core/core-client/styles/renderers"]
               },
               files: {
-                'renderers/<%= grunt.option("rendererFileName") %>/<%= grunt.option("rendererFileName") %>.css': 't6s-core/core-client/styles/renderers/<%= grunt.option("rendererFileName") %>.less'
+                'tmpRenderers/<%= grunt.option("rendererFileName") %>.css': 't6s-core/core-client/styles/renderers/<%= grunt.option("rendererFileName") %>.less'
               }
             }
         },
@@ -262,7 +262,7 @@ module.exports = function (grunt) {
                 't6s-core/core-client/scripts/core/Logger.ts',
                 't6s-core/core-client/scripts/renderer/<%= grunt.option("rendererFileName") %>.ts'
               ],
-              dest: 'renderers/<%= grunt.option("rendererFileName") %>/<%= grunt.option("rendererFileName") %>.js'
+              dest: 'tmpRenderers/<%= grunt.option("rendererFileName") %>.js'
             }
         },
 
@@ -271,6 +271,11 @@ module.exports = function (grunt) {
                 files: [{
                     'dist/js/The6thScreenClient.min.js': 'tmp/js/Client.js'
                 }]
+            },
+            renderer: {
+              files: [{
+                'renderers/<%= grunt.option("rendererFileName") %>.min.js': 'tmpRenderers/<%= grunt.option("rendererFileName") %>.js'
+              }]
             }
         },
 
@@ -279,6 +284,11 @@ module.exports = function (grunt) {
                 files: {
                     'dist/css/The6thScreenClient.min.css': ['tmp/css/*.css']
                 }
+            },
+            renderer: {
+              files: {
+                'renderers/<%= grunt.option("rendererFileName") %>.min.css': ['tmpRenderers/<%= grunt.option("rendererFileName") %>.css']
+              }
             }
         },
 
@@ -432,6 +442,7 @@ module.exports = function (grunt) {
             dist: ['dist/', 'tmp/'],
             heroku: ['heroku/'],
             tmp: ['tmp/'],
+            tmpRenderers: ['tmpRenderers/'],
             configure: ['bower_components'],
             doc: ['doc'],
             test: ['build/tests/'],
@@ -481,7 +492,7 @@ module.exports = function (grunt) {
             grunt.task.run(['configure']);
         }
 
-        grunt.task.run(['copyDist', 'typescript:dist', 'less:dist', 'uglify', 'cssmin', 'includeSource:dist', 'wiredep:dist', 'clean:tmp', 'cachebreaker:dist']);
+        grunt.task.run(['copyDist', 'typescript:dist', 'less:dist', 'uglify:dist', 'cssmin:dist', 'includeSource:dist', 'wiredep:dist', 'clean:tmp', 'cachebreaker:dist']);
     });
 
     grunt.registerTask('heroku', function () {
@@ -546,8 +557,7 @@ module.exports = function (grunt) {
 
       } else {
         grunt.option('rendererFileName', name);
-        grunt.task.run(['typescript:renderer']);
-        grunt.task.run(['less:renderer']);
+        grunt.task.run(['typescript:renderer', 'less:renderer', 'uglify:renderer', 'cssmin:renderer', 'clean:tmpRenderers']);
       }
   });
 
