@@ -413,6 +413,7 @@ class Call implements CallItf {
 			//Disconnection from SourcesServer
 			this._sourceSocket.disconnect();
 			this._sourceSocket = null;
+			this._connectedToSource = false;
 		} // else // Nothing to do...
 	}
 
