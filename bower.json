@@ -16,6 +16,7 @@
     "d3-cloud": "<=1.1.2",
     "Snap.svg": "<=0.4.1",
     "webcamjs": "*",
-    "jquery-textfill": "<=0.6.0"
+    "jquery-textfill": "<=0.6.0",
+    "qrcode-js": "*"
   }
 }

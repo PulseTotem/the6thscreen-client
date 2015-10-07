@@ -359,7 +359,7 @@ class Call implements CallItf {
 		this._listenForSource();
 
 		this._sourceSocket.on("connect", function() {
-//            Logger.info("Call#" + self.getId() + "::_connectToSource : Connected to Source.");
+//            Logger.info("Call#" + self.getId() + "::_connectToSource : Connected to Source. Socket.id : " + self._sourceSocket.id);
 			self._manageSourceConnection();
 		});
 
