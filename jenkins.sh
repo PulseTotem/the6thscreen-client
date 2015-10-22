@@ -21,6 +21,7 @@ absolutePathCore=`pwd`
 cd $currentDir
 
 npm install
+bower install
 echo '{ "coreClientRepoPath" : "'$absolutePathClient'", "coreRepoPath": "'$absolutePathCore'" }' > core-repos-config.json
 grunt initJenkins
 grunt test --verbose
