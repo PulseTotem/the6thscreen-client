@@ -18,5 +18,13 @@
     "webcamjs": "*",
     "jquery-textfill": "<=0.6.0",
     "qrcode-js": "*"
+  },
+  "overrides": {
+    "moment": {
+      "main": [
+        "./min/moment.min.js",
+        "./locale/fr.js"
+      ]
+    }
   }
 }
