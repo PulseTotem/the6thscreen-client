@@ -343,6 +343,7 @@ class Client {
 						}
 
 						if (zoneDescription.theme.borderRadius != "" && zoneDescription.theme.borderRadius != null) {
+							zoneBackgroundDiv.css('border-radius', zoneDescription.theme.borderRadius);
 							zoneDiv.css('border-radius', zoneDescription.theme.borderRadius);
 						}
 					} else {
@@ -371,6 +372,7 @@ class Client {
 						}
 
 						if(self._sdiDescription.theme.themeZone.borderRadius != "" && self._sdiDescription.theme.themeZone.borderRadius != null) {
+							zoneBackgroundDiv.css('border-radius', self._sdiDescription.theme.themeZone.borderRadius);
 							zoneDiv.css('border-radius', self._sdiDescription.theme.themeZone.borderRadius);
 						}
 					}
