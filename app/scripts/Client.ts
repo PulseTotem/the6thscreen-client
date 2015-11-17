@@ -341,6 +341,10 @@ class Client {
 						if (zoneDescription.theme.border != "" && zoneDescription.theme.border != null) {
 							zoneDiv.css('border', zoneDescription.theme.border);
 						}
+
+						if (zoneDescription.theme.borderRadius != "" && zoneDescription.theme.borderRadius != null) {
+							zoneDiv.css('border-radius', zoneDescription.theme.borderRadius);
+						}
 					} else {
 						if(self._sdiDescription.theme.themeZone.backgroundImageURL != "" && self._sdiDescription.theme.themeZone.backgroundImageURL != null) {
 							zoneBackgroundDiv.css('background-image', 'url(' + self._sdiDescription.theme.themeZone.backgroundImageURL + ')');
@@ -364,6 +368,10 @@ class Client {
 
 						if(self._sdiDescription.theme.themeZone.border != "" && self._sdiDescription.theme.themeZone.border != null) {
 							zoneDiv.css('border', self._sdiDescription.theme.themeZone.border);
+						}
+
+						if(self._sdiDescription.theme.themeZone.borderRadius != "" && self._sdiDescription.theme.themeZone.borderRadius != null) {
+							zoneDiv.css('border-radius', self._sdiDescription.theme.themeZone.borderRadius);
 						}
 					}
 
