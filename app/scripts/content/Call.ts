@@ -4,6 +4,7 @@
  */
 
 /// <reference path="../../../t6s-core/core-client/scripts/core/Logger.ts" />
+/// <reference path="../../../t6s-core/core-client/scripts/core/MessageBus.ts" />
 /// <reference path="../../../t6s-core/core-client/scripts/timeline/CallItf.ts" />
 /// <reference path="../../../t6s-core/core-client/scripts/systemTrigger/SystemTrigger.ts" />
 /// <reference path="../../../t6s-core/core-client/scripts/staticSource/StaticSource.ts" />
@@ -26,6 +27,14 @@ class Call implements CallItf {
 	 * @type number
 	 */
 	private _id : number;
+
+	/**
+	 * Call's channel.
+	 *
+	 * @property _channel
+	 * @type string
+	 */
+	private _channel : string;
 
 	/**
 	 * CallType attached to Call.
@@ -115,7 +124,10 @@ class Call implements CallItf {
 	 * @param {number} id - The Call's id.
 	 */
 	constructor(id: number) {
+		var self = this;
+
 		this._id = id;
+		this._channel = "Call." + id;
 		this._callType = null;
 		this._eventOwner = null;
 		this._systemTrigger = null;
@@ -123,6 +135,10 @@ class Call implements CallItf {
 
 		this._connectedToSource = false;
 		this._staticSource = null;
+
+		MessageBus.subscribe(this._channel, function(msg, callData) {
+			self._sourceSocket.emit(callData.action, callData.data);
+		});
 	}
 
 	/**
@@ -468,7 +484,12 @@ class Call implements CallItf {
 	 */
 	public onNewInfo(infoDescription : any) {
 //        Logger.debug("Call '" + this.getId() + "' - 3 : Manage new info reception.");
+		var self = this;
 		var newInfos = this._callType.getRenderer().transformInfo(infoDescription);
+
+		newInfos.forEach(function(info : Info) {
+			info.setCallChannel(self._channel);
+		});
 
 		this._systemTrigger.trigger(newInfos, this._eventOwner);
 

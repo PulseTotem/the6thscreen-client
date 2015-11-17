@@ -17,7 +17,8 @@
     "Snap.svg": "<=0.4.1",
     "webcamjs": "*",
     "jquery-textfill": "<=0.6.0",
-    "qrcode-js": "*"
+    "qrcode-js": "*",
+    "pubsub-js": "<=1.5.3"
   },
   "overrides": {
     "moment": {
