@@ -424,6 +424,12 @@ class Client {
 								}
 							}
 
+							if(callTypeDescription.rendererTheme == null) {
+								newCallType.setRendererTheme("default");
+							} else {
+								newCallType.setRendererTheme(callTypeDescription.rendererTheme);
+							}
+
 							self._callTypes.push(newCallType);
 						}
 					});
@@ -504,6 +510,12 @@ class Client {
 
 						if(systemTrigger != null) {
 							newCall.setSystemTrigger(systemTrigger);
+						}
+
+						if(typeof(callDescription.rendererTheme) != "undefined" && callDescription.rendererTheme != null && callDescription.rendererTheme != "") {
+							newCall.setRendererTheme(callDescription.rendererTheme);
+						} else {
+							newCall.setRendererTheme(callType.getRendererTheme());
 						}
 
 						newRelEvent.setCall(newCall);

@@ -49,6 +49,14 @@ class CallType implements CallTypeItf{
 	private _renderer : Renderer<any>;
 
 	/**
+	 * RendererTheme attached to CallType.
+	 *
+	 * @property _rendererTheme
+	 * @type RendererTheme
+	 */
+	private _rendererTheme : string;
+
+	/**
 	 * Policy attached to CallType.
 	 *
 	 * @property _policy
@@ -119,6 +127,26 @@ class CallType implements CallTypeItf{
 	 */
 	getRenderer() : Renderer<any> {
 		return this._renderer;
+	}
+
+	/**
+	 * Set the CallType's default rendererTheme.
+	 *
+	 * @method setRendererTheme
+	 * @param {string} rendererTheme - The RendererTheme to set.
+	 */
+	setRendererTheme(rendererTheme : string) {
+		this._rendererTheme = rendererTheme;
+	}
+
+	/**
+	 * Get the CallType's default rendererTheme.
+	 *
+	 * @method getRendererTheme
+	 * @return {string} rendererTheme - The CallType's RendererTheme.
+	 */
+	getRendererTheme() : string {
+		return this._rendererTheme;
 	}
 
 	/**
