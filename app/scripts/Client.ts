@@ -427,7 +427,7 @@ class Client {
 							if(callTypeDescription.rendererTheme == null) {
 								newCallType.setRendererTheme("default");
 							} else {
-								newCallType.setRendererTheme(callTypeDescription.rendererTheme);
+								newCallType.setRendererTheme(callTypeDescription.rendererTheme.name);
 							}
 
 							self._callTypes.push(newCallType);
@@ -512,8 +512,8 @@ class Client {
 							newCall.setSystemTrigger(systemTrigger);
 						}
 
-						if(typeof(callDescription.rendererTheme) != "undefined" && callDescription.rendererTheme != null && callDescription.rendererTheme != "") {
-							newCall.setRendererTheme(callDescription.rendererTheme);
+						if(callDescription.rendererTheme != null) {
+							newCall.setRendererTheme(callDescription.rendererTheme.name);
 						} else {
 							newCall.setRendererTheme(callType.getRendererTheme());
 						}
