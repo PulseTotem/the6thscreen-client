@@ -61,6 +61,14 @@ class Call implements CallItf {
 	private _systemTrigger : SystemTrigger;
 
 	/**
+	 * RendererTheme attached to Call.
+	 *
+	 * @property _rendererTheme
+	 * @type RendererTheme
+	 */
+	private _rendererTheme : string;
+
+	/**
 	 * Sources Server's socket.
 	 *
 	 * @property _sourcesServerSocket
@@ -149,6 +157,26 @@ class Call implements CallItf {
 	 */
 	getId() : number {
 		return this._id;
+	}
+
+	/**
+	 * Set the Call's rendererTheme.
+	 *
+	 * @method setRendererTheme
+	 * @param {string} rendererTheme - The RendererTheme to set.
+	 */
+	setRendererTheme(rendererTheme : string) {
+		this._rendererTheme = rendererTheme;
+	}
+
+	/**
+	 * Get the Call's rendererTheme.
+	 *
+	 * @method getRendererTheme
+	 * @return {string} rendererTheme - The CallType's RendererTheme.
+	 */
+	getRendererTheme() : string {
+		return this._rendererTheme;
 	}
 
 	/**
