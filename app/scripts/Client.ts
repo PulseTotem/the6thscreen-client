@@ -492,6 +492,9 @@ class Client {
 
 						var callDescription = relativeEventDescription.call;
 						var newCall : Call = new Call(callDescription.id);
+						newCall.setHashProfil(self._hash);
+						newCall.setProfilId(self._profilDescription.id);
+						newCall.setSDIId(self._sdiDescription.id);
 
 						var callType : CallType = self._retrieveCallType(callDescription.callType.id);
 						newCall.setCallType(callType);

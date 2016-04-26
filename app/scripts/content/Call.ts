@@ -124,6 +124,29 @@ class Call implements CallItf {
 	 */
 	private _staticSource : StaticSource<any>;
 
+	/**
+	 * Id of the SDI
+	 *
+	 * @property _sdiId
+	 * @type number
+	 */
+	private _sdiId : number;
+
+	/**
+	 * Id of the profil
+	 *
+	 * @property _profilId
+	 * @type number
+	 */
+	private _profilId : number;
+
+	/**
+	 * Hash of the profil
+	 *
+	 * @property
+	 * @type string
+	 */
+	private _hashProfil : string;
 
 	/**
 	 * Constructor.
@@ -143,6 +166,10 @@ class Call implements CallItf {
 
 		this._connectedToSource = false;
 		this._staticSource = null;
+
+		this._sdiId = null;
+		this._profilId = null;
+		this._hashProfil = null;
 
 		MessageBus.subscribe(this._channel, function(msg, callData) {
 			self._sourceSocket.emit(callData.action, callData.data);
@@ -227,6 +254,66 @@ class Call implements CallItf {
 	 */
 	getStaticSource() : StaticSource<any> {
 		return this._staticSource;
+	}
+
+	/**
+	 * Set the Call's SDIId
+	 *
+	 * @method setSDIId
+	 * @param sdiId
+     */
+	setSDIId(sdiId : number) {
+		this._sdiId = sdiId;
+	}
+
+	/**
+	 * Get the Call's SDIId
+	 *
+	 * @method getSDIId
+	 * @returns {number}
+     */
+	getSDIId() : number {
+		return this._sdiId;
+	}
+
+	/**
+	 * Set the Call's ProfilId
+	 *
+	 * @method setProfilid
+	 * @param profilId
+     */
+	setProfilId(profilId : number) {
+		this._profilId = profilId;
+	}
+
+	/**
+	 * Get the Call's ProfilId
+	 *
+	 * @method getProfilId
+	 * @returns {number}
+     */
+	getProfilId() : number {
+		return this._profilId;
+	}
+
+	/**
+	 * Set the Call's Hahsprofil
+	 *
+	 * @method setHashProfil
+	 * @param hashProfil
+     */
+	setHashProfil(hashProfil : string) {
+		this._hashProfil = hashProfil;
+	}
+
+	/**
+	 * Get the Call's hashProfil
+	 *
+	 * @method getHashProfil
+	 * @returns {string}
+     */
+	getHashProfil() : string {
+		return this._hashProfil;
 	}
 
 	/**
@@ -381,7 +468,15 @@ class Call implements CallItf {
 	 */
 	private _callDeclaration() {
 //        Logger.debug("Call '" + this.getId() + "' - 1.3 : Sources server Call declaration");
-		this._sourcesServerSocket.emit("callId", {"id" : this.getId()});
+
+		var info = {
+			"id": this.getId(),
+			"sdiId": this.getSDIId(),
+			"profilId": this.getProfilId(),
+			"hash": this.getHashProfil()
+		};
+
+		this._sourcesServerSocket.emit("callId", info);
 	}
 
 	/**
