@@ -346,6 +346,10 @@ class Client {
 							zoneBackgroundDiv.css('border-radius', zoneDescription.theme.borderRadius);
 							zoneDiv.css('border-radius', zoneDescription.theme.borderRadius);
 						}
+
+						if (zoneDescription.theme.zindex != "" && zoneDescription.theme.zindex != null) {
+							zoneDiv.css('z-index', zoneDescription.theme.zindex);
+						}
 					} else {
 						if(self._sdiDescription.theme.themeZone.backgroundImageURL != "" && self._sdiDescription.theme.themeZone.backgroundImageURL != null) {
 							zoneBackgroundDiv.css('background-image', 'url(' + self._sdiDescription.theme.themeZone.backgroundImageURL + ')');
@@ -374,6 +378,10 @@ class Client {
 						if(self._sdiDescription.theme.themeZone.borderRadius != "" && self._sdiDescription.theme.themeZone.borderRadius != null) {
 							zoneBackgroundDiv.css('border-radius', self._sdiDescription.theme.themeZone.borderRadius);
 							zoneDiv.css('border-radius', self._sdiDescription.theme.themeZone.borderRadius);
+						}
+
+						if(self._sdiDescription.theme.themeZone.zindex != "" && self._sdiDescription.theme.themeZone.zindex != null) {
+							zoneDiv.css('z-index', self._sdiDescription.theme.themeZone.zindex);
 						}
 					}
 
