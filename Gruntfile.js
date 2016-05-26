@@ -102,6 +102,9 @@ module.exports = function (grunt) {
             buildStaticImages: {
                 files: 	[{expand: true, cwd: 't6s-core/core-client/images', src: ['**'], dest: 'build/static/images/'}]
             },
+            buildStaticFonts: {
+              files: 	[{expand: true, cwd: 't6s-core/core-client/fonts', src: ['**'], dest: 'build/static/fonts/'}]
+            },
             buildScripts: {
                 files: 	[{expand: true, cwd: 'app/scripts', src: ['**/*.js'], dest: 'build/js/'}]
             },
@@ -126,6 +129,9 @@ module.exports = function (grunt) {
             },*/
             distStaticImages: {
                 files: 	[{expand: true, cwd: 't6s-core/core-client/images', src: ['**'], dest: 'dist/static/images/'}]
+            },
+            distStaticFonts: {
+              files: 	[{expand: true, cwd: 't6s-core/core-client/fonts', src: ['**'], dest: 'dist/static/fonts/'}]
             },
             distScripts: {
                 files: 	[{expand: true, cwd: 'app/scripts', src: ['**/*.js'], dest: 'dist/js/'}]
@@ -365,6 +371,11 @@ module.exports = function (grunt) {
                 tasks: ['copy:buildStaticImages']
             },
 
+            developStaticFonts: {
+              files: ['t6s-core/core-client/fonts/**'],
+              tasks: ['copy:buildStaticFonts']
+            },
+
             developIndex: {
                 files: 'app/index.html',
                 tasks: ['includeSource:build', 'wiredep:build', 'cachebreaker:build']
@@ -470,9 +481,9 @@ module.exports = function (grunt) {
 
     //grunt.registerTask('copyDist', ['copy:distBowerComponents', 'copy:distBowerrc', 'copy:distBowerFile', 'copy:distAssets', 'copy:distStyles', 'copy:distScripts', 'copy:distLessStyles', 'copy:distStaticImages']);
 
-  grunt.registerTask('copyBuild', ['copy:buildBowerComponents', 'copy:buildBowerrc', 'copy:buildBowerFile', 'copy:buildAssets', 'copy:buildStyles', 'copy:buildScripts', 'copy:buildStaticImages']);
+  grunt.registerTask('copyBuild', ['copy:buildBowerComponents', 'copy:buildBowerrc', 'copy:buildBowerFile', 'copy:buildAssets', 'copy:buildStyles', 'copy:buildScripts', 'copy:buildStaticImages', 'copy:buildStaticFonts']);
 
-  grunt.registerTask('copyDist', ['copy:distBowerComponents', 'copy:distBowerrc', 'copy:distBowerFile', 'copy:distAssets', 'copy:distStyles', 'copy:distScripts', 'copy:distStaticImages']);
+  grunt.registerTask('copyDist', ['copy:distBowerComponents', 'copy:distBowerrc', 'copy:distBowerFile', 'copy:distAssets', 'copy:distStyles', 'copy:distScripts', 'copy:distStaticImages', 'copy:distStaticFonts']);
 
 
   grunt.registerTask('build', function () {
