@@ -285,11 +285,23 @@ class Client {
 		if(this._sdiDescription != null) {
 			//TODO: Manage theme. $('head').append('<link rel="stylesheet/less" type="text/less" href="static/themes/basic.less" />')
 
-			if(self._sdiDescription.theme.backgroundImageURL != "" && self._sdiDescription.theme.backgroundImageURL != null) {
-				if(Utils.beginsWithHttp(self._sdiDescription.theme.backgroundImageURL)) {
-					$('#wrapper_background').css('background-image', 'url(\'' + self._sdiDescription.theme.backgroundImageURL + '\')');
-				} else {
-					$('#wrapper_background').css('background-image', self._sdiDescription.theme.backgroundImageURL);
+			if(self._sdiDescription.theme.backgroundVideoURL != "" && self._sdiDescription.theme.backgroundVideoURL != null) {
+				var backgroundVideo = $("<video autoplay loop>");
+				backgroundVideo.attr("id", "wrapper_background_video");
+				var backgroundVideoSource = $("<source>");
+				backgroundVideoSource.attr("src", self._sdiDescription.theme.backgroundVideoURL);
+
+				backgroundVideo.append(backgroundVideoSource);
+				$('#wrapper_background').css("overflow", "hidden");
+				$('#wrapper_background').append(backgroundVideo);
+			} else {
+
+				if (self._sdiDescription.theme.backgroundImageURL != "" && self._sdiDescription.theme.backgroundImageURL != null) {
+					if (Utils.beginsWithHttp(self._sdiDescription.theme.backgroundImageURL)) {
+						$('#wrapper_background').css('background-image', 'url(\'' + self._sdiDescription.theme.backgroundImageURL + '\')');
+					} else {
+						$('#wrapper_background').css('background-image', self._sdiDescription.theme.backgroundImageURL);
+					}
 				}
 			}
 
@@ -318,8 +330,19 @@ class Client {
 					var zoneBackgroundDiv = newZone.getZoneBackgroundDiv();
 
 					if(zoneDescription.theme != null) {
-						if (zoneDescription.theme.backgroundImageURL != "" && zoneDescription.theme.backgroundImageURL != null) {
-							zoneBackgroundDiv.css('background-image', 'url(' + zoneDescription.theme.backgroundImageURL + ')');
+						if(zoneDescription.theme.backgroundVideoURL != "" && zoneDescription.theme.backgroundVideoURL != null) {
+							var zoneVideo = $("<video autoplay loop>");
+							zoneVideo.addClass("zone_background_video");
+							var zoneVideoSource = $("<source>");
+							zoneVideoSource.attr("src", zoneDescription.theme.backgroundVideoURL);
+
+							zoneVideo.append(zoneVideoSource);
+							zoneBackgroundDiv.css("overflow", "hidden");
+							zoneBackgroundDiv.append(zoneVideo);
+						} else {
+							if (zoneDescription.theme.backgroundImageURL != "" && zoneDescription.theme.backgroundImageURL != null) {
+								zoneBackgroundDiv.css('background-image', 'url(' + zoneDescription.theme.backgroundImageURL + ')');
+							}
 						}
 
 						if(zoneDescription.theme.opacity != "" && zoneDescription.theme.opacity != null) {
@@ -351,8 +374,19 @@ class Client {
 							zoneDiv.css('z-index', zoneDescription.theme.zindex);
 						}
 					} else {
-						if(self._sdiDescription.theme.themeZone.backgroundImageURL != "" && self._sdiDescription.theme.themeZone.backgroundImageURL != null) {
-							zoneBackgroundDiv.css('background-image', 'url(' + self._sdiDescription.theme.themeZone.backgroundImageURL + ')');
+						if(self._sdiDescription.theme.themeZone.backgroundVideoURL != "" && self._sdiDescription.theme.themeZone.backgroundVideoURL != null) {
+							var zoneVideo = $("<video autoplay loop>");
+							zoneVideo.addClass("zone_background_video");
+							var zoneVideoSource = $("<source>");
+							zoneVideoSource.attr("src", self._sdiDescription.theme.themeZone.backgroundVideoURL);
+
+							zoneVideo.append(zoneVideoSource);
+							zoneBackgroundDiv.css("overflow", "hidden");
+							zoneBackgroundDiv.append(zoneVideo);
+						} else {
+							if (self._sdiDescription.theme.themeZone.backgroundImageURL != "" && self._sdiDescription.theme.themeZone.backgroundImageURL != null) {
+								zoneBackgroundDiv.css('background-image', 'url(' + self._sdiDescription.theme.themeZone.backgroundImageURL + ')');
+							}
 						}
 
 						if(self._sdiDescription.theme.themeZone.opacity != "" && self._sdiDescription.theme.themeZone.opacity != null) {
