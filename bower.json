@@ -19,7 +19,8 @@
     "jquery-textfill": "<=0.6.0",
     "qrcode-js": "*",
     "pubsub-js": "<=1.5.3",
-    "node-uuid": "<=1.4.7"
+    "node-uuid": "<=1.4.7",
+    "progressbar.js": "<=1.0.1"
   },
   "overrides": {
     "moment": {
