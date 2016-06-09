@@ -20,7 +20,8 @@
     "qrcode-js": "*",
     "pubsub-js": "<=1.5.3",
     "node-uuid": "<=1.4.7",
-    "progressbar.js": "<=1.0.1"
+    "progressbar.js": "<=1.0.1",
+    "weather-icons": "<=2.0.10"
   },
   "overrides": {
     "moment": {
