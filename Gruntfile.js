@@ -18,6 +18,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-karma');
     grunt.loadNpmTasks('grunt-contrib-symlink');
     grunt.loadNpmTasks('grunt-contrib-less');
+    grunt.loadNpmTasks('grunt-cache-breaker');
 
     // tasks
     grunt.initConfig({
@@ -28,10 +29,11 @@ module.exports = function (grunt) {
 // ---------------------------------------------
 //                               configure tasks
 // ---------------------------------------------
+
         symlink: {
             // Enable overwrite to delete symlinks before recreating them
             options: {
-                overwrite: false
+                overwrite: true
             },
             // The "build/target.txt" symlink will be created and linked to
             // "source/target.txt". It should appear like this in a file listing:
@@ -40,30 +42,14 @@ module.exports = function (grunt) {
             coreClient: {
                 src: '<%= coreReposConfig.coreClientRepoPath %>',
                 dest: 't6s-core/core-client'
+            },
+            core: {
+                src: '<%= coreReposConfig.coreRepoPath %>',
+                dest: 't6s-core/core-client/t6s-core/core'
             }
         },
 
         update_json: {
-            bowerBuild: {
-                src: ['build.bower.json'],
-                dest: 'bower.json',
-                fields: [
-                    'name',
-                    'version',
-                    'dependencies',
-                    'overrides'
-                ]
-            },
-            bowerTest: {
-                src: ['build.bower.json'/*, 'tests.bower.json'*/],
-                dest: 'bower.json',
-                fields: [
-                    'name',
-                    'version',
-                    'dependencies',
-                    'overrides'
-                ]
-            },
             packageHeroku: {
               src: ['packageHeroku.json'],
               dest: 'heroku/package.json',
@@ -110,11 +96,14 @@ module.exports = function (grunt) {
             buildStyles: {
                 files: 	[{expand: true, cwd: 'app/styles', src: ['**/*.css'], dest: 'build/css/'}]
             },
-            buildLessStyles: {
+            /*buildLessStyles: {
                 files: 	[{expand: true, cwd: 't6s-core/core-client/styles', src: ['**'], dest: 'build/static/'}]
-            },
+            },*/
             buildStaticImages: {
                 files: 	[{expand: true, cwd: 't6s-core/core-client/images', src: ['**'], dest: 'build/static/images/'}]
+            },
+            buildStaticFonts: {
+              files: 	[{expand: true, cwd: 't6s-core/core-client/fonts', src: ['**'], dest: 'build/static/fonts/'}]
             },
             buildScripts: {
                 files: 	[{expand: true, cwd: 'app/scripts', src: ['**/*.js'], dest: 'build/js/'}]
@@ -135,11 +124,14 @@ module.exports = function (grunt) {
             distStyles: {
                 files: 	[{expand: true, cwd: 'app/styles', src: ['**/*.css'], dest: 'tmp/css/'}]
             },
-            distLessStyles: {
+            /*distLessStyles: {
                 files: 	[{expand: true, cwd: 't6s-core/core-client/styles', src: ['**'], dest: 'dist/static/'}]
-            },
+            },*/
             distStaticImages: {
                 files: 	[{expand: true, cwd: 't6s-core/core-client/images', src: ['**'], dest: 'dist/static/images/'}]
+            },
+            distStaticFonts: {
+              files: 	[{expand: true, cwd: 't6s-core/core-client/fonts', src: ['**'], dest: 'dist/static/fonts/'}]
             },
             distScripts: {
                 files: 	[{expand: true, cwd: 'app/scripts', src: ['**/*.js'], dest: 'dist/js/'}]
@@ -156,6 +148,9 @@ module.exports = function (grunt) {
             },
             herokuWebJS: {
               files: 	[{expand: true, cwd: '.', src: ['web.js'], dest: 'heroku'}]
+            },
+            karmaconf: {
+                files: [{'build/tests/karma.conf.js': 'karma.conf.js'}]
             }
         },
 
@@ -195,32 +190,54 @@ module.exports = function (grunt) {
             dist: {
                 cwd: 'dist',
                 src: ['dist/index.html']
+            },
+            karma: {
+                cwd: 'build',
+                src: ['build/tests/karma.conf.js'],
+                fileTypes: {
+                    js: {
+                        block: /(([\s\t]*)\/\/\s*bower:*(\S*))(\n|\r|.)*?(\/\/\s*endbower)/gi,
+                        detect: {
+                            js: /'(.*\.js)'/gi
+                        },
+                        replace: {
+                            js: '\'{{filePath}}\','
+                        }
+                    }
+                },
+                devDependencies: true
             }
         },
 
         less: {
             build: {
                 options: {
-                    paths: ["app/styles"]
+                    paths: ["app/styles", "t6s-core/core-client/styles/**/*"]
                 },
-                files: {
-                    "build/css/The6thScreenClient.css": "app/styles/*.less"
-                }
+                files: [
+                  {"build/css/The6thScreenClient.css": "app/styles/**/*.less"},
+                  {"build/css/The6thScreenClientRenderers.css": "t6s-core/core-client/styles/renderers/**/*.less"},
+                  {"build/css/The6thScreenClientBehaviours.css": "t6s-core/core-client/styles/behaviours/**/*.less"},
+                  {"build/css/The6thScreenClientThemes.css": "t6s-core/core-client/styles/themes/**/*.less"}
+                ]
             },
             dist: {
                 options: {
                     paths: ["app/styles"]
                 },
-                files: {
-                    "tmp/css/The6thScreenClient.css": "app/styles/*.less"
-                }
+                files: [
+                  {"tmp/css/The6thScreenClient.css": "app/styles/**/*.less"},
+                  {"tmp/css/The6thScreenClientRenderers.css": "t6s-core/core-client/styles/renderers/**/*.less"},
+                  {"tmp/css/The6thScreenClientBehaviours.css": "t6s-core/core-client/styles/behaviours/**/*.less"},
+                  {"tmp/css/The6thScreenClientThemes.css": "t6s-core/core-client/styles/themes/**/*.less"}
+                ]
             },
             renderer: {
               options: {
                 paths: ["t6s-core/core-client/styles/renderers"]
               },
               files: {
-                'renderers/<%= grunt.option("rendererFileName") %>/<%= grunt.option("rendererFileName") %>.css': 't6s-core/core-client/styles/renderers/<%= grunt.option("rendererFileName") %>.less'
+                'tmpRenderers/<%= grunt.option("rendererFileName") %>.css': 't6s-core/core-client/styles/renderers/<%= grunt.option("rendererFileName") %>.less'
               }
             }
         },
@@ -242,16 +259,16 @@ module.exports = function (grunt) {
             },
             test: {
                 src: [
-                    'app/tests/**/*.ts'
+                    'tests/**/*.ts'
                 ],
-                dest: 'tests/Test.js'
+                dest: 'build/tests/Test.js'
             },
             renderer: {
               src: [
                 't6s-core/core-client/scripts/core/Logger.ts',
                 't6s-core/core-client/scripts/renderer/<%= grunt.option("rendererFileName") %>.ts'
               ],
-              dest: 'renderers/<%= grunt.option("rendererFileName") %>/<%= grunt.option("rendererFileName") %>.js'
+              dest: 'tmpRenderers/<%= grunt.option("rendererFileName") %>.js'
             }
         },
 
@@ -260,6 +277,11 @@ module.exports = function (grunt) {
                 files: [{
                     'dist/js/The6thScreenClient.min.js': 'tmp/js/Client.js'
                 }]
+            },
+            renderer: {
+              files: [{
+                'renderers/<%= grunt.option("rendererFileName") %>.min.js': 'tmpRenderers/<%= grunt.option("rendererFileName") %>.js'
+              }]
             }
         },
 
@@ -268,7 +290,31 @@ module.exports = function (grunt) {
                 files: {
                     'dist/css/The6thScreenClient.min.css': ['tmp/css/*.css']
                 }
+            },
+            renderer: {
+              files: {
+                'renderers/<%= grunt.option("rendererFileName") %>.min.css': ['tmpRenderers/<%= grunt.option("rendererFileName") %>.css']
+              }
             }
+        },
+
+        cachebreaker: {
+          build: {
+            options: {
+              match: ['Client.js', "The6thScreenClient.css", "The6thScreenClientRenderers.css", "The6thScreenClientBehaviours.css", "The6thScreenClientThemes.css"]
+            },
+            files: {
+              src: ['build/index.html']
+            }
+          },
+          dist: {
+            options: {
+              match: ['The6thScreenClient.min.js', 'The6thScreenClient.min.css']
+            },
+            files: {
+              src: ['dist/index.html']
+            }
+          }
         },
 // ---------------------------------------------
 
@@ -306,22 +352,18 @@ module.exports = function (grunt) {
 
             developScripts: {
                 files: 'app/scripts/**/*.js',
-                tasks: ['copy:buildScripts', 'includeSource:build', 'wiredep:build']
+                tasks: ['copy:buildScripts', 'includeSource:build', 'wiredep:build', 'cachebreaker:build']
             },
 
             developStyles: {
                 files: 'app/styles/**/*.css',
-                tasks: ['copy:buildStyles', 'includeSource:build', 'wiredep:build']
+                tasks: ['copy:buildStyles', 'includeSource:build', 'wiredep:build', 'cachebreaker:build']
             },
 
             developLessStyles: {
-                files: 'app/styles/**/*.less',
-                tasks: ['less:build', 'includeSource:build', 'wiredep:build']
-            },
-
-            developStaticLess: {
-                files: ['t6s-core/core-client/styles/**/*.less'],
-                tasks: ['copy:buildLessStyles']
+                //files: 'app/styles/**/*.less',
+                files: ['app/styles/**/*.less', 't6s-core/core-client/styles/**/*.less'],
+                tasks: ['less:build', 'includeSource:build', 'wiredep:build', 'cachebreaker:build']
             },
 
             developStaticImages: {
@@ -329,9 +371,14 @@ module.exports = function (grunt) {
                 tasks: ['copy:buildStaticImages']
             },
 
+            developStaticFonts: {
+              files: ['t6s-core/core-client/fonts/**'],
+              tasks: ['copy:buildStaticFonts']
+            },
+
             developIndex: {
                 files: 'app/index.html',
-                tasks: ['includeSource:build', 'wiredep:build']
+                tasks: ['includeSource:build', 'wiredep:build', 'cachebreaker:build']
             },
 
             developAssets: {
@@ -392,7 +439,7 @@ module.exports = function (grunt) {
 // ---------------------------------------------
         karma: {
             unit: {
-                configFile: 'karma.conf.js',
+                configFile: 'build/tests/karma.conf.js',
                 singleRun: true
             }
         },
@@ -406,9 +453,10 @@ module.exports = function (grunt) {
             dist: ['dist/', 'tmp/'],
             heroku: ['heroku/'],
             tmp: ['tmp/'],
-            configure: ['bower_components', 'bower.json'],
+            tmpRenderers: ['tmpRenderers/'],
+            configure: ['bower_components'],
             doc: ['doc'],
-            test: ['tests'],
+            test: ['build/tests/'],
             renderer: ['renderers/']
         }
 // ---------------------------------------------
@@ -417,28 +465,35 @@ module.exports = function (grunt) {
     // register tasks
     grunt.registerTask('default', ['build']);
 
-    grunt.registerTask('init', ['symlink']);
+    grunt.registerTask('init', ['symlink:coreClient']);
+
+    grunt.registerTask('initJenkins', ['init','symlink:core']);
 
     grunt.registerTask('configure', function() {
-        grunt.task.run(['update_json:bowerBuild', 'bower']);
+        grunt.task.run(['bower']);
     });
 
     grunt.registerTask('configureTest', function() {
-        grunt.task.run(['update_json:bowerTest', 'bower']);
+        grunt.task.run(['bower']);
     });
 
-    grunt.registerTask('copyBuild', ['copy:buildBowerComponents', 'copy:buildBowerrc', 'copy:buildBowerFile', 'copy:buildAssets', 'copy:buildStyles', 'copy:buildScripts', 'copy:buildLessStyles', 'copy:buildStaticImages']);
+    //grunt.registerTask('copyBuild', ['copy:buildBowerComponents', 'copy:buildBowerrc', 'copy:buildBowerFile', 'copy:buildAssets', 'copy:buildStyles', 'copy:buildScripts', 'copy:buildLessStyles', 'copy:buildStaticImages']);
 
-    grunt.registerTask('copyDist', ['copy:distBowerComponents', 'copy:distBowerrc', 'copy:distBowerFile', 'copy:distAssets', 'copy:distStyles', 'copy:distScripts', 'copy:distLessStyles', 'copy:distStaticImages']);
+    //grunt.registerTask('copyDist', ['copy:distBowerComponents', 'copy:distBowerrc', 'copy:distBowerFile', 'copy:distAssets', 'copy:distStyles', 'copy:distScripts', 'copy:distLessStyles', 'copy:distStaticImages']);
 
-    grunt.registerTask('build', function () {
+  grunt.registerTask('copyBuild', ['copy:buildBowerComponents', 'copy:buildBowerrc', 'copy:buildBowerFile', 'copy:buildAssets', 'copy:buildStyles', 'copy:buildScripts', 'copy:buildStaticImages', 'copy:buildStaticFonts']);
+
+  grunt.registerTask('copyDist', ['copy:distBowerComponents', 'copy:distBowerrc', 'copy:distBowerFile', 'copy:distAssets', 'copy:distStyles', 'copy:distScripts', 'copy:distStaticImages', 'copy:distStaticFonts']);
+
+
+  grunt.registerTask('build', function () {
         grunt.task.run(['clean:build']);
 
         if (! grunt.file.exists('./bower_components')) {
             grunt.task.run(['configure']);
         }
 
-        grunt.task.run(['copyBuild', 'typescript:build', 'less:build', 'includeSource:build', 'wiredep:build']);
+        grunt.task.run(['copyBuild', 'typescript:build', 'less:build', 'includeSource:build', 'wiredep:build', 'cachebreaker:build']);
     });
 
     grunt.registerTask('dist', function () {
@@ -448,7 +503,7 @@ module.exports = function (grunt) {
             grunt.task.run(['configure']);
         }
 
-        grunt.task.run(['copyDist', 'typescript:dist', 'less:dist', 'uglify', 'cssmin', 'includeSource:dist', 'wiredep:dist', 'clean:tmp']);
+        grunt.task.run(['copyDist', 'typescript:dist', 'less:dist', 'uglify:dist', 'cssmin:dist', 'includeSource:dist', 'wiredep:dist', 'clean:tmp', 'cachebreaker:dist']);
     });
 
     grunt.registerTask('heroku', function () {
@@ -464,13 +519,13 @@ module.exports = function (grunt) {
     grunt.registerTask('doc', ['clean:doc', 'yuidoc']);
 
     grunt.registerTask('test', function() {
-        grunt.task.run(['clean:test']);
+        grunt.task.run(['build']);
 
         if (! grunt.file.exists('./bower_components')) {
             grunt.task.run(['configureTest']);
         }
 
-        grunt.task.run(['typescript:test', 'karma:unit']);
+        grunt.task.run(['typescript:test', 'copy:karmaconf', 'wiredep:karma', 'karma:unit']);
     });
 
 
@@ -513,8 +568,7 @@ module.exports = function (grunt) {
 
       } else {
         grunt.option('rendererFileName', name);
-        grunt.task.run(['typescript:renderer']);
-        grunt.task.run(['less:renderer']);
+        grunt.task.run(['typescript:renderer', 'less:renderer', 'uglify:renderer', 'cssmin:renderer', 'clean:tmpRenderers']);
       }
   });
 

@@ -1,0 +1,34 @@
+{
+  "name": "pulsetotem-client",
+  "version": "3.0.0",
+  "dependencies": {
+    "log": "<=0.1.2",
+    "jquery": "<=2.1.0",
+    "bootstrap": "<=3.3.2",
+    "datejs": "<=1.0.0-rc1",
+    "Keypress": "<=2.1.0",
+    "lodash": "<=3.8.0",
+    "slick.js": "<=1.5.5",
+    "moment": "<=2.10.3",
+    "jquery-hammerjs": "<=2.0.0",
+    "jquery.transit": "<=0.9.12",
+    "d3": "<=3.5.5",
+    "d3-cloud": "<=1.1.2",
+    "Snap.svg": "<=0.4.1",
+    "webcamjs": "*",
+    "jquery-textfill": "<=0.6.0",
+    "qrcode-js": "*",
+    "pubsub-js": "<=1.5.3",
+    "node-uuid": "<=1.4.7",
+    "progressbar.js": "<=1.0.1",
+    "weather-icons": "<=2.0.10"
+  },
+  "overrides": {
+    "moment": {
+      "main": [
+        "./min/moment.min.js",
+        "./locale/fr.js"
+      ]
+    }
+  }
+}

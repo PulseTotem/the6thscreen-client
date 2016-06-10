@@ -1,5 +1,4 @@
-*
-{
+* {
   padding: 0;
   margin: 0;
 }
@@ -11,12 +10,8 @@ html, body {
 }
 
 #wrapper {
-  /*background: -moz-radial-gradient(center, ellipse cover, #abd3ee 0%, #d5ebfb 0%, #ffffff 27%, #a1d4f4 86%, #a1d4f4 100%);
-  background: -webkit-radial-gradient(center, ellipse cover, #abd3ee 0%, #d5ebfb 0%, #ffffff 27%, #a1d4f4 86%, #a1d4f4 100%);
-  background: radial-gradient(center, ellipse cover, #abd3ee 0%, #d5ebfb 0%, #ffffff 27%, #a1d4f4 86%, #a1d4f4 100%);*/
   overflow: hidden;
   font-size: 1.5em;
-  /*padding: 121px 0px 50px 0px;*/
   position: absolute;
   top: 0;
   bottom: 0;
@@ -33,13 +28,25 @@ html, body {
   left: 0;
   right: 0;
   opacity: 1;
+  background-size: 100% 100%;
+
+  #wrapper_background_video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translateX(-50%) translateY(-50%);
+  }
 }
 
 #logo_loading {
   display: table;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.85);
+  background-color: rgba(255, 255, 255, 0.85);
   position: absolute;
   top: 0;
   left: 0;
@@ -50,20 +57,16 @@ html, body {
 #logo_loading_img_container {
   display: table-cell;
   vertical-align: middle;
+  position: absolute;
+  width: 100%;
+  height: 100%;
 }
 
 #logo_loading img {
-  max-width: 50%;
-  max-height: 50%;
-  /*-moz-box-shadow: 0px 5px 1px #1088a2;
-  -webkit-box-shadow: 0px 5px 1px #1088a2;
-  box-shadow: 0px 5px 1px #1088a2;*/
-  border: solid white 5px;
-  border-top-left-radius: 2px;
-  border-top-right-radius: 2px;
-  border-bottom-left-radius: 6px;
-  border-bottom-right-radius: 6px;
+  max-width: 90%;
+  height: 90%;
   line-height: 100%;
+  margin-top: 2%;
 }
 
 #the6thscreen-client-header {
@@ -116,6 +119,14 @@ html, body {
   position : absolute;
 }
 
+.xs_screen {
+  overflow: scroll;
+
+  .zone {
+    position: inherit !important;
+  }
+}
+
 .zone_background {
   width: 100%;
   height: 100%;
@@ -125,10 +136,126 @@ html, body {
   left: 0;
   right: 0;
   opacity: 1;
+  background-size: 100% 100%;
+
+  .zone_background_video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translateX(-50%) translateY(-50%);
+  }
 }
 
 .zone_content {
   position: relative;
   width: 100%;
   height: 100%;
+  overflow: hidden;
+}
+
+.t6s_logo {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 50px;
+  height: 50px;
+  margin: 5px;
+  background-color: white;
+
+  .t6s_logo_right {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: url('../static/images/t6s_small.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 90% 90%;
+  }
+}
+
+.zone_play_panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('../static/images/play.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+.zone_pause_panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('../static/images/pause.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+.zone_left_panel {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-image: url('../static/images/left.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+.zone_right_panel {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  top: 0;
+  right: 0;
+  background-image: url('../static/images/right.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+#identifier {
+  width: 100px;
+  height: 50px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: rgba(0,0, 255, 0.7);
+  color: red;
+  font-size: 2em;
+  display: none;
+  z-index: 99999;
+  text-align: center;
+}
+
+.slabtexted .slabtext
+{
+  display:-moz-inline-box;
+  display:inline-block;
+  white-space:nowrap;
+}
+.slabtextinactive .slabtext
+{
+  display:inline;
+  white-space:normal;
+  font-size:1em !important;
+  letter-spacing:inherit !important;
+  word-spacing:inherit !important;
+  *letter-spacing:0 !important;
+  *word-spacing:0 !important;
+}
+.slabtextdone .slabtext
+{
+  display:block;
 }

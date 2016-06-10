@@ -4,8 +4,10 @@
  */
 
 /// <reference path="../../../t6s-core/core-client/scripts/core/Logger.ts" />
+/// <reference path="../../../t6s-core/core-client/scripts/core/MessageBus.ts" />
 /// <reference path="../../../t6s-core/core-client/scripts/timeline/CallItf.ts" />
 /// <reference path="../../../t6s-core/core-client/scripts/systemTrigger/SystemTrigger.ts" />
+/// <reference path="../../../t6s-core/core-client/scripts/staticSource/StaticSource.ts" />
 /// <reference path="../structure/CallType.ts" />
 /// <reference path="../core/Constants.ts" />
 /// <reference path="./RelativeEvent.ts" />
@@ -25,6 +27,14 @@ class Call implements CallItf {
 	 * @type number
 	 */
 	private _id : number;
+
+	/**
+	 * Call's channel.
+	 *
+	 * @property _channel
+	 * @type string
+	 */
+	private _channel : string;
 
 	/**
 	 * CallType attached to Call.
@@ -49,6 +59,14 @@ class Call implements CallItf {
 	 * @type SystemTrigger
 	 */
 	private _systemTrigger : SystemTrigger;
+
+	/**
+	 * RendererTheme attached to Call.
+	 *
+	 * @property _rendererTheme
+	 * @type RendererTheme
+	 */
+	private _rendererTheme : string;
 
 	/**
 	 * Sources Server's socket.
@@ -91,17 +109,71 @@ class Call implements CallItf {
 	private _sourceConnectionDescription : any;
 
 	/**
+	 * Call's 'connectedToSource' status.
+	 *
+	 * @property _connectedToSource
+	 * @type boolean
+	 */
+	private _connectedToSource : boolean;
+
+	/**
+	 * StaticSource instance if this call refers to a static source
+	 *
+	 * @property _staticSource
+	 * @type StaticSource
+	 */
+	private _staticSource : StaticSource<any>;
+
+	/**
+	 * Id of the SDI
+	 *
+	 * @property _sdiId
+	 * @type number
+	 */
+	private _sdiId : number;
+
+	/**
+	 * Id of the profil
+	 *
+	 * @property _profilId
+	 * @type number
+	 */
+	private _profilId : number;
+
+	/**
+	 * Hash of the profil
+	 *
+	 * @property
+	 * @type string
+	 */
+	private _hashProfil : string;
+
+	/**
 	 * Constructor.
 	 *
 	 * @constructor
 	 * @param {number} id - The Call's id.
 	 */
 	constructor(id: number) {
+		var self = this;
+
 		this._id = id;
+		this._channel = "Call." + id;
 		this._callType = null;
 		this._eventOwner = null;
 		this._systemTrigger = null;
 		this._listInfos = new Array<Info>();
+
+		this._connectedToSource = false;
+		this._staticSource = null;
+
+		this._sdiId = null;
+		this._profilId = null;
+		this._hashProfil = null;
+
+		MessageBus.subscribe(this._channel, function(msg, callData) {
+			self._sourceSocket.emit(callData.action, callData.data);
+		});
 	}
 
 	/**
@@ -112,6 +184,26 @@ class Call implements CallItf {
 	 */
 	getId() : number {
 		return this._id;
+	}
+
+	/**
+	 * Set the Call's rendererTheme.
+	 *
+	 * @method setRendererTheme
+	 * @param {string} rendererTheme - The RendererTheme to set.
+	 */
+	setRendererTheme(rendererTheme : string) {
+		this._rendererTheme = rendererTheme;
+	}
+
+	/**
+	 * Get the Call's rendererTheme.
+	 *
+	 * @method getRendererTheme
+	 * @return {string} rendererTheme - The CallType's RendererTheme.
+	 */
+	getRendererTheme() : string {
+		return this._rendererTheme;
 	}
 
 	/**
@@ -145,6 +237,86 @@ class Call implements CallItf {
 	}
 
 	/**
+	 * Set the Call's staticSource
+	 *
+	 * @method setStaticSource
+	 * @param staticSource
+	 */
+	setStaticSource(staticSource : StaticSource<any>) {
+		this._staticSource = staticSource;
+	}
+
+	/**
+	 * Get the Call's staticSource
+	 *
+	 * @method getStaticSource
+	 * @returns {StaticSource}
+	 */
+	getStaticSource() : StaticSource<any> {
+		return this._staticSource;
+	}
+
+	/**
+	 * Set the Call's SDIId
+	 *
+	 * @method setSDIId
+	 * @param sdiId
+     */
+	setSDIId(sdiId : number) {
+		this._sdiId = sdiId;
+	}
+
+	/**
+	 * Get the Call's SDIId
+	 *
+	 * @method getSDIId
+	 * @returns {number}
+     */
+	getSDIId() : number {
+		return this._sdiId;
+	}
+
+	/**
+	 * Set the Call's ProfilId
+	 *
+	 * @method setProfilid
+	 * @param profilId
+     */
+	setProfilId(profilId : number) {
+		this._profilId = profilId;
+	}
+
+	/**
+	 * Get the Call's ProfilId
+	 *
+	 * @method getProfilId
+	 * @returns {number}
+     */
+	getProfilId() : number {
+		return this._profilId;
+	}
+
+	/**
+	 * Set the Call's Hahsprofil
+	 *
+	 * @method setHashProfil
+	 * @param hashProfil
+     */
+	setHashProfil(hashProfil : string) {
+		this._hashProfil = hashProfil;
+	}
+
+	/**
+	 * Get the Call's hashProfil
+	 *
+	 * @method getHashProfil
+	 * @returns {string}
+     */
+	getHashProfil() : string {
+		return this._hashProfil;
+	}
+
+	/**
 	 * Get the Call's callType.
 	 *
 	 * @method getCallType
@@ -160,7 +332,7 @@ class Call implements CallItf {
 	 * @method getListInfos
 	 */
 	getListInfos() : Array<Info> {
-		this._listInfos = this._callType.getPolicy().filterInfo(this._listInfos);
+		this._listInfos = this._callType.getPolicy().filterOnGet(this._listInfos);
 		return this._listInfos;
 	}
 
@@ -170,7 +342,12 @@ class Call implements CallItf {
 	 * @method start
 	 */
 	start() {
-		this._connectToSourcesServer();
+		if (this._staticSource == null) {
+			this._connectToSourcesServer();
+		} else {
+			this._staticSource.setCall(this);
+			this._staticSource.start();
+		}
 	}
 
 	/**
@@ -204,6 +381,7 @@ class Call implements CallItf {
 
 		this._sourcesServerSocket.on("reconnect", function(attemptNumber) {
 			Logger.info("Call#" + self.getId() + "::_connectToSourcesServer : Connected to Sources Server after " + attemptNumber + " attempts.");
+			self._manageSourcesServerConnection();
 		});
 
 		this._sourcesServerSocket.on("reconnect_attempt", function() {
@@ -220,8 +398,28 @@ class Call implements CallItf {
 		});
 
 		this._sourcesServerSocket.on("reconnect_failed", function() {
-			Logger.error("Call#" + self.getId() + "::_connectToSourcesServer : Failed to connect to Sources Server. No new attempt will be done.");
+			Logger.error("Call#" + self.getId() + "::_connectToSourcesServer : Failed to connect to Sources Server. New attempt will be done in 5 seconds. Administrators received an Alert !");
+			//TODO: Send an email and Notification to Admins !
+
+			setTimeout(function() {
+				self._sourcesServerSocket = null;
+				self._connectToSourcesServer();
+			}, 5000);
 		});
+	}
+
+	/**
+	 * Disconnection from SourcesServer.
+	 *
+	 * @method _disconnectFromSourcesServer
+	 * @private
+	 */
+	private _disconnectFromSourcesServer() {
+		if(typeof(this._sourcesServerSocket) != "undefined" && this._sourcesServerSocket != null) {
+			//Disconnection from SourcesServer
+			this._sourcesServerSocket.disconnect();
+			this._sourcesServerSocket = null;
+		} // else // Nothing to do...
 	}
 
 	/**
@@ -237,6 +435,8 @@ class Call implements CallItf {
 		this._sourcesServerSocket.on("sourceConnectionDescription", function(response) {
 			Utils.manageServerResponse(response, function(sourceConnectionDescription) {
 				self._sourceConnectionDescription = sourceConnectionDescription;
+
+				self._disconnectFromSourcesServer();
 
 				self._connectToSource();
 			}, function(error) {
@@ -268,7 +468,15 @@ class Call implements CallItf {
 	 */
 	private _callDeclaration() {
 //        Logger.debug("Call '" + this.getId() + "' - 1.3 : Sources server Call declaration");
-		this._sourcesServerSocket.emit("callId", {"id" : this.getId()});
+
+		var info = {
+			"id": this.getId(),
+			"sdiId": this.getSDIId(),
+			"profilId": this.getProfilId(),
+			"hash": this.getHashProfil()
+		};
+
+		this._sourcesServerSocket.emit("callId", info);
 	}
 
 	/**
@@ -290,7 +498,7 @@ class Call implements CallItf {
 		this._listenForSource();
 
 		this._sourceSocket.on("connect", function() {
-//            Logger.info("Call#" + self.getId() + "::_connectToSource : Connected to Source.");
+//            Logger.info("Call#" + self.getId() + "::_connectToSource : Connected to Source. Socket.id : " + self._sourceSocket.id);
 			self._manageSourceConnection();
 		});
 
@@ -305,6 +513,8 @@ class Call implements CallItf {
 
 		this._sourceSocket.on("reconnect", function(attemptNumber) {
 			Logger.info("Call#" + self.getId() + "::_connectToSource : Connected to Source after " + attemptNumber + " attempts.");
+			self._disconnectFromSource();
+			self._connectToSource();
 		});
 
 		this._sourceSocket.on("reconnect_attempt", function() {
@@ -321,8 +531,29 @@ class Call implements CallItf {
 		});
 
 		this._sourceSocket.on("reconnect_failed", function() {
-			Logger.error("Call#" + self.getId() + "::_connectToSource : Failed to connect to Source. No new attempt will be done.");
+			Logger.error("Call#" + self.getId() + "::_connectToSource : Failed to connect to Source. New attempt will be done in 5 seconds. Administrators received an Alert !");
+			//TODO: Send an email and Notification to Admins !
+
+			setTimeout(function() {
+				self._sourceSocket = null;
+				self._connectToSource();
+			}, 5000);
 		});
+	}
+
+	/**
+	 * Disconnection from Source.
+	 *
+	 * @method _disconnectFromSource
+	 * @private
+	 */
+	private _disconnectFromSource() {
+		if(typeof(this._sourceSocket) != "undefined" && this._sourceSocket != null) {
+			//Disconnection from SourcesServer
+			this._sourceSocket.disconnect();
+			this._sourceSocket = null;
+			this._connectedToSource = false;
+		} // else // Nothing to do...
 	}
 
 	/**
@@ -335,22 +566,21 @@ class Call implements CallItf {
 //        Logger.debug("Call '" + this.getId() + "' - 2.2 : Source listening.");
 		var self = this;
 
-		this._sourceSocket.on("pingAnswer", function(response) {
-			Utils.manageServerResponse(response, function(pingAnswer) {
-				if(! pingAnswer.sendingInfos) {
-					Logger.debug("pingAnswer false so do nothing...");
-					//self._callDeclarationToSource();
-				} else {
-					self._callDeclarationToSource();
-				}
-			}, function(error) {
-				Logger.error(error);
+		this._sourceSocket.on("CallOK", function(response) {
+			Utils.manageServerResponse(response, function(hashDescription) {
+				self._connectedToSource = true;
+			}, function(hashDescription) {
+				self._disconnectFromSource();
+				self._disconnectFromSourcesServer();
+				self._sourceConnectionDescription = null;
+				self._callHash = "";
+				self._connectedToSource = false;
+				self._connectToSourcesServer();
 			});
-
 		});
 
 		this._sourceSocket.on("newInfo", function(infoDescription) {
-			self._onNewInfo(infoDescription);
+			self.onNewInfo(infoDescription);
 		});
 	}
 
@@ -362,33 +592,30 @@ class Call implements CallItf {
 	 */
 	private _manageSourceConnection() {
 //        Logger.debug("Call '" + this.getId() + "' - 2.3 : Manage Source Connection.");
-		this._sourceSocket.emit("ping", {"callHash" : this._callHash});
-	}
 
-	/**
-	 * Step 2.4 : Perform call declaration to Source.
-	 *
-	 * @method _callDeclarationToSource
-	 * @private
-	 */
-	private _callDeclarationToSource() {
-//        Logger.debug("Call '" + this.getId() + "' - 2.4 : Source Call declaration.");
-		this._sourceSocket.emit("newCall", {"callHash" : this._callHash});
+		if(! this._connectedToSource) {
+	//        Logger.debug("Call '" + this.getId() + "' - Source Call declaration.");
+			this._sourceSocket.emit("newCall", {"callHash": this._callHash});
+		}
 	}
 
 	/**
 	 * Step 3 : Manage new info reception.
 	 *
-	 * @method _onNewInfo
+	 * @method onNewInfo
 	 * @param {JSON Object} infoDescription - The new Info Description.
-	 * @private
 	 */
-	private _onNewInfo(infoDescription : any) {
+	public onNewInfo(infoDescription : any) {
 //        Logger.debug("Call '" + this.getId() + "' - 3 : Manage new info reception.");
+		var self = this;
 		var newInfos = this._callType.getRenderer().transformInfo(infoDescription);
+
+		newInfos.forEach(function(info : Info) {
+			info.setCallChannel(self._channel);
+		});
 
 		this._systemTrigger.trigger(newInfos, this._eventOwner);
 
-		this._listInfos = this._listInfos.concat(newInfos);
+		this._listInfos = this._callType.getPolicy().filterOnNew(this._listInfos, newInfos);
 	}
 }

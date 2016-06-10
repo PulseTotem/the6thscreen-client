@@ -49,12 +49,36 @@ class CallType implements CallTypeItf{
 	private _renderer : Renderer<any>;
 
 	/**
+	 * RendererTheme attached to CallType.
+	 *
+	 * @property _rendererTheme
+	 * @type RendererTheme
+	 */
+	private _rendererTheme : string;
+
+	/**
 	 * Policy attached to CallType.
 	 *
 	 * @property _policy
 	 * @type Policy
 	 */
 	private _policy : Policy;
+
+	/**
+	 * RefreshTime if is linked to a StaticSource, else null.
+	 *
+	 * @property _staticRefreshTime
+	 * @type number
+	 */
+	private _staticRefreshTime : number;
+
+	/**
+	 * StaticSource name if existing, else null.
+	 *
+	 * @property _staticSourceName
+	 * @type string
+	 */
+	private _staticSourceName : string;
 
 
 	/**
@@ -71,6 +95,8 @@ class CallType implements CallTypeItf{
 		this._description = description;
 		this._renderer = null;
 		this._policy = null;
+		this._staticRefreshTime = null;
+		this._staticSourceName = null;
 	}
 
 	/**
@@ -104,6 +130,26 @@ class CallType implements CallTypeItf{
 	}
 
 	/**
+	 * Set the CallType's default rendererTheme.
+	 *
+	 * @method setRendererTheme
+	 * @param {string} rendererTheme - The RendererTheme to set.
+	 */
+	setRendererTheme(rendererTheme : string) {
+		this._rendererTheme = rendererTheme;
+	}
+
+	/**
+	 * Get the CallType's default rendererTheme.
+	 *
+	 * @method getRendererTheme
+	 * @return {string} rendererTheme - The CallType's RendererTheme.
+	 */
+	getRendererTheme() : string {
+		return this._rendererTheme;
+	}
+
+	/**
 	 * Set the CallType's policy.
 	 *
 	 * @method setPolicy
@@ -121,5 +167,45 @@ class CallType implements CallTypeItf{
 	 */
 	getPolicy() : Policy {
 		return this._policy;
+	}
+
+	/**
+	 * Set the CallType's static source name
+	 *
+	 * @method setStaticSourceName
+	 * @param staticSourceName - The static source name
+	 */
+	setStaticSourceName(staticSourceName : string) {
+		this._staticSourceName = staticSourceName;
+	}
+
+	/**
+	 * Get the CallType's static source name
+	 *
+	 * @method  getStaticSourceName
+	 * @returns {string}
+	 */
+	getStaticSourceName() : string {
+		return this._staticSourceName;
+	}
+
+	/**
+	 * Set the CallType's static refreshTime
+	 *
+	 * @method setStaticRefreshTime
+	 * @param {number} staticRefreshTime - The static refreshTime
+	 */
+	setStaticRefreshTime(staticRefreshTime : number) {
+		this._staticRefreshTime = staticRefreshTime;
+	}
+
+	/**
+	 * Get the CallType's static refreshTime
+	 *
+	 * @method  getStaticRefreshTime
+	 * @returns {number} the static refreshTime
+	 */
+	getStaticRefreshTime() : number {
+		return this._staticRefreshTime;
 	}
 }

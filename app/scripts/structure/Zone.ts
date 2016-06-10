@@ -90,6 +90,14 @@ class Zone {
 	private _relativeTimeline : RelativeTimeline;
 
 	/**
+	 * ZoneContent Div. (div representing the zone)
+	 *
+	 * @property _zoneContentDiv
+	 * @type DOM Element
+	 */
+	private _zoneContentDiv : any;
+
+	/**
 	 * Zone Div.
 	 *
 	 * @property _zoneDiv
@@ -104,6 +112,14 @@ class Zone {
 	 * @type DOM Element
 	 */
 	private _zoneBackgroundDiv : any;
+
+	/**
+	 * Zone's z-index backup.
+	 *
+	 * @property _zIndexBackup
+	 * @type number
+	 */
+	private _zIndexBackup : number;
 
 	/**
 	 * Constructor.
@@ -127,6 +143,7 @@ class Zone {
 		this._positionFromLeft = positionFromLeft;
 		this._behaviour = null;
 		this._relativeTimeline = null;
+		this._zIndexBackup = null;
 	}
 
 	/**
@@ -137,6 +154,46 @@ class Zone {
 	 */
 	getId() : number {
 		return this._id;
+	}
+
+	/**
+	 * Returns Zone's positionFromTop.
+	 *
+	 * @method getPositionFromTop
+	 * @return {number} The zone's positionFromTop.
+	 */
+	getPositionFromTop() : number {
+		return this._positionFromTop;
+	}
+
+	/**
+	 * Returns Zone's positionFromLeft.
+	 *
+	 * @method getPositionFromLeft
+	 * @return {number} The zone's positionFromLeft.
+	 */
+	getPositionFromLeft() : number {
+		return this._positionFromLeft;
+	}
+
+	/**
+	 * Returns Zone's width.
+	 *
+	 * @method getWidth
+	 * @return {number} The zone's width.
+	 */
+	getWidth() : number {
+		return this._width;
+	}
+
+	/**
+	 * Returns Zone's height.
+	 *
+	 * @method getHeight
+	 * @return {number} The zone's height.
+	 */
+	getHeight() : number {
+		return this._height;
 	}
 
 	/**
@@ -171,6 +228,15 @@ class Zone {
 	}
 
 	/**
+	 * Get the ZoneContent's div.
+	 *
+	 * @method getZoneContentDiv
+	 */
+	getZoneContentDiv() {
+		return this._zoneContentDiv;
+	}
+
+	/**
 	 * Get the Zone's div.
 	 *
 	 * @method getZoneDiv
@@ -195,12 +261,14 @@ class Zone {
 	 * @param {string} clientDomId - DOM Id where append ZoneDiv.
 	 */
 	attachToDom(clientDomId : string) {
-		var zoneContentDiv = $("<div>");
-		zoneContentDiv.addClass("zone");
-		zoneContentDiv.css("top", this._positionFromTop + "%");
-		zoneContentDiv.css("left", this._positionFromLeft + "%");
-		zoneContentDiv.css("width", this._width + "%");
-		zoneContentDiv.css("height", this._height + "%");
+		var self = this;
+
+		this._zoneContentDiv = $("<div>");
+		this._zoneContentDiv.addClass("zone");
+		this._zoneContentDiv.css("top", this._positionFromTop + "%");
+		this._zoneContentDiv.css("left", this._positionFromLeft + "%");
+		this._zoneContentDiv.css("width", this._width + "%");
+		this._zoneContentDiv.css("height", this._height + "%");
 
 		this._zoneBackgroundDiv = $("<div>");
 		this._zoneBackgroundDiv.addClass("zone_background");
@@ -208,11 +276,134 @@ class Zone {
 		this._zoneDiv = $("<div>");
 		this._zoneDiv.addClass("zone_content");
 
-		zoneContentDiv.append(this._zoneBackgroundDiv);
-		zoneContentDiv.append(this._zoneDiv);
+		this._zoneContentDiv.append(this._zoneBackgroundDiv);
+		this._zoneContentDiv.append(this._zoneDiv);
 
+		$(clientDomId).append(this._zoneContentDiv);
 
-		$(clientDomId).append(zoneContentDiv);
+		this.setOrientation();
+
+		if(this._width >= 75) {
+			this._zoneDiv.addClass("width_lg");
+		} else if(this._width >= 50) {
+			this._zoneDiv.addClass("width_md");
+		} else if(this._width >= 25) {
+			this._zoneDiv.addClass("width_sm");
+		} else {
+			this._zoneDiv.addClass("width_xs");
+		}
+
+		if(this._height >= 75) {
+			this._zoneDiv.addClass("height_lg");
+		} else if(this._height >= 50) {
+			this._zoneDiv.addClass("height_md");
+		} else if(this._height >= 25) {
+			this._zoneDiv.addClass("height_sm");
+		} else {
+			this._zoneDiv.addClass("height_xs");
+		}
+	}
+
+	/**
+	 * Set the zone's orientation dealing with zone width and height in pixels.
+	 *
+	 * @method setOrientation
+	 */
+	setOrientation() {
+		this._zoneContentDiv.removeClass("landscape");
+		this._zoneContentDiv.removeClass("portrait");
+
+		var zoneWidth = this._zoneContentDiv.width();
+		var zoneHeight = this._zoneContentDiv.height();
+
+		if(zoneWidth >= zoneHeight) {
+			this._zoneContentDiv.addClass("landscape");
+		} else {
+			this._zoneContentDiv.addClass("portrait");
+		}
+	}
+
+	/**
+	 * Enable zone in fullscreen.
+	 *
+	 * @method enableFullscreen
+	 * @param {Function} callback - Callback function when fullscreen is finished
+	 */
+	enableFullscreen(callback : Function = null) {
+		var self = this;
+
+		this._zIndexBackup = this._zoneContentDiv.css("z-index");
+		this._zoneContentDiv.css("z-index", 10000);
+
+		this._zoneContentDiv.transition( {
+			"top" : "0%",
+			"left" : "0%",
+			"width" : "100%",
+			"height" : "100%"
+		}, function() {
+			self.setOrientation();
+
+			self._zoneDiv.removeClass("width_lg");
+			self._zoneDiv.removeClass("width_md");
+			self._zoneDiv.removeClass("width_sm");
+			self._zoneDiv.removeClass("width_xs");
+			self._zoneDiv.removeClass("height_lg");
+			self._zoneDiv.removeClass("height_md");
+			self._zoneDiv.removeClass("height_sm");
+			self._zoneDiv.removeClass("height_xs");
+
+			self._zoneDiv.addClass("width_lg");
+			self._zoneDiv.addClass("height_lg");
+
+			if(callback != null) {
+				callback();
+			}
+		});
+	}
+
+	/**
+	 * Disable zone in fullscreen.
+	 *
+	 * @method disableFullscreen
+	 * @param {Function} callback - Callback function when fullscreen is finished
+	 */
+	disableFullscreen(callback : Function = null) {
+		var self = this;
+
+		this._zoneContentDiv.transition( {
+			"top" : self._positionFromTop + "%",
+			"left" : self._positionFromLeft + "%",
+			"width" : self._width + "%",
+			"height" : self._height + "%"
+		}, function() {
+			self.setOrientation();
+
+			if(self._width >= 75) {
+				self._zoneDiv.addClass("width_lg");
+			} else if(self._width >= 50) {
+				self._zoneDiv.addClass("width_md");
+			} else if(self._width >= 25) {
+				self._zoneDiv.addClass("width_sm");
+			} else {
+				self._zoneDiv.addClass("width_xs");
+			}
+
+			if(self._height >= 75) {
+				self._zoneDiv.addClass("height_lg");
+			} else if(self._height >= 50) {
+				self._zoneDiv.addClass("height_md");
+			} else if(self._height >= 25) {
+				self._zoneDiv.addClass("height_sm");
+			} else {
+				self._zoneDiv.addClass("height_xs");
+			}
+
+			self._zoneContentDiv.css("z-index", self._zIndexBackup);
+
+			if(callback != null) {
+				callback();
+			}
+		});
 	}
 
 	/**
