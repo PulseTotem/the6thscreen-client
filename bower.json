@@ -21,13 +21,19 @@
     "pubsub-js": "<=1.5.3",
     "node-uuid": "<=1.4.7",
     "progressbar.js": "<=1.0.1",
-    "weather-icons": "<=2.0.10"
+    "weather-icons": "<=2.0.10",
+    "twemoji": "<=2.0.5"
   },
   "overrides": {
     "moment": {
       "main": [
         "./min/moment.min.js",
         "./locale/fr.js"
+      ]
+    },
+    "twemoji": {
+      "main": [
+        "./2/twemoji.min.js"
       ]
     }
   }
