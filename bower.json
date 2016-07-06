@@ -1,6 +1,6 @@
 {
   "name": "pulsetotem-client",
-  "version": "3.0.0",
+  "version": "3.0.2",
   "dependencies": {
     "log": "<=0.1.2",
     "jquery": "<=2.1.0",
