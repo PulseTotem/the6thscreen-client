@@ -19,6 +19,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-symlink');
     grunt.loadNpmTasks('grunt-contrib-less');
     grunt.loadNpmTasks('grunt-cache-breaker');
+    grunt.loadNpmTasks('grunt-bumpup');
 
     // tasks
     grunt.initConfig({
@@ -458,7 +459,13 @@ module.exports = function (grunt) {
             doc: ['doc'],
             test: ['build/tests/'],
             renderer: ['renderers/']
-        }
+        },
+// ---------------------------------------------
+
+// ---------------------------------------------
+//                                    bump task
+// ---------------------------------------------
+      bumpup: ['bower.json', 'package.json']
 // ---------------------------------------------
     });
 

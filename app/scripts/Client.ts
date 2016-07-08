@@ -1,6 +1,6 @@
 /**
- * @author Christian Brel <christian@the6thscreen.fr, ch.brel@gmail.com>
- * @author Simon Urli <simon@the6thscreen.fr, simon.urli@gmail.com>
+ * @author Christian Brel <christian@pulsetotem.fr, ch.brel@gmail.com>
+ * @author Simon Urli <simon@pulsetotem.fr, simon.urli@gmail.com>
  */
 
 /// <reference path="../../t6s-core/core-client/scripts/core/Logger.ts" />
@@ -20,7 +20,7 @@ declare var $: any; // Use of JQuery
 class Client {
 
     /**
-     * The 6th Screen Backend's socket.
+     * Backend's socket.
      *
      * @property _backendSocket
      * @type any
@@ -117,18 +117,34 @@ class Client {
     run() {
         var self = this;
 
-        Logger.info("____________________________________________________________________________________________________");
-        Logger.info("                                  The 6th Screen Client !                                           ");
-        Logger.info("                                    Welcome and enjoy !                                             ");
-        Logger.info("____________________________________________________________________________________________________");
+		var version : string = "Dev Mode";
 
-		this._hash = this.getQueryVariable("hash");
+		var go = function() {
+			Logger.info("____________________________________________________________________________________________________");
+			Logger.info("                                    PulseTotem Client !                                             ");
+			Logger.info("                                    Welcome and enjoy !                                             ");
+			Logger.info("                                         v" + version + "                                                     ");
+			Logger.info("____________________________________________________________________________________________________");
 
-		if(this._hash != "") {
-			this.connectToBackend();
-		} else {
-			Logger.error("The 6th Screen Client's URL is not correct : Missing parameters.");
-		}
+			self._hash = self.getQueryVariable("hash");
+
+			if(self._hash != "") {
+				self.connectToBackend();
+			} else {
+				Logger.error("PulseTotem Client's URL is not correct : Missing parameters.");
+			}
+		};
+
+		$.getJSON("bower.json")
+			.done(function( data ) {
+				version = data.version;
+			})
+			.fail(function( jqxhr, textStatus, error ) {
+				Logger.error("Missing version file.")
+			})
+			.always(function() {
+				go();
+			});
     }
 
 	/**
@@ -269,7 +285,7 @@ class Client {
         if(this._hash != "") {
 			this._backendSocket.emit("HashDescription", {"hash" : this._hash});
         } else {
-            Logger.error("The 6th Screen Client's URL is not correct : Missing parameters.");
+            Logger.error("PulseTotem Client's URL is not correct : Missing parameters.");
         }
     }
 
