@@ -464,7 +464,11 @@ class Client {
 								}
 
 								if (callTypeDescription.source.isStatic) {
-									newCallType.setStaticSourceName(callTypeDescription.source.name);
+									if(callTypeDescription.source.method != "") {
+										newCallType.setStaticSourceName(callTypeDescription.source.method);
+									} else {
+										newCallType.setStaticSourceName(callTypeDescription.source.name);
+									}
 									newCallType.setStaticRefreshTime(callTypeDescription.source.refreshTime);
 								}
 							} else {
