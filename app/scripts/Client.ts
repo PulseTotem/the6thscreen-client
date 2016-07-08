@@ -126,10 +126,10 @@ class Client {
 			Logger.info("                                         v" + version + "                                                     ");
 			Logger.info("____________________________________________________________________________________________________");
 
-			this._hash = this.getQueryVariable("hash");
+			self._hash = self.getQueryVariable("hash");
 
-			if(this._hash != "") {
-				this.connectToBackend();
+			if(self._hash != "") {
+				self.connectToBackend();
 			} else {
 				Logger.error("PulseTotem Client's URL is not correct : Missing parameters.");
 			}
