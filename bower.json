@@ -1,6 +1,6 @@
 {
   "name": "pulsetotem-client",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "dependencies": {
     "log": "<=0.1.2",
     "jquery": "<=2.1.0",
@@ -22,7 +22,8 @@
     "node-uuid": "<=1.4.7",
     "progressbar.js": "<=1.0.1",
     "weather-icons": "<=2.0.10",
-    "twemoji": "<=2.0.5"
+    "twemoji": "<=2.0.5",
+    "background-blur": "<=0.1.3"
   },
   "overrides": {
     "moment": {
